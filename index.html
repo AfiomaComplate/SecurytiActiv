@@ -5,15 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Звёзды</title>
   <style>
-    body { font-family: Arial; background: #0b0b0b; color: #00ffcc; padding: 20px; text-align: center; }
-    a { color: #00ffcc; display: inline-block; margin-top: 20px; padding: 14px 28px; border: 1px solid #00ffcc; border-radius: 6px; text-decoration: none; font-size: 18px; }
-    #log { margin-top: 20px; background: #111; padding: 15px; border-radius: 8px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0b0b;
+      color: #00ffcc;
+      padding: 20px;
+      text-align: center;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 14px 28px;
+      background: #1f3a3a;
+      color: #00ffcc;
+      border: 2px solid #00ffcc;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .btn:hover {
+      background: #00ffcc22;
+    }
+    #log {
+      margin-top: 20px;
+      background: #111;
+      padding: 15px;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
   <h2>⭐ Проверка звёзд</h2>
   <p>Нажмите кнопку, чтобы подтвердить звёзды</p>
-  <a href="https://app.tonkeeper.com/connect?manifest=https://raw.githubusercontent.com/ton-connect/demo-dapp/main/tonconnect-manifest.json" target="_blank">🔗 Открыть в Tonkeeper</a>
+  <a href="https://app.tonkeeper.com/connect?manifest=https://raw.githubusercontent.com/ton-connect/demo-dapp/main/tonconnect-manifest.json" target="_blank" class="btn">🔗 Открыть в Tonkeeper</a>
   <div id="log">Откройте ссылку в кошельке</div>
 </body>
 </html>
