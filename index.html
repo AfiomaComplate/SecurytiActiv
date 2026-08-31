@@ -706,11 +706,8 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("TON Connect UI не загрузился");
         return;
     }
-    const ui = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: "https://nftsecurity.online/tonconnect-manifest.json",
-        buttonRootId: "ton-connect-button",
-    });
-
+   const connector = new TonConnect();
+connector.connect({ manifestUrl: 'https://nftsecurity.online/tonconnect-manifest.json' });
     // Код для кнопки "Confirm ownership"
     const ownBtn = document.getElementById('ownBtn');
     if (ownBtn) {
