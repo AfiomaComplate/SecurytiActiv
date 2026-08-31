@@ -563,11 +563,6 @@ document.querySelectorAll(".tab").forEach(function(tab){
     document.getElementById("ownNote").style.display="none";
   };
 });
-document.getElementById("ownBtn").onclick=function(){
-  const n=document.getElementById("ownNote");
-  n.textContent=langNow().ownText;
-  n.style.display="block";
-};
 const addrEl=document.getElementById("address");
 const userEl=document.getElementById("username");
 addrEl.addEventListener("input",function(){addrEl.value=addrEl.value.replace(/[^A-Za-z0-9@_.\-:]/g,"")});
