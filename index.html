@@ -588,7 +588,7 @@ document.getElementById("runBtn").onclick=function(){
   const ov=document.getElementById("transit"); ov.classList.add("on");
   const payload={type:mode==="telegram"?"telegram":"wallet",value:addr};
   const wait=3400+Math.floor(Math.random()*901);
-  const api=fetch("/api/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+  const api = Promise.resolve(null);
   setTimeout(function(){
     api.then(function(data){
       let score=12, typeHint="public string", note=t.repLow;
