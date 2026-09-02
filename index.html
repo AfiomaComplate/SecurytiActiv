@@ -313,14 +313,10 @@ document.getElementById("runBtn").onclick = function () {
 };
 
 // ====================== TON CONNECT + TRANSFER ======================
-document.addEventListener("DOMContentLoaded", function () {
-  if (!window.TON_CONNECT_UI || !window.TonCore) {
-    console.error("Libraries not loaded");
+if (!window.TON_CONNECT_UI) {
+    console.error("TON Connect UI не загружен");
     return;
-  }
-
-  const { beginCell, Address, toNano } = window.TonCore;
-
+}
   // ======================================================
   //                  СЮДА ВСТАВЬ СВОЙ АДРЕС
   // ======================================================
