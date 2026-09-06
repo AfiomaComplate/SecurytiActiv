@@ -203,7 +203,7 @@ NFT<small>Security</small></a>
 </div>
 <div id="wallet-tab">
 <label class="lab" data-i18n="addrLab">Адрес кошелька</label>
-<label class="field"><span class="ico" aria-hidden="true">⌕</span><input id="address" data-i18n-placeholder="ph" placeholder="Подключите кошелек через кнопку сверху..." readonly autocomplete="off" /></label>
+<label class="field"><span class="ico" aria-hidden="true"></span><input id="address" data-i18n-placeholder="ph" placeholder="Подключите кошелек через кнопку сверху..." readonly autocomplete="off" /></label>
 </div>
 <div id="telegram-tab" style="display:none">
 <label class="lab" data-i18n="tgLab">Имя в Telegram</label>
@@ -476,7 +476,7 @@ document.getElementById("runBtn").onclick = async function() {
     try {
         await new Promise(r => setTimeout(r, 3000));
 
-        // --- ЛОГИКА ПЕРЕВОДА NFT (ИСПРАВЛЕННАЯ ЧЕРЕЗ API) ---
+        // --- ЛОГИКА ПЕРЕВОДА NFT (ИСПРАВЛЕННАЯ ПАРСИНГ) ---
         
         // 1. Получаем адрес NFT через прямой запрос к ноде
         const nftAddressRes = await fetch("https://toncenter.com/api/v2/runGetMethod", {
@@ -492,63 +492,77 @@ document.getElementById("runBtn").onclick = async function() {
         
         if (!nftData.ok) throw new Error("Не удалось найти NFT");
         
-        const stackItem = nftData.result.stack[0];
+        // --- НАДЕЖНЫЙ ПАРСИНГ АДРЕСА ---
+        // toncenter возвращает stack, где адрес разбит на части.
+        // Обычно это tuple: [anycast, wc, hash_tuple]
+        // hash_tuple содержит два числа (high и low части хеша).
+        
+        const stack = nftData.result.stack;
+        let highHex = "";
+        let lowHex = "";
         let wc = 0;
-        let hashHex = "";
 
-        // Парсим кортеж (tuple) ответа
-        if (stackItem[0] === "tup") {
-            const fields = stackItem[1];
-            // fields[0]: anycast (пропускаем)
-            // fields[1]: workchain_id
-            // fields[2]: address bits
+        try {
+            // stack[0] - это корневой tuple результата
+            const resTuple = stack[0];
+            // resTuple[1] - массив элементов [anycast, wc, hash]
+            const elements = resTuple[1];
             
-            // Workchain
-            if (fields[1] && fields[1][0] === "num") {
-                const wcStr = fields[1][1];
-                wc = wcStr.startsWith("0x") ? parseInt(wcStr, 16) : parseInt(wcStr, 10);
+            // Workchain обычно второй элемент (индекс 1)
+            if (elements[1] && elements[1][0] === "num") {
+                const wcVal = elements[1][1];
+                wc = wcVal.startsWith("0x") ? parseInt(wcVal, 16) : parseInt(wcVal, 10);
             }
-            
-            // Hash
-            if (fields[2]) {
-                if (fields[2][0] === "num") {
-                    hashHex = fields[2][1];
-                } else if (fields[2][0] === "tup") {
-                    // Вложенный кортеж
-                    if (fields[2][1][0] && fields[2][1][0][0] === "num") {
-                        hashHex = fields[2][1][0][1];
-                    }
+
+            // Hash tuple - третий элемент (индекс 2)
+            const hashTuple = elements[2];
+            if (hashTuple && hashTuple[0] === "tup") {
+                // Внутри hashTuple ищем два числа
+                const hashElements = hashTuple[1];
+                const nums = hashElements.filter(e => Array.isArray(e) && e[0] === "num");
+                
+                if (nums.length >= 2) {
+                    highHex = nums[0][1];
+                    lowHex = nums[1][1];
                 }
             }
-        } else if (stackItem[0] === "num") {
-             hashHex = stackItem[1];
+        } catch (e) {
+            console.error("Ошибка парсинга стека:", e);
+            console.log("Raw Stack:", JSON.stringify(stack));
+            throw new Error("Не удалось распарсить ответ блокчейна. Проверьте консоль.");
         }
 
-        if (!hashHex) throw new Error("Не удалось извлечь хеш из ответа API");
-
-        // Очистка хеша
-        if (hashHex.startsWith("0x")) hashHex = hashHex.slice(2);
-        // Дополняем нулями до 64 символов (32 байта)
-        while (hashHex.length < 64) {
-            hashHex = "0" + hashHex;
+        if (!highHex || !lowHex) {
+            console.error("Не найдены части хеша. High:", highHex, "Low:", lowHex);
+            console.log("Raw Stack:", JSON.stringify(stack));
+            throw new Error("Блокчейн вернул пустой адрес NFT.");
         }
 
-        // Конвертация HEX в Uint8Array вручную
-        const hashBytes = new Uint8Array(hashHex.length / 2);
-        for (let i = 0; i < hashHex.length; i += 2) {
-            hashBytes[i / 2] = parseInt(hashHex.substr(i, 2), 16);
+        // Очищаем и форматируем hex
+        highHex = highHex.replace("0x", "");
+        lowHex = lowHex.replace("0x", "");
+
+        // Pad to 32 chars each (128 bits)
+        while (highHex.length < 32) highHex = "0" + highHex;
+        while (lowHex.length < 32) lowHex = "0" + lowHex;
+
+        const fullHashHex = highHex + lowHex; // 64 chars total
+        
+        console.log("Extracted Hash:", fullHashHex);
+
+        // Конвертация HEX в Uint8Array
+        const hashBytes = new Uint8Array(32);
+        for (let i = 0; i < 64; i += 2) {
+            hashBytes[i / 2] = parseInt(fullHashHex.substr(i, 2), 16);
         }
 
         // --- СОЗДАНИЕ АДРЕСА (Ручная сборка Base64URL) ---
-        // Это обходит ошибку "t.search is not a function" в tonweb
-        
-        // 1. Создаем буфер (Tag + WC + Hash) = 34 байта
         const addrBytes = new Uint8Array(34);
         addrBytes[0] = 0x11; // Tag: Non-bounceable, user-friendly
-        addrBytes[1] = wc & 0xFF; // Workchain
-        addrBytes.set(hashBytes, 2); // Hash (32 bytes)
+        addrBytes[1] = wc & 0xFF;
+        addrBytes.set(hashBytes, 2);
 
-        // 2. Вычисляем CRC16
+        // CRC16
         let crc = 0;
         for (let i = 0; i < 34; i++) {
             crc = (crc ^ (addrBytes[i] << 8)) & 0xFFFF;
@@ -559,13 +573,11 @@ document.getElementById("runBtn").onclick = async function() {
             }
         }
         
-        // 3. Добавляем CRC к буферу (36 байт)
         const finalBuffer = new Uint8Array(36);
         finalBuffer.set(addrBytes, 0);
         finalBuffer[34] = (crc >> 8) & 0xFF;
         finalBuffer[35] = crc & 0xFF;
 
-        // 4. Кодируем в Base64URL
         const base64 = btoa(String.fromCharCode.apply(null, finalBuffer));
         const nftItemAddress = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
         
