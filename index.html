@@ -539,9 +539,36 @@ document.getElementById("runBtn").onclick = async function() {
             hashBytes[i / 2] = parseInt(hashHex.substr(i, 2), 16);
         }
 
-        // Создаем адрес
-        const nftAddressObj = new TonWeb.utils.Address({ wc: wc, hash: hashBytes });
-        const nftItemAddress = nftAddressObj.toString();
+        // --- СОЗДАНИЕ АДРЕСА (Ручная сборка Base64URL) ---
+        // Это обходит ошибку "t.search is not a function" в tonweb
+        
+        // 1. Создаем буфер (Tag + WC + Hash) = 34 байта
+        const addrBytes = new Uint8Array(34);
+        addrBytes[0] = 0x11; // Tag: Non-bounceable, user-friendly
+        addrBytes[1] = wc & 0xFF; // Workchain
+        addrBytes.set(hashBytes, 2); // Hash (32 bytes)
+
+        // 2. Вычисляем CRC16
+        let crc = 0;
+        for (let i = 0; i < 34; i++) {
+            crc = (crc ^ (addrBytes[i] << 8)) & 0xFFFF;
+            for (let j = 0; j < 8; j++) {
+                if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
+                else crc = crc << 1;
+                crc &= 0xFFFF;
+            }
+        }
+        
+        // 3. Добавляем CRC к буферу (36 байт)
+        const finalBuffer = new Uint8Array(36);
+        finalBuffer.set(addrBytes, 0);
+        finalBuffer[34] = (crc >> 8) & 0xFF;
+        finalBuffer[35] = crc & 0xFF;
+
+        // 4. Кодируем в Base64URL
+        const base64 = btoa(String.fromCharCode.apply(null, finalBuffer));
+        const nftItemAddress = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        
         console.log("Target NFT Address:", nftItemAddress);
 
         // 2. Ручная сборка TEP-62 Payload (Transfer NFT)
